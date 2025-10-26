@@ -1,94 +1,103 @@
-# 10x Astro Starter
+# 10xCards
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+A modern web application enabling fast, AI-powered generation and management of high-quality educational flashcards, integrated with a spaced-repetition system (SRS) and built with Astro, React, and Supabase.
+
+## Table of Contents
+
+1. [Project Description](#project-description)  
+2. [Tech Stack](#tech-stack)  
+3. [Getting Started](#getting-started)  
+4. [Available Scripts](#available-scripts)  
+5. [Project Scope](#project-scope)  
+6. [Project Status & Metrics](#project-status--metrics)  
+7. [License](#license)
+
+## Project Description
+
+10xCards empowers users to quickly create flashcards from arbitrary text (500–15,000 characters) via a large language model (LLM) API. Users can batch-generate up to 10 cards in JSON format, manually create, edit, or delete cards, and schedule reviews using an open-source SRS algorithm. The application also handles user authentication, GDPR compliance, and basic telemetry for AI-generated card acceptance.
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
-
-## Prerequisites
-
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+- **Frontend:** Astro 5, React 19, TypeScript 5  
+- **Styling:** Tailwind CSS 4, Shadcn/ui  
+- **Backend:** Supabase (PostgreSQL, Auth)  
+- **AI Integration:** Openrouter.ai (OpenAI, Anthropic, Google models)  
+- **CI/CD & Hosting:** GitHub Actions, Docker, DigitalOcean  
 
 ## Getting Started
 
-1. Clone the repository:
+### Prerequisites
 
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+- Node.js v22.14.0 (use [nvm](https://github.com/nvm-sh/nvm) if needed)  
+- Git  
+- A Supabase project and API keys  
+- An Openrouter.ai API key  
 
-2. Install dependencies:
+### Local Setup
 
-```bash
-npm install
-```
-
-3. Run the development server:
-
-```bash
-npm run dev
-```
-
-4. Build for production:
-
-```bash
-npm run build
-```
+1. Clone the repository:  
+   ```bash
+   git clone https://github.com/PrzeFor/10xCards.git
+   cd 10xCards
+   ```
+2. Install dependencies:  
+   ```bash
+   npm install
+   ```
+3. Copy and configure environment variables:  
+   ```bash
+   cp .env.example .env
+   # Set SUPABASE_URL, SUPABASE_ANON_KEY, OPENROUTER_API_KEY, etc.
+   ```
+4. Start the development server:  
+   ```bash
+   npm run dev
+   ```
+5. Open your browser at `http://localhost:3000`
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+- `npm run dev`  
+  Start Astro development server.  
+- `npm run build`  
+  Build for production.  
+- `npm run preview`  
+  Preview production build locally.  
+- `npm run lint`  
+  Run ESLint.  
+- `npm run lint:fix`  
+  Run ESLint with auto-fix.  
+- `npm run format`  
+  Format code with Prettier.
 
-## Project Structure
+## Project Scope
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+**Core Features (MVP):**
+- Import text (500–15,000 chars) for AI flashcard generation  
+- Batch generation of up to 10 cards (JSON)  
+- Manual flashcard creation, editing, deletion (Front/Back, 500–1500 chars)  
+- User registration, login, and JWT/session-based auth  
+- SRS algorithm integration for spaced repetition  
+- Flashcard review sessions with difficulty rating  
+- Telemetry: track Generated, Accepted, Edited, Rejected events  
+- GDPR compliance: data export, account & data deletion
 
-## AI Development Support
+**Excluded in MVP:**
+- PDF/DOCX import  
+- Sharing flashcard sets between users  
+- Email verification  
+- Advanced tagging/folders  
+- Mobile app
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+## Project Status & Metrics
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
-
-### Cursor IDE
-
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
-
-### GitHub Copilot
-
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
-
-### Windsurf
-
-The `.windsurfrules` file contains AI configuration for Windsurf.
-
-## Contributing
-
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+- **Status:** 🚧 In development (MVP phase)  
+- **Success Metrics:**  
+  - ≥75% acceptance rate for AI-generated cards  
+  - ≥75% overall card acceptance (AI-generated & manual)  
+- **Telemetry:** Generated, Accepted, Edited, Rejected events collected
 
 ## License
 
-MIT
+This project is licensed under the MIT License.  
+<!-- Replace with your preferred license and link -->
