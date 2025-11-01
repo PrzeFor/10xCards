@@ -64,6 +64,7 @@ export type CreateGenerationResponseDto = {
     model: string;
     status: GenerationStatus;
     generated_count: number;
+    source_text_length: number;
     flashcards_proposals: FlashcardProposalDto[];
 };
 
@@ -108,6 +109,7 @@ export type GetGenerationResponseDto = Pick<
     | 'generated_count'
     | 'accepted_unedited_count'
     | 'accepted_edited_count'
+    | 'source_text_length'
 >;
 
 /**

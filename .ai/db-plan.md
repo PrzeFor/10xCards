@@ -30,7 +30,7 @@
   - `accepted_unedited_count` INTEGER NULLABLE
   - `accepted_edited_count` INTEGER NULLABLE
   - `source_text` VARCHAR NOT NULL
-  - `source_text_length` VARCHAR(15000) NOT NULL CHECK (char_length(source_text) BETWEEN 500 AND 15000)  
+  - `source_text_length` INTEGER NOT NULL CHECK (source_text_length) BETWEEN 500 AND 15000)  
   - `status` generation_status NOT NULL  
   - `generation_druration` INTEGER NOT NULL DEFAULT
   - `created_at` TIMESTAMPTZ NOT NULL DEFAULT now()  

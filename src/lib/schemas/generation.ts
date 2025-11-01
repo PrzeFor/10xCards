@@ -36,6 +36,7 @@ export const createGenerationResponseSchema = z.object({
   model: z.string().min(1),
   status: z.enum(['pending', 'completed', 'failed'] as const),
   generated_count: z.number().int().min(0),
+  source_text_length: z.number().int().min(500).max(15000),
   flashcards_proposals: z.array(flashcardProposalSchema)
 }) satisfies z.ZodType<CreateGenerationResponseDto>;
 

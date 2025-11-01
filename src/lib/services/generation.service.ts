@@ -34,6 +34,9 @@ export class GenerationService {
     
     // Generate MD5 hash for the generation ID based on source text and timestamp
     const generationHash = this.generateHash(sourceText + Date.now().toString());
+    // Calculate source text length
+    const sourceTextLength = sourceText.length;
+    
     // Start transaction by creating initial generation record
     const { data: generation, error: insertError } = await this.supabase
       .from('generations')
@@ -41,11 +44,12 @@ export class GenerationService {
         id: generationHash,
         user_id: userId,
         source_text: sourceText,
+        source_text_length: sourceTextLength,
         status: 'pending' as GenerationStatus,
         model: 'pending', // Will be updated after AI call
         generated_count: 0
       })
-      .select('id')
+      .select('id, source_text_length')
       .single();
 
     if (insertError || !generation) {
@@ -106,6 +110,7 @@ export class GenerationService {
         model: aiResponse.model,
         status: 'completed',
         generated_count: flashcardProposals.length,
+        source_text_length: generation.source_text_length,
         flashcards_proposals: flashcardProposals
       };
 
