@@ -64,7 +64,7 @@ export type CreateGenerationResponseDto = {
     model: string;
     status: GenerationStatus;
     generated_count: number;
-    source_text_length: number;
+    generation_duration: number; // Duration in milliseconds
     flashcards_proposals: FlashcardProposalDto[];
 };
 

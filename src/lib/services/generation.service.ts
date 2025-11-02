@@ -32,6 +32,9 @@ export class GenerationService {
     // Use default user ID for development phase
     const userId = DEFAULT_USER_ID;
     
+    // Start timing the generation process
+    const startTime = Date.now();
+    
     // Generate MD5 hash for the generation ID based on source text and timestamp
     const generationHash = this.generateHash(sourceText + Date.now().toString());
     // Calculate source text length
@@ -63,32 +66,21 @@ export class GenerationService {
       // Limit the number of flashcards
       const limitedFlashcards = aiResponse.flashcards.slice(0, this.MAX_FLASHCARDS);
       
-      // Prepare flashcard proposals for database insertion
-      const flashcardInserts = limitedFlashcards.map(card => ({
-        user_id: userId,
-        generation_id: generation.id,
-        front: card.front,
-        back: card.back,
-        source: 'ai_full' as const
-      }));
+      // NOTE: Flashcards are NOT saved to database automatically
+      // User will approve/reject these proposals later via separate endpoint
 
-      // Batch insert flashcards
-      const { data: insertedFlashcards, error: flashcardsError } = await this.supabase
-        .from('flashcards')
-        .insert(flashcardInserts)
-        .select('id, front, back, source');
-
-      if (flashcardsError) {
-        throw new Error(`Failed to insert flashcards: ${flashcardsError.message}`);
-      }
-
+      // Calculate generation duration
+      const endTime = Date.now();
+      const generationDuration = endTime - startTime;
+      
       // Update generation record with success status
       const { error: updateError } = await this.supabase
         .from('generations')
         .update({
           status: 'completed' as GenerationStatus,
           model: aiResponse.model,
-          generated_count: insertedFlashcards?.length || 0,
+          generated_count: limitedFlashcards.length,
+          generation_duration: generationDuration,
           updated_at: new Date().toISOString()
         })
         .eq('id', generation.id);
@@ -97,12 +89,13 @@ export class GenerationService {
         throw new Error(`Failed to update generation status: ${updateError.message}`);
       }
 
-      // Prepare response
-      const flashcardProposals: FlashcardProposalDto[] = (insertedFlashcards || []).map(card => ({
-        id: card.id,
+      // Prepare flashcard proposals (NOT saved to database yet)
+      // Generate temporary IDs for frontend use
+      const flashcardProposals: FlashcardProposalDto[] = limitedFlashcards.map((card, index) => ({
+        id: this.generateHash(`${generation.id}-${index}-${card.front}`),
         front: card.front,
         back: card.back,
-        source: card.source
+        source: 'ai_full' as const
       }));
 
       return {
@@ -110,7 +103,7 @@ export class GenerationService {
         model: aiResponse.model,
         status: 'completed',
         generated_count: flashcardProposals.length,
-        source_text_length: generation.source_text_length,
+        generation_duration: generationDuration,
         flashcards_proposals: flashcardProposals
       };
 
