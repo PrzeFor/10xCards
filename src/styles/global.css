@@ -118,3 +118,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Utility classes for text wrapping */
+  .break-words {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+}

@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+import GenerationsView from '../components/GenerationsView';
+---
+
+<Layout title="Generowanie fiszek AI - 10xCards">
+  <main class="min-h-screen bg-background">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+      <header class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">
+          Generowanie fiszek AI
+        </h1>
+        <p class="text-muted-foreground">
+          Wklej tekst (500-15,000 znaków), a AI wygeneruje dla Ciebie propozycje fiszek do nauki.
+        </p>
+      </header>
+      
+      <GenerationsView client:load />
+    </div>
+  </main>
+</Layout>
