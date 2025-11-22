@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -7,51 +9,27 @@ import { InlineError } from './InlineError';
 import { RegisterSchema, type RegisterFormData } from '@/lib/schemas/auth';
 
 export function RegistrationForm() {
-  const [formData, setFormData] = useState<RegisterFormData>({
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [errors, setErrors] = useState<Partial<Record<keyof RegisterFormData, string>>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [requiresEmailConfirmation, setRequiresEmailConfirmation] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Clear field error when user starts typing
-    if (errors[name as keyof RegisterFormData]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
-    }
-    if (serverError) {
-      setServerError('');
-    }
-  };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(RegisterSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Clear previous errors
-    setErrors({});
+  const onSubmit = async (formData: RegisterFormData) => {
+    // Clear previous server errors
     setServerError('');
-
-    // Validate form data
-    const result = RegisterSchema.safeParse(formData);
-    
-    if (!result.success) {
-      const fieldErrors: Partial<Record<keyof RegisterFormData, string>> = {};
-      result.error.errors.forEach((error) => {
-        const field = error.path[0] as keyof RegisterFormData;
-        if (field && !fieldErrors[field]) {
-          fieldErrors[field] = error.message;
-        }
-      });
-      setErrors(fieldErrors);
-      return;
-    }
-
-    setIsSubmitting(true);
 
     try {
       const response = await fetch('/api/auth/register', {
@@ -68,22 +46,68 @@ export function RegistrationForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        if (data.errors) {
-          setErrors(data.errors);
-        } else {
-          setServerError(data.message || 'Wystąpił błąd podczas rejestracji');
-        }
+        setServerError(data.error || 'Wystąpił błąd podczas rejestracji');
         return;
       }
 
-      // Success - redirect to generations page
-      window.location.href = '/generations';
+      // Success - check if email confirmation is required
+      if (data.requiresEmailConfirmation) {
+        // Show email confirmation message
+        setSuccessMessage(data.message);
+        setRequiresEmailConfirmation(true);
+      } else {
+        // If no email confirmation needed, redirect immediately
+        window.location.href = '/generations';
+      }
     } catch (error) {
       setServerError('Wystąpił błąd połączenia. Spróbuj ponownie.');
-    } finally {
-      setIsSubmitting(false);
     }
   };
+
+  // Show success message if email confirmation is required
+  if (requiresEmailConfirmation && successMessage) {
+    return (
+      <Card className="hover-lift">
+        <CardHeader>
+          <CardTitle className="text-brand">Sprawdź swoją skrzynkę e-mail</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <div className="rounded-lg bg-green-50 dark:bg-green-950/30 p-4 border border-green-200 dark:border-green-800">
+              <p className="text-sm text-green-800 dark:text-green-300">
+                {successMessage}
+              </p>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Po kliknięciu w link aktywacyjny będziesz mógł się zalogować i korzystać z aplikacji.
+            </p>
+          </div>
+
+          <Button 
+            onClick={() => window.location.href = '/auth/login'}
+            className="w-full"
+            size="lg"
+          >
+            Przejdź do logowania
+          </Button>
+
+          <p className="text-center text-caption text-muted-foreground">
+            Nie otrzymałeś e-maila?{' '}
+            <button
+              onClick={() => {
+                setRequiresEmailConfirmation(false);
+                setSuccessMessage('');
+                reset();
+              }}
+              className="text-brand hover:underline font-medium"
+            >
+              Spróbuj ponownie
+            </button>
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="hover-lift">
@@ -91,25 +115,23 @@ export function RegistrationForm() {
         <CardTitle className="text-brand">Utwórz konto</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             {/* Email field */}
             <div className="space-y-2">
               <Label htmlFor="email">Adres e-mail</Label>
               <Input
                 id="email"
-                name="email"
                 type="email"
-                value={formData.email}
-                onChange={handleChange}
                 placeholder="twoj.email@example.com"
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? 'email-error' : undefined}
                 disabled={isSubmitting}
                 autoComplete="email"
+                {...register('email')}
               />
               {errors.email && (
-                <InlineError id="email-error" message={errors.email} />
+                <InlineError id="email-error" message={errors.email.message!} />
               )}
             </div>
 
@@ -118,18 +140,16 @@ export function RegistrationForm() {
               <Label htmlFor="password">Hasło</Label>
               <Input
                 id="password"
-                name="password"
                 type="password"
-                value={formData.password}
-                onChange={handleChange}
                 placeholder="Minimum 8 znaków"
                 aria-invalid={!!errors.password}
                 aria-describedby={errors.password ? 'password-error' : undefined}
                 disabled={isSubmitting}
                 autoComplete="new-password"
+                {...register('password')}
               />
               {errors.password && (
-                <InlineError id="password-error" message={errors.password} />
+                <InlineError id="password-error" message={errors.password.message!} />
               )}
             </div>
 
@@ -138,18 +158,16 @@ export function RegistrationForm() {
               <Label htmlFor="confirmPassword">Potwierdź hasło</Label>
               <Input
                 id="confirmPassword"
-                name="confirmPassword"
                 type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
                 placeholder="Powtórz hasło"
                 aria-invalid={!!errors.confirmPassword}
                 aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined}
                 disabled={isSubmitting}
                 autoComplete="new-password"
+                {...register('confirmPassword')}
               />
               {errors.confirmPassword && (
-                <InlineError id="confirmPassword-error" message={errors.confirmPassword} />
+                <InlineError id="confirmPassword-error" message={errors.confirmPassword.message!} />
               )}
             </div>
 

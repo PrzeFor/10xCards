@@ -40,10 +40,13 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
     });
 
     // Get the base URL for the redirect
+    // Use the full URL including protocol, domain, and path
     const origin = url.origin;
     const redirectTo = `${origin}/auth/reset-password`;
 
     // Send password reset email
+    // Note: The redirectTo URL must be configured in Supabase dashboard under:
+    // Authentication > URL Configuration > Redirect URLs
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,
     });

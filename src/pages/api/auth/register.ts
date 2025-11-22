@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { RegisterSchema } from '@/lib/schemas/auth';
+import { RegisterApiSchema } from '@/lib/schemas/auth';
 
 export const prerender = false;
 
@@ -13,7 +13,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const body = await request.json();
 
     // Validate input with Zod schema
-    const validation = RegisterSchema.safeParse(body);
+    const validation = RegisterApiSchema.safeParse(body);
     
     if (!validation.success) {
       return new Response(
@@ -43,6 +43,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: `${new URL(request.url).origin}/generations`,
+      }
     });
 
     // Handle registration errors
@@ -79,12 +82,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Return success response with user data
+    // Note: requiresEmailConfirmation indicates whether the user needs to confirm their email
+    // If email confirmation is required, the user won't be logged in until they click the link
     return new Response(
       JSON.stringify({ 
         user: {
           id: data.user.id,
           email: data.user.email,
-        }
+        },
+        requiresEmailConfirmation: !data.session, // No session means email confirmation is required
+        message: !data.session 
+          ? 'Na Twój adres e-mail został wysłany link aktywacyjny. Potwierdź swoje konto, aby się zalogować.'
+          : 'Rejestracja zakończona pomyślnie!'
       }), 
       {
         status: 200,
