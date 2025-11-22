@@ -69,7 +69,9 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
     }
   };
 
-  const handleSave = () => {
+  const handleSave = (e?: React.FormEvent) => {
+    e?.preventDefault();
+
     const frontValidationError = validateFront(front);
     const backValidationError = validateBack(back);
 
@@ -94,94 +96,97 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
   };
 
   const isValid = front.trim() && back.trim() && front.length <= 300 && back.length <= 500;
-  const hasChanges = front !== (proposal.editedFront || proposal.front) || 
-                     back !== (proposal.editedBack || proposal.back);
+  const hasChanges = front !== (proposal.editedFront || proposal.front) ||
+    back !== (proposal.editedBack || proposal.back);
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto"
         onKeyDown={handleKeyDown}
         aria-labelledby="edit-modal-title"
         aria-describedby="edit-modal-description"
       >
         <DialogHeader>
-          <DialogTitle id="edit-modal-title">
+          <DialogTitle>
             Edytuj fiszkę
           </DialogTitle>
-          <DialogDescription id="edit-modal-description">
+          <DialogDescription>
             Wprowadź zmiany w treści fiszki. Użyj Ctrl+Enter aby zapisać lub Escape aby anulować.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          <div className="space-y-3">
-            <Label htmlFor="front-input">
-              Przód fiszki
-            </Label>
-            <Textarea
-              id="front-input"
-              value={front}
-              onChange={handleFrontChange}
-              placeholder="Wprowadź treść przodu fiszki..."
-              className="min-h-[80px] resize-y"
-              aria-describedby={frontError ? "front-error" : undefined}
-              aria-invalid={!!frontError}
-            />
-            <div className="flex justify-between items-center text-caption text-muted-foreground">
-              <span>Znaki: {front.length} / 300</span>
-              {front.length > 250 && (
-                <span className={front.length > 300 ? 'text-danger' : 'text-warning'}>
-                  {front.length > 300 ? 'Przekroczono limit!' : 'Zbliżasz się do limitu'}
-                </span>
+        <form onSubmit={handleSave}>
+          <div className="space-y-6 py-4">
+            <div className="space-y-3">
+              <Label htmlFor="front-input">
+                Przód fiszki
+              </Label>
+              <Textarea
+                id="front-input"
+                value={front}
+                onChange={handleFrontChange}
+                placeholder="Wprowadź treść przodu fiszki..."
+                className="min-h-[80px] resize-y"
+                aria-describedby={frontError ? "front-error" : undefined}
+                aria-invalid={!!frontError}
+              />
+              <div className="flex justify-between items-center text-caption text-muted-foreground">
+                <span>Znaki: {front.length} / 300</span>
+                {front.length > 250 && (
+                  <span className={front.length > 300 ? 'text-danger' : 'text-warning'}>
+                    {front.length > 300 ? 'Przekroczono limit!' : 'Zbliżasz się do limitu'}
+                  </span>
+                )}
+              </div>
+              {frontError && (
+                <InlineError id="front-error" message={frontError} />
               )}
             </div>
-            {frontError && (
-              <InlineError id="front-error" message={frontError} />
-            )}
-          </div>
 
-          <div className="space-y-3">
-            <Label htmlFor="back-input">
-              Tył fiszki
-            </Label>
-            <Textarea
-              id="back-input"
-              value={back}
-              onChange={handleBackChange}
-              placeholder="Wprowadź treść tyłu fiszki..."
-              className="min-h-[120px] resize-y"
-              aria-describedby={backError ? "back-error" : undefined}
-              aria-invalid={!!backError}
-            />
-            <div className="flex justify-between items-center text-xs text-muted-foreground">
-              <span>Znaki: {back.length} / 500</span>
-              {back.length > 400 && (
-                <span className={back.length > 500 ? 'text-destructive' : 'text-amber-600'}>
-                  {back.length > 500 ? 'Przekroczono limit!' : 'Zbliżasz się do limitu'}
-                </span>
+            <div className="space-y-3">
+              <Label htmlFor="back-input">
+                Tył fiszki
+              </Label>
+              <Textarea
+                id="back-input"
+                value={back}
+                onChange={handleBackChange}
+                placeholder="Wprowadź treść tyłu fiszki..."
+                className="min-h-[120px] resize-y"
+                aria-describedby={backError ? "back-error" : undefined}
+                aria-invalid={!!backError}
+              />
+              <div className="flex justify-between items-center text-xs text-muted-foreground">
+                <span>Znaki: {back.length} / 500</span>
+                {back.length > 400 && (
+                  <span className={back.length > 500 ? 'text-destructive' : 'text-amber-600'}>
+                    {back.length > 500 ? 'Przekroczono limit!' : 'Zbliżasz się do limitu'}
+                  </span>
+                )}
+              </div>
+              {backError && (
+                <InlineError id="back-error" message={backError} />
               )}
             </div>
-            {backError && (
-              <InlineError id="back-error" message={backError} />
-            )}
           </div>
-        </div>
 
-        <DialogFooter className="gap-2">
-          <Button
-            variant="outline"
-            onClick={onClose}
-          >
-            Anuluj
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={!isValid || !hasChanges}
-          >
-            Zapisz zmiany
-          </Button>
-        </DialogFooter>
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+            >
+              Anuluj
+            </Button>
+            <Button
+              type="submit"
+              disabled={!isValid || !hasChanges}
+            >
+              Zapisz zmiany
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
