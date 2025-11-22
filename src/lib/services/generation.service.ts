@@ -2,12 +2,15 @@ import { createHash } from 'crypto';
 import type { SupabaseClient } from '../../db/supabase.client';
 import type { Database } from '../../db/database.types';
 import { DEFAULT_USER_ID } from '../../db/supabase.client';
-import type { 
-  CreateGenerationResponseDto, 
+import type {
+  CreateGenerationResponseDto,
   FlashcardProposalDto,
-  GenerationStatus 
+  GenerationStatus
 } from '../../types';
 import { aiServiceResponseSchema, type AIServiceResponse } from '../schemas/generation';
+import { createFlashcardGenerationService } from './openRouter/openRouter.factory';
+import type { ChatMessage, ResponseFormat } from './openRouter/openRouter.types';
+import { OpenRouterError } from './openRouter/openRouter.types';
 
 /**
  * Service for handling flashcard generation operations
@@ -31,15 +34,15 @@ export class GenerationService {
   ): Promise<CreateGenerationResponseDto> {
     // Use default user ID for development phase
     const userId = DEFAULT_USER_ID;
-    
+
     // Start timing the generation process
     const startTime = Date.now();
-    
+
     // Generate MD5 hash for the generation ID based on source text and timestamp
     const generationHash = this.generateHash(sourceText + Date.now().toString());
     // Calculate source text length
     const sourceTextLength = sourceText.length;
-    
+
     // Start transaction by creating initial generation record
     const { data: generation, error: insertError } = await this.supabase
       .from('generations')
@@ -62,17 +65,17 @@ export class GenerationService {
     try {
       // Call AI service to generate flashcards
       const aiResponse = await this.callAIService(sourceText);
-      
+
       // Limit the number of flashcards
       const limitedFlashcards = aiResponse.flashcards.slice(0, this.MAX_FLASHCARDS);
-      
+
       // NOTE: Flashcards are NOT saved to database automatically
       // User will approve/reject these proposals later via separate endpoint
 
       // Calculate generation duration
       const endTime = Date.now();
       const generationDuration = endTime - startTime;
-      
+
       // Update generation record with success status
       const { error: updateError } = await this.supabase
         .from('generations')
@@ -119,15 +122,15 @@ export class GenerationService {
    */
   private async callAIService(sourceText: string): Promise<AIServiceResponse> {
     const openrouterApiKey = import.meta.env.OPENROUTER_API_KEY;
-    
+
     if (!openrouterApiKey) {
       throw new Error('OPENROUTER_API_KEY environment variable is not set');
     }
 
     const prompt = this.buildAIPrompt(sourceText);
-    
+
     let lastError: Error | null = null;
-    
+
     // Retry logic with exponential backoff
     for (let attempt = 0; attempt <= this.MAX_RETRIES; attempt++) {
       try {
@@ -143,7 +146,7 @@ export class GenerationService {
             'X-Title': '10xCards'
           },
           body: JSON.stringify({
-            model: 'anthropic/claude-3.5-sonnet',
+            model: 'openai/gpt-4o-mini',
             messages: [
               {
                 role: 'user',
@@ -163,7 +166,7 @@ export class GenerationService {
         }
 
         const data = await response.json();
-        
+
         if (!data.choices?.[0]?.message?.content) {
           throw new Error('Invalid response format from AI service');
         }
@@ -171,7 +174,7 @@ export class GenerationService {
         // Parse the JSON response from AI
         const aiContent = data.choices[0].message.content;
         let parsedContent: any;
-        
+
         try {
           parsedContent = JSON.parse(aiContent);
         } catch (parseError) {
@@ -188,13 +191,13 @@ export class GenerationService {
 
       } catch (error) {
         lastError = error as Error;
-        
+
         // Don't retry on validation errors or abort errors
-        if (error instanceof Error && 
-            (error.name === 'AbortError' || error.message.includes('parse'))) {
+        if (error instanceof Error &&
+          (error.name === 'AbortError' || error.message.includes('parse'))) {
           break;
         }
-        
+
         // Wait before retry (exponential backoff)
         if (attempt < this.MAX_RETRIES) {
           await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));

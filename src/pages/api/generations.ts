@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { createGenerationRequestSchema } from '../../lib/schemas/generation';
 import { GenerationService } from '../../lib/services/generation.service';
 import { DEFAULT_USER_ID } from '../../db/supabase.client';
+import { OpenRouterError } from '../../lib/services/openRouter/openRouter.types';
 
 const prerender = false;
 
@@ -107,7 +108,92 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Log error for debugging (in production, use proper logging service)
     console.error('Generation endpoint error:', error);
 
-    // Determine error type and response
+    // Handle OpenRouterError specifically
+    if (error instanceof OpenRouterError) {
+      const statusCode = error.statusCode || 500;
+
+      switch (error.code) {
+        case 'MISSING_API_KEY':
+        case 'AUTHENTICATION_FAILED':
+          return new Response(
+            JSON.stringify({
+              code: 'ConfigurationError',
+              message: 'AI service configuration error'
+            } as ErrorResponse),
+            {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+
+        case 'RATE_LIMIT_EXCEEDED':
+          return new Response(
+            JSON.stringify({
+              code: 'RateLimitExceeded',
+              message: 'Too many requests. Please try again later.'
+            } as ErrorResponse),
+            {
+              status: 429,
+              headers: {
+                'Content-Type': 'application/json',
+                'Retry-After': '60'
+              }
+            }
+          );
+
+        case 'NETWORK_ERROR':
+          return new Response(
+            JSON.stringify({
+              code: 'NetworkError',
+              message: 'Network error occurred. Please check your connection.'
+            } as ErrorResponse),
+            {
+              status: 503,
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+
+        case 'MAX_RETRIES_EXCEEDED':
+        case 'SERVER_ERROR':
+          return new Response(
+            JSON.stringify({
+              code: 'AIServiceError',
+              message: 'AI service is temporarily unavailable. Please try again later.'
+            } as ErrorResponse),
+            {
+              status: 503,
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+
+        case 'SCHEMA_VALIDATION_FAILED':
+        case 'INVALID_RESPONSE_FORMAT':
+          return new Response(
+            JSON.stringify({
+              code: 'AIServiceError',
+              message: 'AI service returned invalid data. Please try again.'
+            } as ErrorResponse),
+            {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+
+        default:
+          return new Response(
+            JSON.stringify({
+              code: 'AIServiceError',
+              message: error.message || 'Failed to generate flashcards. Please try again.'
+            } as ErrorResponse),
+            {
+              status: statusCode >= 400 ? statusCode : 500,
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+      }
+    }
+
+    // Determine error type and response for other errors
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
     // Check for specific error types
