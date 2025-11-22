@@ -1,0 +1,18 @@
+---
+import AuthLayout from '../../../components/layouts/AuthLayout.astro';
+import { ResetPasswordForm } from '../../../components/ResetPasswordForm';
+
+export const prerender = false;
+
+const { token } = Astro.params;
+
+// Validate token parameter
+if (!token || typeof token !== 'string') {
+  return Astro.redirect('/auth/forgot-password');
+}
+---
+
+<AuthLayout title="Resetuj hasło - 10xCards" subtitle="Ustaw nowe, bezpieczne hasło">
+  <ResetPasswordForm client:load token={token} />
+</AuthLayout>
+

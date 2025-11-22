@@ -1,0 +1,28 @@
+---
+import Layout from './Layout.astro';
+
+interface Props {
+  title: string;
+  subtitle: string;
+}
+
+const { title, subtitle } = Astro.props;
+---
+
+<Layout title={title}>
+  <div class="min-h-screen bg-background flex justify-center pt-16 pb-fluent-xxl">
+    <div class="container mx-auto px-fluent-xl max-w-md">
+      <header class="mb-fluent-xl text-center">
+        <h1 class="text-display text-brand mb-fluent-m">
+          10xCards
+        </h1>
+        <p class="text-subtitle text-muted-foreground">
+          {subtitle}
+        </p>
+      </header>
+      
+      <slot />
+    </div>
+  </div>
+</Layout>
+

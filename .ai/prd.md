@@ -195,8 +195,29 @@ Kryteria akceptacji:
   - dane są trwale usunięte z bazy
   - użytkownik jest wylogowany i przekierowany na stronę główną
 
+US-010
+Tytuł: Kolekcje fiszek
+Opis: Jako użytkownik chcę mieć możliwość tworzenia i zarządzania kolekcjami fiszek, aby w przyszłości szybko korzystać z gotowych zestawów.
+Kryteria akceptacji:
+  1. Użytkownik może tworzyć nowe kolekcje fiszek.
+  2. Użytkownik może dodawać lub usuwać fiszki w istniejących kolekcjach.
+  3. Użytkownik może edytować nazwę i opis kolekcji.
+  4. Użytkownik może usuwać całe kolekcje fiszek.
+  5. Zarządzanie kolekcjami jest dostępne tylko dla zalogowanych użytkowników.
 
-## 6. Metryki sukcesu
+US-011
+Tytuł: Bezpieczny dostęp
+Opis: Jako użytkownik chcę bezpiecznie się rejestrować i logować, aby chronić moje dane oraz korzystać z pełnej funkcjonalności aplikacji.
+Kryteria akceptacji:
+  1. Rejestracja wymaga podania adresu e-mail i hasła spełniającego wymagania bezpieczeństwa.
+  2. Logowanie wymaga podania adresu e-mail i hasła.
+  3. Logowanie i rejestracja odbywają się na dedykowanych stronach/formularzach.
+  4. Użytkownik nie może korzystać z funkcji zarządzania fiszkami ani ćwiczeń bez zalogowania.
+  5. Nie są wykorzystywane zewnętrzne usługi logowania (np. Google, GitHub).
+  6. Użytkownik może logować się i wylogowywać za pomocą przycisków w prawym górnym rogu aplikacji.
+  7. Dostępna jest opcja odzyskiwania hasła.
+
+## 12. Metryki sukcesu
 - Metryka 1 – Efektywność automatycznego generowania: odsetek zaakceptowanych fiszek spośród wszystkich wygenerowanych przez AI ≥ 75%
 - Metryka 2 – Zaangażowanie użytkownika: odsetek zaakceptowanych fiszek spośród wszystkich przedstawionych użytkownikowi (AI i manualnych) ≥ 75%
 - Telemetria: zbieranie zdarzeń Generated, Accepted, Edited

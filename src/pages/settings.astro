@@ -1,0 +1,29 @@
+---
+import Layout from '../components/layouts/Layout.astro';
+import { AccountSettings } from '../components/AccountSettings';
+
+// Check if user is logged in
+// When backend is implemented, uncomment this:
+// const session = await Astro.locals.supabase.auth.getSession();
+// if (!session?.data?.session) {
+//   return Astro.redirect('/login');
+// }
+---
+
+<Layout title="Ustawienia konta - 10xCards">
+  <div class="min-h-screen bg-background">
+    <div class="container mx-auto px-fluent-xl py-fluent-xxl max-w-2xl">
+      <header class="mb-fluent-xxl">
+        <h1 class="text-display text-brand mb-fluent-m">
+          Ustawienia konta
+        </h1>
+        <p class="text-subtitle text-muted-foreground">
+          Zarządzaj swoim kontem i preferencjami
+        </p>
+      </header>
+      
+      <AccountSettings client:load />
+    </div>
+  </div>
+</Layout>
+

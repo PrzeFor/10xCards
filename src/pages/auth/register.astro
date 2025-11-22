@@ -1,0 +1,18 @@
+---
+import AuthLayout from '../../components/layouts/AuthLayout.astro';
+import { RegistrationForm } from '../../components/RegistrationForm';
+
+export const prerender = false;
+
+// Check if user is already logged in
+const { user } = Astro.locals;
+
+if (user) {
+  return Astro.redirect('/generations');
+}
+---
+
+<AuthLayout title="Rejestracja - 10xCards" subtitle="Zacznij swoją przygodę z fiszkami AI">
+  <RegistrationForm client:load />
+</AuthLayout>
+
