@@ -1,0 +1,340 @@
+/* Microsoft Fluent 2.0 Design Tokens */
+
+:root {
+  /* ===== KOLORY NEUTRALNE ===== */
+  
+  /* Tła */
+  --colorNeutralBackground1: #ffffff;
+  --colorNeutralBackground2: #fafafa;
+  --colorNeutralBackground3: #f5f5f5;
+  --colorNeutralBackground4: #f0f0f0;
+  --colorNeutralBackground5: #ebebeb;
+  --colorNeutralBackground6: #e1e1e1;
+  
+  /* Tła - stany interakcji */
+  --colorNeutralBackground1Hover: #f9f9f9;
+  --colorNeutralBackground1Pressed: #f0f0f0;
+  --colorNeutralBackground1Selected: #ebebeb;
+  
+  --colorNeutralBackground2Hover: #f5f5f5;
+  --colorNeutralBackground2Pressed: #ebebeb;
+  --colorNeutralBackground2Selected: #e1e1e1;
+  
+  /* Tekst */
+  --colorNeutralForeground1: #242424;
+  --colorNeutralForeground2: #424242;
+  --colorNeutralForeground3: #616161;
+  --colorNeutralForeground4: #757575;
+  --colorNeutralForegroundDisabled: #bdbdbd;
+  
+  /* Obramowania */
+  --colorNeutralStroke1: #d1d1d1;
+  --colorNeutralStroke2: #c7c7c7;
+  --colorNeutralStroke3: #b3b3b3;
+  --colorNeutralStrokeAccessible: #616161;
+  --colorNeutralStrokeDisabled: #e0e0e0;
+  
+  /* ===== KOLORY BRANDOWE ===== */
+  
+  --colorBrandBackground: #0078d4;
+  --colorBrandBackgroundHover: #106ebe;
+  --colorBrandBackgroundPressed: #005a9e;
+  --colorBrandBackgroundSelected: #0078d4;
+  
+  --colorBrandForeground1: #0078d4;
+  --colorBrandForeground2: #106ebe;
+  --colorBrandForegroundInverted: #ffffff;
+  --colorBrandForegroundOnLight: #0078d4;
+  --colorBrandForegroundDisabled: #bdbdbd;
+  
+  --colorBrandStroke1: #0078d4;
+  --colorBrandStroke2: #106ebe;
+  
+  /* ===== KOLORY STATUSÓW ===== */
+  
+  /* Sukces */
+  --colorStatusSuccessBackground1: #f3f9f1;
+  --colorStatusSuccessBackground2: #dff6dd;
+  --colorStatusSuccessBackground3: #107c10;
+  --colorStatusSuccessForeground1: #107c10;
+  --colorStatusSuccessForeground2: #0e700e;
+  --colorStatusSuccessForeground3: #ffffff;
+  --colorStatusSuccessBorder1: #9fd89c;
+  --colorStatusSuccessBorder2: #107c10;
+  
+  /* Ostrzeżenie */
+  --colorStatusWarningBackground1: #fff8f0;
+  --colorStatusWarningBackground2: #ffeaa6;
+  --colorStatusWarningBackground3: #ff8c00;
+  --colorStatusWarningForeground1: #bc4b09;
+  --colorStatusWarningForeground2: #8a3707;
+  --colorStatusWarningForeground3: #ffffff;
+  --colorStatusWarningBorder1: #ffcc9c;
+  --colorStatusWarningBorder2: #ff8c00;
+  
+  /* Błąd */
+  --colorStatusDangerBackground1: #fdf3f4;
+  --colorStatusDangerBackground2: #f7d7d9;
+  --colorStatusDangerBackground3: #d13438;
+  --colorStatusDangerForeground1: #d13438;
+  --colorStatusDangerForeground2: #b22a2d;
+  --colorStatusDangerForeground3: #ffffff;
+  --colorStatusDangerBorder1: #e6a5a7;
+  --colorStatusDangerBorder2: #d13438;
+  
+  /* Informacja */
+  --colorStatusInfoBackground1: #f0f6ff;
+  --colorStatusInfoBackground2: #cce7ff;
+  --colorStatusInfoBackground3: #0078d4;
+  --colorStatusInfoForeground1: #0078d4;
+  --colorStatusInfoForeground2: #106ebe;
+  --colorStatusInfoForeground3: #ffffff;
+  --colorStatusInfoBorder1: #92c5f7;
+  --colorStatusInfoBorder2: #0078d4;
+  
+  /* ===== TYPOGRAFIA ===== */
+  
+  /* Rozmiary czcionek */
+  --fontSizeBase100: 10px;
+  --fontSizeBase200: 12px;
+  --fontSizeBase300: 14px;
+  --fontSizeBase400: 16px;
+  --fontSizeBase500: 20px;
+  --fontSizeBase600: 24px;
+  --fontSizeHero700: 28px;
+  --fontSizeHero800: 32px;
+  --fontSizeHero900: 40px;
+  --fontSizeHero1000: 68px;
+  
+  /* Wagi czcionek */
+  --fontWeightRegular: 400;
+  --fontWeightMedium: 500;
+  --fontWeightSemibold: 600;
+  --fontWeightBold: 700;
+  
+  /* Wysokości linii */
+  --lineHeightBase100: 14px;
+  --lineHeightBase200: 16px;
+  --lineHeightBase300: 20px;
+  --lineHeightBase400: 22px;
+  --lineHeightBase500: 28px;
+  --lineHeightBase600: 32px;
+  --lineHeightHero700: 36px;
+  --lineHeightHero800: 40px;
+  --lineHeightHero900: 52px;
+  --lineHeightHero1000: 92px;
+  
+  /* Rodziny czcionek */
+  --fontFamilyBase: 'Segoe UI', system-ui, 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+  --fontFamilyMonospace: 'Cascadia Code', 'Courier New', monospace;
+  --fontFamilyNumeric: 'Bahnschrift', 'Segoe UI', system-ui, sans-serif;
+  
+  /* ===== ODSTĘPY ===== */
+  
+  /* Odstępy poziome */
+  --spacingHorizontalXXS: 2px;
+  --spacingHorizontalXS: 4px;
+  --spacingHorizontalSNudge: 6px;
+  --spacingHorizontalS: 8px;
+  --spacingHorizontalMNudge: 10px;
+  --spacingHorizontalM: 12px;
+  --spacingHorizontalL: 16px;
+  --spacingHorizontalXL: 20px;
+  --spacingHorizontalXXL: 24px;
+  --spacingHorizontalXXXL: 32px;
+  
+  /* Odstępy pionowe */
+  --spacingVerticalXXS: 2px;
+  --spacingVerticalXS: 4px;
+  --spacingVerticalSNudge: 6px;
+  --spacingVerticalS: 8px;
+  --spacingVerticalMNudge: 10px;
+  --spacingVerticalM: 12px;
+  --spacingVerticalL: 16px;
+  --spacingVerticalXL: 20px;
+  --spacingVerticalXXL: 24px;
+  --spacingVerticalXXXL: 32px;
+  
+  /* ===== PROMIENIE ZAOKRĄGLEŃ ===== */
+  
+  --borderRadiusNone: 0px;
+  --borderRadiusSmall: 2px;
+  --borderRadiusMedium: 4px;
+  --borderRadiusLarge: 6px;
+  --borderRadiusXLarge: 8px;
+  --borderRadiusCircular: 50%;
+  
+  /* ===== CIENIE I ELEVACJE ===== */
+  
+  --shadow2: 0px 1px 2px rgba(0, 0, 0, 0.14), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  --shadow4: 0px 2px 4px rgba(0, 0, 0, 0.14), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  --shadow8: 0px 4px 8px rgba(0, 0, 0, 0.14), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  --shadow16: 0px 8px 16px rgba(0, 0, 0, 0.14), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  --shadow28: 0px 14px 28px rgba(0, 0, 0, 0.24), 0px 0px 8px rgba(0, 0, 0, 0.20);
+  --shadow64: 0px 32px 64px rgba(0, 0, 0, 0.24), 0px 0px 8px rgba(0, 0, 0, 0.20);
+  
+  /* ===== STROKE WIDTH ===== */
+  
+  --strokeWidthThin: 1px;
+  --strokeWidthThick: 2px;
+  --strokeWidthThicker: 3px;
+  --strokeWidthThickest: 4px;
+  
+  /* ===== DURATION & EASING ===== */
+  
+  --durationUltraFast: 50ms;
+  --durationFaster: 100ms;
+  --durationFast: 150ms;
+  --durationNormal: 200ms;
+  --durationGentle: 250ms;
+  --durationSlow: 300ms;
+  --durationSlower: 400ms;
+  --durationUltraSlow: 500ms;
+  
+  --curveAccelerateMax: cubic-bezier(1, 0, 1, 1);
+  --curveAccelerateMid: cubic-bezier(0.7, 0, 1, 0.5);
+  --curveAccelerateMin: cubic-bezier(0.8, 0, 0.78, 1);
+  --curveDecelerateMax: cubic-bezier(0, 0, 0, 1);
+  --curveDecelerateMid: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --curveDecelerateMin: cubic-bezier(0.33, 0, 0.1, 1);
+  --curveEasyEaseMax: cubic-bezier(0.8, 0, 0.2, 1);
+  --curveEasyEase: cubic-bezier(0.33, 0, 0.67, 1);
+  --curveLinear: cubic-bezier(0, 0, 1, 1);
+}
+
+/* ===== TRYB CIEMNY ===== */
+
+.dark {
+  /* Tła */
+  --colorNeutralBackground1: #1a1a1a;
+  --colorNeutralBackground2: #1e1e1e;
+  --colorNeutralBackground3: #242424;
+  --colorNeutralBackground4: #292929;
+  --colorNeutralBackground5: #2e2e2e;
+  --colorNeutralBackground6: #333333;
+  
+  /* Tła - stany interakcji */
+  --colorNeutralBackground1Hover: #1e1e1e;
+  --colorNeutralBackground1Pressed: #242424;
+  --colorNeutralBackground1Selected: #292929;
+  
+  --colorNeutralBackground2Hover: #242424;
+  --colorNeutralBackground2Pressed: #292929;
+  --colorNeutralBackground2Selected: #2e2e2e;
+  
+  /* Tekst */
+  --colorNeutralForeground1: #ffffff;
+  --colorNeutralForeground2: #f0f0f0;
+  --colorNeutralForeground3: #d1d1d1;
+  --colorNeutralForeground4: #b3b3b3;
+  --colorNeutralForegroundDisabled: #5c5c5c;
+  
+  /* Obramowania */
+  --colorNeutralStroke1: #424242;
+  --colorNeutralStroke2: #4a4a4a;
+  --colorNeutralStroke3: #525252;
+  --colorNeutralStrokeAccessible: #d1d1d1;
+  --colorNeutralStrokeDisabled: #333333;
+  
+  /* Kolory brandowe w trybie ciemnym */
+  --colorBrandBackground: #479ef5;
+  --colorBrandBackgroundHover: #62abf5;
+  --colorBrandBackgroundPressed: #2886de;
+  --colorBrandBackgroundSelected: #479ef5;
+  
+  --colorBrandForeground1: #479ef5;
+  --colorBrandForeground2: #62abf5;
+  --colorBrandForegroundInverted: #1a1a1a;
+  --colorBrandForegroundOnLight: #0078d4;
+  --colorBrandForegroundDisabled: #5c5c5c;
+  
+  /* Kolory statusów w trybie ciemnym */
+  --colorStatusSuccessBackground1: #1a2e1a;
+  --colorStatusSuccessBackground2: #1e3a1e;
+  --colorStatusSuccessBackground3: #107c10;
+  --colorStatusSuccessForeground1: #54b054;
+  --colorStatusSuccessForeground2: #6bb26b;
+  --colorStatusSuccessForeground3: #ffffff;
+  
+  --colorStatusWarningBackground1: #2e2a1a;
+  --colorStatusWarningBackground2: #3d2f1a;
+  --colorStatusWarningBackground3: #ff8c00;
+  --colorStatusWarningForeground1: #ffb366;
+  --colorStatusWarningForeground2: #ffc285;
+  --colorStatusWarningForeground3: #1a1a1a;
+  
+  --colorStatusDangerBackground1: #2e1a1d;
+  --colorStatusDangerBackground2: #3d1e22;
+  --colorStatusDangerBackground3: #d13438;
+  --colorStatusDangerForeground1: #f87171;
+  --colorStatusDangerForeground2: #fca5a5;
+  --colorStatusDangerForeground3: #ffffff;
+  
+  --colorStatusInfoBackground1: #1a2433;
+  --colorStatusInfoBackground2: #1e2a3d;
+  --colorStatusInfoBackground3: #479ef5;
+  --colorStatusInfoForeground1: #479ef5;
+  --colorStatusInfoForeground2: #62abf5;
+  --colorStatusInfoForeground3: #1a1a1a;
+  
+  /* Cienie w trybie ciemnym */
+  --shadow2: 0px 1px 2px rgba(0, 0, 0, 0.28), 0px 0px 2px rgba(0, 0, 0, 0.24);
+  --shadow4: 0px 2px 4px rgba(0, 0, 0, 0.28), 0px 0px 2px rgba(0, 0, 0, 0.24);
+  --shadow8: 0px 4px 8px rgba(0, 0, 0, 0.28), 0px 0px 2px rgba(0, 0, 0, 0.24);
+  --shadow16: 0px 8px 16px rgba(0, 0, 0, 0.28), 0px 0px 2px rgba(0, 0, 0, 0.24);
+  --shadow28: 0px 14px 28px rgba(0, 0, 0, 0.32), 0px 0px 8px rgba(0, 0, 0, 0.28);
+  --shadow64: 0px 32px 64px rgba(0, 0, 0, 0.32), 0px 0px 8px rgba(0, 0, 0, 0.28);
+}
+
+/* ===== TRYB WYSOKIEGO KONTRASTU ===== */
+
+@media (prefers-contrast: high) {
+  :root {
+    --colorNeutralForeground1: #000000;
+    --colorNeutralBackground1: #ffffff;
+    --colorBrandBackground: #0000ff;
+    --colorBrandForeground1: #0000ff;
+    --colorNeutralStroke1: #000000;
+    --colorNeutralStrokeAccessible: #000000;
+    
+    --colorStatusSuccessForeground1: #008000;
+    --colorStatusWarningForeground1: #ff8c00;
+    --colorStatusDangerForeground1: #ff0000;
+    --colorStatusInfoForeground1: #0000ff;
+  }
+  
+  .dark {
+    --colorNeutralForeground1: #ffffff;
+    --colorNeutralBackground1: #000000;
+    --colorBrandBackground: #00ffff;
+    --colorBrandForeground1: #00ffff;
+    --colorNeutralStroke1: #ffffff;
+    --colorNeutralStrokeAccessible: #ffffff;
+    
+    --colorStatusSuccessForeground1: #00ff00;
+    --colorStatusWarningForeground1: #ffff00;
+    --colorStatusDangerForeground1: #ff0000;
+    --colorStatusInfoForeground1: #00ffff;
+  }
+}
+
+/* ===== PREFERENCJE RUCHU ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --durationUltraFast: 1ms;
+    --durationFaster: 1ms;
+    --durationFast: 1ms;
+    --durationNormal: 1ms;
+    --durationGentle: 1ms;
+    --durationSlow: 1ms;
+    --durationSlower: 1ms;
+    --durationUltraSlow: 1ms;
+  }
+  
+  * {
+    animation-duration: var(--durationUltraFast) !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--durationUltraFast) !important;
+  }
+}

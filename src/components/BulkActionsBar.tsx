@@ -28,10 +28,10 @@ export function BulkActionsBar({
   const someSelected = selectedCount > 0;
 
   return (
-    <Card>
+    <Card className="elevation-2">
       <CardContent className="py-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Input
               type="checkbox"
               checked={allSelected}
@@ -40,40 +40,38 @@ export function BulkActionsBar({
               className="size-4"
               aria-label={allSelected ? 'Odznacz wszystkie' : 'Zaznacz wszystkie'}
             />
-            <span className="text-sm font-medium">
+            <span className="text-body-strong text-foreground">
               {allSelected ? 'Odznacz wszystkie' : 'Zaznacz wszystkie'}
             </span>
-            <span className="text-xs text-muted-foreground ml-2">
+            <span className="text-caption text-muted-foreground ml-2">
               ({selectedCount}/{totalCount})
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+          <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
             <Button
-              variant="outline"
+              variant="success"
               size="sm"
               onClick={onAcceptAll}
               disabled={disabled || totalCount === 0}
-              className="text-xs"
             >
               ✓ Akceptuj wszystkie
             </Button>
 
             <Button
-              variant="outline"
+              variant="destructive"
               size="sm"
               onClick={onRejectAll}
               disabled={disabled || totalCount === 0}
-              className="text-xs"
             >
               ✕ Odrzuć wszystkie
             </Button>
 
             <Button
+              variant="default"
               onClick={onSaveSelected}
               disabled={disabled || !someSelected}
               size="sm"
-              className="font-medium"
             >
               {isSaving ? 'Zapisuję...' : `💾 Zapisz zaznaczone (${selectedCount})`}
             </Button>

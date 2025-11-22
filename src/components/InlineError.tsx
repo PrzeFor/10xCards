@@ -11,7 +11,7 @@ export function InlineError({ message, id }: InlineErrorProps) {
   return (
     <div 
       id={id}
-      className="text-sm text-destructive flex items-center gap-2 mt-1"
+      className="text-body text-danger flex items-center gap-2 bg-danger p-3 rounded-fluent-md border border-danger"
       role="alert"
       aria-live="polite"
     >

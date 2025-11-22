@@ -59,13 +59,13 @@ export function GenerationForm({
   const isDisabled = !isValid || isGenerating;
 
   return (
-    <Card>
+    <Card className="hover-lift">
       <CardHeader>
-        <CardTitle>Wklej tekst do analizy</CardTitle>
+        <CardTitle className="text-brand">Wklej tekst do analizy</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
             <Textarea
               value={sourceText}
               onChange={handleTextChange}
@@ -75,12 +75,12 @@ export function GenerationForm({
               disabled={isGenerating}
             />
             
-            <div className="flex justify-between items-center text-sm text-muted-foreground">
+            <div className="flex justify-between items-center text-caption text-muted-foreground">
               <span>
                 Znaki: {sourceText.length.toLocaleString()} / 15,000
               </span>
               {sourceText.length > 0 && (
-                <span className={sourceText.length < 500 ? 'text-destructive' : 'text-green-600'}>
+                <span className={sourceText.length < 500 ? 'text-danger' : 'text-success'}>
                   {sourceText.length < 500 
                     ? `Potrzebujesz jeszcze ${500 - sourceText.length} znaków`
                     : 'Gotowe do generacji'
@@ -101,6 +101,7 @@ export function GenerationForm({
             type="submit" 
             disabled={isDisabled}
             className="w-full"
+            size="lg"
           >
             {isGenerating ? 'Generuję fiszki...' : 'Generuj fiszki'}
           </Button>

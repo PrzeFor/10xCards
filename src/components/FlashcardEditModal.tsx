@@ -115,8 +115,8 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="front-input" className="text-sm font-medium">
+          <div className="space-y-3">
+            <Label htmlFor="front-input">
               Przód fiszki
             </Label>
             <Textarea
@@ -128,10 +128,10 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
               aria-describedby={frontError ? "front-error" : undefined}
               aria-invalid={!!frontError}
             />
-            <div className="flex justify-between items-center text-xs text-muted-foreground">
+            <div className="flex justify-between items-center text-caption text-muted-foreground">
               <span>Znaki: {front.length} / 300</span>
               {front.length > 250 && (
-                <span className={front.length > 300 ? 'text-destructive' : 'text-amber-600'}>
+                <span className={front.length > 300 ? 'text-danger' : 'text-warning'}>
                   {front.length > 300 ? 'Przekroczono limit!' : 'Zbliżasz się do limitu'}
                 </span>
               )}
@@ -141,8 +141,8 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="back-input" className="text-sm font-medium">
+          <div className="space-y-3">
+            <Label htmlFor="back-input">
               Tył fiszki
             </Label>
             <Textarea

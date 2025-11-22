@@ -24,11 +24,11 @@ export function FlashcardItem({
   const getStatusColor = (status: FlashcardProposalViewModel['status']) => {
     switch (status) {
       case 'accepted':
-        return 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950';
+        return 'bg-success text-success border-success';
       case 'rejected':
-        return 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950';
+        return 'bg-danger text-danger border-danger';
       case 'edited':
-        return 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950';
+        return 'bg-info text-info border-info';
       default:
         return '';
     }

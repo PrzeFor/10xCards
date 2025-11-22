@@ -43,13 +43,13 @@ export function FlashcardList({
   const editingProposal = editingId ? proposals.find(p => p.id === editingId) : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-large-title text-brand">
           Propozycje fiszek ({proposals.length})
         </h2>
         {selectedCount > 0 && (
-          <span className="text-sm text-muted-foreground">
+          <span className="text-caption text-muted-foreground bg-secondary px-fluent-s py-fluent-xs rounded-fluent-sm">
             Zaznaczono: {selectedCount}
           </span>
         )}
@@ -70,7 +70,7 @@ export function FlashcardList({
         <InlineError message={saveError} />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
         {proposals.map((proposal) => (
           <FlashcardItem
             key={proposal.id}
