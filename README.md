@@ -22,6 +22,10 @@ A modern web application enabling fast, AI-powered generation and management of 
 - **Styling:** Tailwind CSS 4, Shadcn/ui  
 - **Backend:** Supabase (PostgreSQL, Auth)  
 - **AI Integration:** Openrouter.ai (OpenAI, Anthropic, Google models)  
+- **Testing:**  
+  - Unit & Integration: Vitest, React Testing Library, MSW (Mock Service Worker)  
+  - E2E: Playwright, @axe-core/playwright  
+  - Performance: Lighthouse CI  
 - **CI/CD & Hosting:** GitHub Actions, Docker, DigitalOcean  
 
 ## Getting Started
@@ -68,7 +72,19 @@ A modern web application enabling fast, AI-powered generation and management of 
 - `npm run lint:fix`  
   Run ESLint with auto-fix.  
 - `npm run format`  
-  Format code with Prettier.
+  Format code with Prettier.  
+- `npm run test`  
+  Run unit and integration tests (Vitest).  
+- `npm run test:ui`  
+  Run tests with Vitest UI.  
+- `npm run test:coverage`  
+  Run tests with coverage report.  
+- `npm run test:e2e`  
+  Run end-to-end tests (Playwright).  
+- `npm run test:e2e:ui`  
+  Run E2E tests with Playwright UI.  
+- `npm run test:e2e:debug`  
+  Debug E2E tests in Playwright.
 
 ## Project Scope
 

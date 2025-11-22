@@ -15,6 +15,15 @@ AI - Komunikacja z modelami przez usługę Openrouter.ai:
 - Dostęp do szerokiej gamy modeli (OpenAI, Anthropic, Google i wiele innych), które pozwolą nam znaleźć rozwiązanie zapewniające wysoką efektywność i niskie koszta
 - Pozwala na ustawianie limitów finansowych na klucze API
 
+Testowanie:
+- Vitest jako framework do testów jednostkowych i integracyjnych (szybka alternatywa dla Jest z natywnym wsparciem ESM i TypeScript)
+- React Testing Library do testowania komponentów React (user-centric approach)
+- MSW (Mock Service Worker) do mockowania requestów HTTP, w szczególności OpenRouter API (eliminuje koszty testowania z prawdziwym API)
+- Playwright do testów end-to-end (multi-browser: Chromium, Firefox, WebKit, stabilne testy z auto-wait)
+- @axe-core/playwright do automatycznych testów dostępności (a11y) zgodnie z WCAG 2.1
+- Lighthouse CI do automatyzacji audytów wydajności (Performance, Accessibility, Best Practices, SEO)
+- Happy DOM jako środowisko DOM dla Vitest (lekkie i szybkie)
+
 CI/CD i Hosting:
-- Github Actions do tworzenia pipeline’ów CI/CD
+- Github Actions do tworzenia pipeline'ów CI/CD
 - DigitalOcean do hostowania aplikacji za pośrednictwem obrazu docker
