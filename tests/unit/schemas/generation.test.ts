@@ -30,7 +30,7 @@ describe('Generation Schemas', () => {
       
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('at least 500 characters');
+        expect(result.error.issues[0].message).toContain('co najmniej 500 znaków');
       }
     });
 
@@ -41,7 +41,7 @@ describe('Generation Schemas', () => {
       
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('cannot exceed 15000 characters');
+        expect(result.error.issues[0].message).toContain('nie może przekraczać 15,000 znaków');
       }
     });
 

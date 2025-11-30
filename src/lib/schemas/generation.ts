@@ -13,8 +13,8 @@ import type {
 export const createGenerationRequestSchema = z.object({
   source_text: z
     .string()
-    .min(500, 'Source text must be at least 500 characters long')
-    .max(15000, 'Source text cannot exceed 15000 characters')
+    .min(500, 'Tekst musi mieć co najmniej 500 znaków')
+    .max(15000, 'Tekst nie może przekraczać 15,000 znaków')
     .trim()
 }) satisfies z.ZodType<CreateGenerationRequestDto>;
 

@@ -1,62 +1,64 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { InlineError } from './InlineError.tsx';
+import { createGenerationRequestSchema } from '../lib/schemas/generation';
 
 interface GenerationFormProps {
   onGenerate: (sourceText: string) => void;
   isGenerating: boolean;
   errorMessage?: string;
-  initialValue?: string;
-  onValueChange?: (value: string) => void;
 }
+
+type GenerationFormData = {
+  source_text: string;
+};
 
 export function GenerationForm({ 
   onGenerate, 
   isGenerating, 
-  errorMessage,
-  initialValue = '',
-  onValueChange 
+  errorMessage
 }: GenerationFormProps) {
-  const [sourceText, setSourceText] = useState(initialValue);
-  const [validationError, setValidationError] = useState<string>('');
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    setSourceText(value);
-    onValueChange?.(value);
-    
-    // Clear validation error when user starts typing
-    if (validationError) {
-      setValidationError('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValid },
+    watch,
+    reset
+  } = useForm<GenerationFormData>({
+    resolver: zodResolver(createGenerationRequestSchema),
+    mode: 'onChange',
+    defaultValues: {
+      source_text: ''
     }
+  });
+
+  const sourceTextValue = watch('source_text');
+  const charCount = sourceTextValue?.length || 0;
+
+  const statusMessage = useMemo(() => {
+    if (charCount === 0) return null;
+    if (charCount < 500) {
+      return {
+        text: `Potrzebujesz jeszcze ${500 - charCount} znaków`,
+        className: 'text-danger'
+      };
+    }
+    return {
+      text: 'Gotowe do generacji',
+      className: 'text-success'
+    };
+  }, [charCount]);
+
+  const onSubmit = async (data: GenerationFormData) => {
+    await onGenerate(data.source_text);
+    reset();
   };
 
-  const validateText = (text: string): string | null => {
-    if (text.length < 500) {
-      return `Tekst musi mieć co najmniej 500 znaków. Obecnie: ${text.length}`;
-    }
-    if (text.length > 15000) {
-      return `Tekst nie może przekraczać 15,000 znaków. Obecnie: ${text.length}`;
-    }
-    return null;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const error = validateText(sourceText);
-    if (error) {
-      setValidationError(error);
-      return;
-    }
-
-    onGenerate(sourceText);
-  };
-
-  const isValid = sourceText.length >= 500 && sourceText.length <= 15000;
-  const isDisabled = !isValid || isGenerating;
+  const isDisabled = !isValid || isSubmitting || isGenerating;
 
   return (
     <Card className="hover-lift">
@@ -64,36 +66,33 @@ export function GenerationForm({
         <CardTitle className="text-brand">Wklej tekst do analizy</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-3">
             <Textarea
               data-testid="generation-source-text"
-              value={sourceText}
-              onChange={handleTextChange}
               placeholder="Wklej tutaj tekst, z którego chcesz wygenerować fiszki (500-15,000 znaków)..."
               className="min-h-[200px] resize-y"
-              aria-describedby={validationError || errorMessage ? "sourceTextError" : undefined}
-              disabled={isGenerating}
+              aria-invalid={!!errors.source_text}
+              aria-describedby={errors.source_text || errorMessage ? "sourceTextError" : undefined}
+              disabled={isGenerating || isSubmitting}
+              {...register('source_text')}
             />
             
             <div className="flex justify-between items-center text-caption text-muted-foreground">
               <span>
-                Znaki: {sourceText.length.toLocaleString()} / 15,000
+                Znaki: {charCount.toLocaleString()} / 15,000
               </span>
-              {sourceText.length > 0 && (
-                <span className={sourceText.length < 500 ? 'text-danger' : 'text-success'}>
-                  {sourceText.length < 500 
-                    ? `Potrzebujesz jeszcze ${500 - sourceText.length} znaków`
-                    : 'Gotowe do generacji'
-                  }
+              {statusMessage && (
+                <span className={statusMessage.className}>
+                  {statusMessage.text}
                 </span>
               )}
             </div>
 
-            {(validationError || errorMessage) && (
+            {(errors.source_text || errorMessage) && (
               <InlineError 
                 id="sourceTextError"
-                message={validationError || errorMessage || ''} 
+                message={errors.source_text?.message || errorMessage || ''} 
               />
             )}
           </div>
@@ -105,7 +104,7 @@ export function GenerationForm({
             className="w-full"
             size="lg"
           >
-            {isGenerating ? 'Generuję fiszki...' : 'Generuj fiszki'}
+            {isGenerating || isSubmitting ? 'Generuję fiszki...' : 'Generuj fiszki'}
           </Button>
         </form>
       </CardContent>

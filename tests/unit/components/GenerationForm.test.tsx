@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '../../helpers/test-utils';
+import { render, screen, fireEvent, waitFor } from '../../helpers/test-utils';
+import userEvent from '@testing-library/user-event';
 import { GenerationForm } from '@/components/GenerationForm';
 
 describe('GenerationForm', () => {
   const mockOnGenerate = vi.fn();
-  const mockOnValueChange = vi.fn();
 
   const defaultProps = {
     onGenerate: mockOnGenerate,
@@ -29,12 +29,11 @@ describe('GenerationForm', () => {
       expect(screen.getByText(/Znaki: 0 \/ 15,000/i)).toBeInTheDocument();
     });
 
-    it('should render with initial value', () => {
-      const initialValue = 'Test content';
-      render(<GenerationForm {...defaultProps} initialValue={initialValue} />);
+    it('should start with empty textarea', () => {
+      render(<GenerationForm {...defaultProps} />);
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
-      expect(textarea).toHaveValue(initialValue);
+      expect(textarea).toHaveValue('');
     });
   });
 
@@ -56,14 +55,17 @@ describe('GenerationForm', () => {
       expect(button).toBeDisabled();
     });
 
-    it('should enable button when text is between 500-15000 characters', () => {
+    it('should enable button when text is between 500-15000 characters', async () => {
       render(<GenerationForm {...defaultProps} />);
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
       fireEvent.change(textarea, { target: { value: 'A'.repeat(500) } });
 
       const button = screen.getByRole('button', { name: /Generuj fiszki/i });
-      expect(button).not.toBeDisabled();
+      
+      await waitFor(() => {
+        expect(button).not.toBeDisabled();
+      });
     });
 
     it('should disable button when text exceeds 15000 characters', () => {
@@ -76,7 +78,7 @@ describe('GenerationForm', () => {
       expect(button).toBeDisabled();
     });
 
-    it('should show validation error when submitting text below 500 characters', () => {
+    it('should show validation error when submitting text below 500 characters', async () => {
       render(<GenerationForm {...defaultProps} />);
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
@@ -85,11 +87,13 @@ describe('GenerationForm', () => {
       fireEvent.change(textarea, { target: { value: 'A'.repeat(400) } });
       fireEvent.submit(form);
 
-      expect(screen.getByText(/Tekst musi mieć co najmniej 500 znaków/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/Tekst musi mieć co najmniej 500 znaków/i)).toBeInTheDocument();
+      });
       expect(mockOnGenerate).not.toHaveBeenCalled();
     });
 
-    it('should show validation error when submitting text over 15000 characters', () => {
+    it('should show validation error when submitting text over 15000 characters', async () => {
       render(<GenerationForm {...defaultProps} />);
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
@@ -98,11 +102,13 @@ describe('GenerationForm', () => {
       fireEvent.change(textarea, { target: { value: 'A'.repeat(16000) } });
       fireEvent.submit(form);
 
-      expect(screen.getByText(/Tekst nie może przekraczać 15,000 znaków/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/Tekst nie może przekraczać 15,000 znaków/i)).toBeInTheDocument();
+      });
       expect(mockOnGenerate).not.toHaveBeenCalled();
     });
 
-    it('should clear validation error when user starts typing', () => {
+    it('should clear validation error when user types valid text', async () => {
       render(<GenerationForm {...defaultProps} />);
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
@@ -111,11 +117,17 @@ describe('GenerationForm', () => {
       // Trigger validation error
       fireEvent.change(textarea, { target: { value: 'A'.repeat(400) } });
       fireEvent.submit(form);
-      expect(screen.getByText(/Tekst musi mieć co najmniej 500 znaków/i)).toBeInTheDocument();
+      
+      await waitFor(() => {
+        expect(screen.getByText(/Tekst musi mieć co najmniej 500 znaków/i)).toBeInTheDocument();
+      });
 
-      // Start typing
-      fireEvent.change(textarea, { target: { value: 'A'.repeat(450) } });
-      expect(screen.queryByText(/Tekst musi mieć co najmniej 500 znaków/i)).not.toBeInTheDocument();
+      // Type valid length text
+      fireEvent.change(textarea, { target: { value: 'A'.repeat(500) } });
+      
+      await waitFor(() => {
+        expect(screen.queryByText(/Tekst musi mieć co najmniej 500 znaków/i)).not.toBeInTheDocument();
+      });
     });
   });
 
@@ -152,7 +164,7 @@ describe('GenerationForm', () => {
   });
 
   describe('Form submission', () => {
-    it('should call onGenerate with valid text', () => {
+    it('should call onGenerate with valid text', async () => {
       render(<GenerationForm {...defaultProps} />);
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
@@ -163,11 +175,13 @@ describe('GenerationForm', () => {
       const form = textarea.closest('form')!;
       fireEvent.submit(form);
 
-      expect(mockOnGenerate).toHaveBeenCalledWith(validText);
+      await waitFor(() => {
+        expect(mockOnGenerate).toHaveBeenCalledWith(validText);
+      });
       expect(mockOnGenerate).toHaveBeenCalledTimes(1);
     });
 
-    it('should not call onGenerate when text is invalid', () => {
+    it('should not call onGenerate when text is invalid', async () => {
       render(<GenerationForm {...defaultProps} />);
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
@@ -176,7 +190,32 @@ describe('GenerationForm', () => {
       const form = textarea.closest('form')!;
       fireEvent.submit(form);
 
+      await waitFor(() => {
+        expect(screen.getByText(/Tekst musi mieć co najmniej 500 znaków/i)).toBeInTheDocument();
+      });
+      
       expect(mockOnGenerate).not.toHaveBeenCalled();
+    });
+
+    it('should reset form after successful submission', async () => {
+      mockOnGenerate.mockResolvedValueOnce(undefined);
+      render(<GenerationForm {...defaultProps} />);
+
+      const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
+      const validText = 'A'.repeat(500);
+      
+      fireEvent.change(textarea, { target: { value: validText } });
+      
+      const form = textarea.closest('form')!;
+      fireEvent.submit(form);
+
+      await waitFor(() => {
+        expect(mockOnGenerate).toHaveBeenCalledWith(validText);
+      });
+
+      await waitFor(() => {
+        expect(textarea).toHaveValue('');
+      });
     });
   });
 
@@ -195,7 +234,7 @@ describe('GenerationForm', () => {
     });
 
     it('should disable button when isGenerating is true', () => {
-      render(<GenerationForm {...defaultProps} isGenerating={true} initialValue={'A'.repeat(500)} />);
+      render(<GenerationForm {...defaultProps} isGenerating={true} />);
 
       const button = screen.getByRole('button', { name: /Generuję fiszki\.\.\./i });
       expect(button).toBeDisabled();
@@ -210,7 +249,7 @@ describe('GenerationForm', () => {
       expect(screen.getByText(errorMessage)).toBeInTheDocument();
     });
 
-    it('should prioritize validation error over prop error', () => {
+    it('should prioritize validation error over prop error', async () => {
       render(<GenerationForm {...defaultProps} errorMessage="API Error" />);
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
@@ -219,37 +258,15 @@ describe('GenerationForm', () => {
       const form = textarea.closest('form')!;
       fireEvent.submit(form);
 
-      expect(screen.getByText(/Tekst musi mieć co najmniej 500 znaków/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/Tekst musi mieć co najmniej 500 znaków/i)).toBeInTheDocument();
+      });
       expect(screen.queryByText('API Error')).not.toBeInTheDocument();
     });
   });
 
-  describe('Controlled component behavior', () => {
-    it('should call onValueChange when text changes', () => {
-      render(<GenerationForm {...defaultProps} onValueChange={mockOnValueChange} />);
-
-      const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
-      const newValue = 'New text content';
-      
-      fireEvent.change(textarea, { target: { value: newValue } });
-
-      expect(mockOnValueChange).toHaveBeenCalledWith(newValue);
-    });
-
-    it('should update internal state when text changes', () => {
-      render(<GenerationForm {...defaultProps} />);
-
-      const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
-      const newValue = 'A'.repeat(600);
-      
-      fireEvent.change(textarea, { target: { value: newValue } });
-
-      expect(textarea).toHaveValue(newValue);
-    });
-  });
-
   describe('Accessibility', () => {
-    it('should link error message with textarea using aria-describedby', () => {
+    it('should link error message with textarea using aria-describedby', async () => {
       render(<GenerationForm {...defaultProps} />);
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
@@ -258,8 +275,24 @@ describe('GenerationForm', () => {
       const form = textarea.closest('form')!;
       fireEvent.submit(form);
 
-      expect(textarea).toHaveAttribute('aria-describedby', 'sourceTextError');
-      expect(screen.getByRole('alert')).toHaveAttribute('id', 'sourceTextError');
+      await waitFor(() => {
+        expect(textarea).toHaveAttribute('aria-describedby', 'sourceTextError');
+        expect(screen.getByRole('alert')).toHaveAttribute('id', 'sourceTextError');
+      });
+    });
+
+    it('should mark textarea as invalid when there is an error', async () => {
+      render(<GenerationForm {...defaultProps} />);
+
+      const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
+      fireEvent.change(textarea, { target: { value: 'A'.repeat(100) } });
+      
+      const form = textarea.closest('form')!;
+      fireEvent.submit(form);
+
+      await waitFor(() => {
+        expect(textarea).toHaveAttribute('aria-invalid', 'true');
+      });
     });
 
     it('should not have aria-describedby when there is no error', () => {

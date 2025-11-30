@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { GenerationForm } from './GenerationForm.tsx';
 import { FlashcardList } from './FlashcardList.tsx';
@@ -9,7 +9,6 @@ import type { FlashcardProposalViewModel } from '../types/viewModels';
 import type { CreateGenerationResponseDto } from '../types';
 
 export default function GenerationsView() {
-  const [sourceText, setSourceText] = useState('');
   const [proposals, setProposals] = useState<FlashcardProposalViewModel[]>([]);
   const [currentGenerationId, setCurrentGenerationId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -30,7 +29,6 @@ export default function GenerationsView() {
       
       setProposals(viewModels);
       setCurrentGenerationId(response.id);
-      setSourceText('');
     } catch (error) {
       console.error('Generation failed:', error);
     }
@@ -120,8 +118,6 @@ export default function GenerationsView() {
         onGenerate={handleGenerate}
         isGenerating={isGenerating}
         errorMessage={generateError || undefined}
-        initialValue={sourceText}
-        onValueChange={setSourceText}
       />
 
       {isGenerating && <LoadingSkeleton />}
