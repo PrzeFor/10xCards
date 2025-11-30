@@ -40,15 +40,31 @@ Utwórz plik `.env.test` w głównym katalogu projektu:
 TEST_USER_EMAIL=test@example.com
 TEST_USER_PASSWORD=TestPassword123!
 
+# UUID testowego użytkownika (WYMAGANE dla czyszczenia bazy!)
+E2E_USER_ID=4d803b8f-2add-4610-9af3-2103e9b6714b
+
 # Supabase (powinien wskazywać na testową instancję)
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-anon-key
+SUPABASE_PUBLIC_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...  # anon public key
 
 # OpenRouter API (opcjonalne dla testów z mockami)
 OPENROUTER_API_KEY=your-test-api-key
 ```
 
 **⚠️ WAŻNE**: Użyj osobnej bazy danych testowej! Nie testuj na produkcyjnej bazie danych.
+
+## 🧹 Automatyczne czyszczenie bazy danych
+
+Testy E2E automatycznie czyszczą bazę danych po zakończeniu wszystkich testów dzięki `global-teardown.ts`:
+
+- Po zakończeniu wszystkich testów usuwane są:
+  - Wszystkie fiszki należące do użytkownika testowego
+  - Wszystkie generacje należące do użytkownika testowego
+  - Wszystkie logi błędów powiązane z generacjami
+
+To zapewnia, że każde uruchomienie testów zaczyna z czystą bazą danych.
+
+**Implementacja**: Zobacz `tests/e2e/global-teardown.ts` i konfigurację w `playwright.config.ts`.
 
 ## 🧪 Uruchamianie testów
 
@@ -91,6 +107,10 @@ tests/e2e/
 ├── accessibility.spec.ts         # Testy dostępności
 ├── auth.spec.ts                  # Testy autoryzacji
 ├── generations.spec.ts           # Testy generowania fiszek
+├── global-teardown.ts            # Czyszczenie bazy po testach
+├── ENV_SETUP.md                  # Konfiguracja zmiennych środowiskowych
+├── TEARDOWN.md                   # Dokumentacja global teardown
+├── QUICK_START.md                # Szybki start
 └── README.md                     # Ten plik
 ```
 
@@ -256,8 +276,14 @@ webServer: {
 
 ## 📚 Dodatkowe zasoby
 
+### Dokumentacja projektu
+- [Szybki start](./QUICK_START.md) - Przewodnik krok po kroku
+- [Konfiguracja ENV](./ENV_SETUP.md) - Zmienne środowiskowe
+- [Global Teardown](./TEARDOWN.md) - System czyszczenia bazy danych
+- [Page Object Model](./page-objects/README.md) - Wzorce testowe
+
+### Dokumentacja zewnętrzna
 - [Playwright Documentation](https://playwright.dev/)
-- [Page Object Model Guide](./page-objects/README.md)
 - [Best Practices](https://playwright.dev/docs/best-practices)
 - [Selectors Guide](https://playwright.dev/docs/selectors)
 

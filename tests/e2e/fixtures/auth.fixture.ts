@@ -52,8 +52,9 @@ export const test = base.extend<AuthFixtures>({
         'Required variables in .env.test:\n' +
         '  - TEST_USER_EMAIL=test@example.com\n' +
         '  - TEST_USER_PASSWORD=TestPassword123!\n' +
+        '  - E2E_USER_ID=4d803b8f-2add-4610-9af3-2103e9b6714b\n' +
         '  - SUPABASE_URL=https://your-project.supabase.co\n' +
-        '  - SUPABASE_KEY=your-anon-key\n' +
+        '  - SUPABASE_PUBLIC_KEY=eyJhbGciOi... (anon public key)\n' +
         '\n' +
         'See tests/e2e/QUICK_START.md for setup instructions'
       );

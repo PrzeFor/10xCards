@@ -73,6 +73,7 @@ tests/
 - Chromium jako domyślna przeglądarka
 - Automatyczne uruchomienie dev servera
 - Screenshots i video przy błędach
+- Global teardown do czyszczenia bazy danych po testach
 
 ### ✅ `package.json` - Nowe skrypty
 
@@ -121,6 +122,36 @@ npm run test:e2e
 
 ## 🚀 Jak zacząć testować?
 
+### 0. Skonfiguruj zmienne środowiskowe dla E2E (jednorazowo)
+
+```bash
+# Utwórz plik .env.test w głównym katalogu projektu
+# Zobacz: tests/e2e/ENV_SETUP.md dla szczegółów
+```
+
+Przykładowa zawartość `.env.test`:
+
+```env
+# Dane testowego użytkownika
+TEST_USER_EMAIL=test@example.com
+TEST_USER_PASSWORD=TestPassword123!
+
+# UUID testowego użytkownika (WYMAGANE dla czyszczenia bazy!)
+E2E_USER_ID=4d803b8f-2add-4610-9af3-2103e9b6714b
+
+# Supabase (osobna testowa baza danych!)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_PUBLIC_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...  # anon public key
+
+# OpenRouter API (opcjonalne)
+OPENROUTER_API_KEY=your-test-api-key
+```
+
+**⚠️ WAŻNE**: 
+- Użyj osobnej testowej bazy danych, nie produkcyjnej!
+- Utwórz testowego użytkownika przed uruchomieniem testów
+- Zobacz: `tests/e2e/QUICK_START.md` dla instrukcji krok po kroku
+
 ### 1. Uruchom testy jednostkowe
 
 ```bash
@@ -152,6 +183,14 @@ npm run test:e2e:ui
 # Debugowanie testów
 npm run test:e2e:debug
 ```
+
+**🧹 Automatyczne czyszczenie bazy danych**:
+- Po zakończeniu wszystkich testów E2E, system automatycznie usuwa:
+  - Wszystkie fiszki testowego użytkownika
+  - Wszystkie generacje testowego użytkownika
+  - Powiązane logi błędów
+- To zapewnia czysty stan bazy danych przed kolejnym uruchomieniem
+- Zobacz: `tests/e2e/global-teardown.ts` dla szczegółów implementacji
 
 ### 3. Napisz nowe testy
 

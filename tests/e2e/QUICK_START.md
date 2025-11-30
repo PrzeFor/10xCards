@@ -23,7 +23,14 @@ npm run playwright:install
    - Email: `test@example.com`
    - Hasło: `TestPassword123!`
 
-**📖 Potrzebujesz szczegółowych instrukcji?** Zobacz [`SETUP_TEST_USER.md`](./SETUP_TEST_USER.md)
+4. **WAŻNE**: Pobierz UUID użytkownika:
+   - Otwórz Supabase Dashboard
+   - Przejdź do: **Authentication** → **Users**
+   - Znajdź użytkownika `test@example.com`
+   - Skopiuj jego **UUID** (np. `4d803b8f-2add-4610-9af3-2103e9b6714b`)
+   - Będzie potrzebny w następnym kroku!
+
+**📖 Potrzebujesz szczegółowych instrukcji?** Zobacz [`ENV_SETUP.md`](./ENV_SETUP.md)
 
 ### Krok 3: Skonfiguruj zmienne środowiskowe
 
@@ -43,11 +50,25 @@ Dodaj do `.env.test`:
 TEST_USER_EMAIL=test@example.com
 TEST_USER_PASSWORD=TestPassword123!
 
+# UUID użytkownika testowego (WYMAGANE dla czyszczenia bazy!)
+# Pobierz z Supabase Dashboard → Authentication → Users
+E2E_USER_ID=4d803b8f-2add-4610-9af3-2103e9b6714b
+
 # Skopiuj te wartości z pliku .env (jeśli istnieje)
+# SUPABASE_PUBLIC_KEY to dedykowany klucz publiczny dla testów E2E
+# Znajdź w: Supabase Dashboard → Settings → API → anon public
 SUPABASE_URL=your-supabase-url
-SUPABASE_KEY=your-supabase-key
+SUPABASE_PUBLIC_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...  # anon public key
 OPENROUTER_API_KEY=your-openrouter-key
 ```
+
+**🔒 Bezpieczeństwo**:
+- `E2E_USER_ID` - tylko dane tego użytkownika będą czyszczone po testach
+- `SUPABASE_PUBLIC_KEY` - **dedykowany klucz publiczny dla E2E**:
+  - ✅ Osobna zmienna dla testów E2E - lepsza izolacja
+  - ✅ Klucz publiczny: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (zaczyna się od eyJ)
+  - ❌ NIE używaj service_role key (bypasuje RLS!)
+  - Znajdź w Supabase Dashboard → Settings → API → Project API keys → **anon** **public**
 
 ### Krok 4: Weryfikuj setup (opcjonalnie, ale zalecane)
 
@@ -77,7 +98,27 @@ npm run test:e2e
 npm run test:e2e:ui
 ```
 
-**Uwaga**: Debug test pokaże szczegółowe logi w konsoli i utworzy screenshoty w `test-results/`
+**Uwaga**: 
+- Debug test pokaże szczegółowe logi w konsoli i utworzy screenshoty w `test-results/`
+- Po zakończeniu wszystkich testów, baza danych zostanie automatycznie wyczyszczona (global teardown)
+
+### 🧹 Automatyczne czyszczenie bazy danych
+
+Po zakończeniu wszystkich testów, system automatycznie:
+- ✅ Usuwa wszystkie fiszki użytkownika o ID = `E2E_USER_ID`
+- ✅ Usuwa wszystkie generacje użytkownika o ID = `E2E_USER_ID`
+- ✅ Usuwa powiązane logi błędów
+
+**🔒 Zabezpieczenia**:
+- Wymaga jawnego `E2E_USER_ID` w `.env.test`
+- Używa tylko klucza publicznego (nie może nadpisać innych danych)
+- Waliduje format UUID przed usunięciem
+- Czyści TYLKO dane konkretnego użytkownika testowego
+
+To zapewnia, że każde uruchomienie testów zaczyna z czystą bazą danych, 
+chroniąc jednocześnie dane innych użytkowników.
+
+**Zobacz**: `tests/e2e/global-teardown.ts` i `tests/e2e/TEARDOWN.md`
 
 ## 🎯 Pierwsze uruchomienie - Spodziewane rezultaty
 

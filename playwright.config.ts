@@ -9,6 +9,9 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.test') });
 export default defineConfig({
   testDir: './tests/e2e',
   
+  /* Global teardown - clean up database after all tests */
+  globalTeardown: './tests/e2e/global-teardown.ts',
+  
   /* Run tests in files in parallel */
   fullyParallel: true,
   
@@ -80,7 +83,7 @@ export default defineConfig({
     env: {
       // Pass test environment variables to the dev server
       SUPABASE_URL: process.env.SUPABASE_URL!,
-      SUPABASE_KEY: process.env.SUPABASE_KEY!,
+      SUPABASE_KEY: process.env.SUPABASE_PUBLIC_KEY!,  // E2E tests use SUPABASE_PUBLIC_KEY
       OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY!,
     },
   },
