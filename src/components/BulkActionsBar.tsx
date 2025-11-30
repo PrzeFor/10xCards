@@ -33,6 +33,7 @@ export function BulkActionsBar({
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex items-center gap-3">
             <Input
+              data-testid="select-all-checkbox"
               type="checkbox"
               checked={allSelected}
               onChange={onSelectAll}
@@ -50,6 +51,7 @@ export function BulkActionsBar({
 
           <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
             <Button
+              data-testid="accept-all-button"
               variant="success"
               size="sm"
               onClick={onAcceptAll}
@@ -59,6 +61,7 @@ export function BulkActionsBar({
             </Button>
 
             <Button
+              data-testid="reject-all-button"
               variant="destructive"
               size="sm"
               onClick={onRejectAll}
@@ -68,6 +71,7 @@ export function BulkActionsBar({
             </Button>
 
             <Button
+              data-testid="save-selected-button"
               variant="default"
               onClick={onSaveSelected}
               disabled={disabled || !someSelected}

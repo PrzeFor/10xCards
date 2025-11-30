@@ -48,11 +48,15 @@ export function FlashcardItem({
   };
 
   return (
-    <Card className={`transition-colors h-full flex flex-col overflow-hidden ${getStatusColor(proposal.status)}`}>
+    <Card 
+      data-testid="flashcard-proposal-item"
+      className={`transition-colors h-full flex flex-col overflow-hidden ${getStatusColor(proposal.status)}`}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <Input
+              data-testid="flashcard-proposal-checkbox"
               type="checkbox"
               checked={proposal.isSelected}
               onChange={() => onToggleSelect(proposal.id)}
@@ -70,6 +74,7 @@ export function FlashcardItem({
           <div className="flex flex-col gap-1 shrink-0">
             <div className="flex gap-1">
               <Button
+                data-testid="flashcard-accept-button"
                 variant="outline"
                 size="sm"
                 onClick={() => onAccept(proposal.id)}
@@ -79,6 +84,7 @@ export function FlashcardItem({
                 ✓
               </Button>
               <Button
+                data-testid="flashcard-edit-button"
                 variant="outline"
                 size="sm"
                 onClick={() => onEdit(proposal.id)}
@@ -88,6 +94,7 @@ export function FlashcardItem({
                 ✏️
               </Button>
               <Button
+                data-testid="flashcard-reject-button"
                 variant="outline"
                 size="sm"
                 onClick={() => onReject(proposal.id)}

@@ -68,6 +68,7 @@ export function LoginForm() {
             <div className="space-y-2">
               <Label htmlFor="email">Adres e-mail</Label>
               <Input
+                data-testid="login-email"
                 id="email"
                 type="email"
                 placeholder="twoj.email@example.com"
@@ -86,6 +87,7 @@ export function LoginForm() {
             <div className="space-y-2">
               <Label htmlFor="password">Hasło</Label>
               <Input
+                data-testid="login-password"
                 id="password"
                 type="password"
                 placeholder="Twoje hasło"
@@ -107,6 +109,7 @@ export function LoginForm() {
           </div>
 
           <Button 
+            data-testid="login-submit"
             type="submit" 
             disabled={isSubmitting}
             className="w-full"

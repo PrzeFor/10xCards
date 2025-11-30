@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createFlashcardsRequestSchema } from '../../lib/schemas/flashcards';
 import { FlashcardService } from '../../lib/services/flashcard.service';
-import { DEFAULT_USER_ID } from '../../db/supabase.client';
 
 const prerender = false;
 
@@ -32,9 +31,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    // For development phase, use default user ID
-    // TODO: Replace with real authentication when auth system is implemented
-    const userId = DEFAULT_USER_ID;
+    // Check if user is authenticated
+    if (!locals.user) {
+      return new Response(
+        JSON.stringify({
+          code: 'Unauthorized',
+          message: 'Authentication required'
+        } as ErrorResponse),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const userId = locals.user.id;
 
     console.log(`Processing flashcards creation request for user: ${userId}`);
 

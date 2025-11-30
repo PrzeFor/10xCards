@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from './ui/card';
 
 export function LoadingSkeleton() {
   return (
-    <div className="space-y-4">
+    <div data-testid="loading-skeleton" className="space-y-4">
       <div className="flex items-center gap-2 mb-4">
         <div className="animate-spin size-5 border-2 border-primary border-t-transparent rounded-full" />
         <span className="text-muted-foreground">Generuję propozycje fiszek...</span>

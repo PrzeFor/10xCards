@@ -1,7 +1,6 @@
 import { createHash } from 'crypto';
 import type { SupabaseClient } from '../../db/supabase.client';
 import type { Database } from '../../db/database.types';
-import { DEFAULT_USER_ID } from '../../db/supabase.client';
 import type {
   CreateGenerationResponseDto,
   FlashcardProposalDto,
@@ -28,12 +27,12 @@ export class GenerationService {
   /**
    * Creates a new generation request and processes it through AI service
    * @param sourceText - The source text to generate flashcards from
+   * @param userId - The authenticated user's ID
    */
   async createGeneration(
-    sourceText: string
+    sourceText: string,
+    userId: string
   ): Promise<CreateGenerationResponseDto> {
-    // Use default user ID for development phase
-    const userId = DEFAULT_USER_ID;
 
     // Start timing the generation process
     const startTime = Date.now();

@@ -43,7 +43,7 @@ export function FlashcardList({
   const editingProposal = editingId ? proposals.find(p => p.id === editingId) : null;
 
   return (
-    <div className="space-y-8">
+    <div data-testid="flashcard-proposals-list" className="space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="text-large-title text-brand">
           Propozycje fiszek ({proposals.length})

@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createGenerationRequestSchema } from '../../lib/schemas/generation';
 import { GenerationService } from '../../lib/services/generation.service';
-import { DEFAULT_USER_ID } from '../../db/supabase.client';
 import { OpenRouterError } from '../../lib/services/openRouter/openRouter.types';
 
 const prerender = false;
@@ -33,9 +32,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    // For development phase, use default user ID
-    // TODO: Replace with real authentication when auth system is implemented
-    const userId = DEFAULT_USER_ID;
+    // Check if user is authenticated
+    if (!locals.user) {
+      return new Response(
+        JSON.stringify({
+          code: 'Unauthorized',
+          message: 'Authentication required'
+        } as ErrorResponse),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const userId = locals.user.id;
 
     console.log(`Processing generation request for user: ${userId}`);
 
@@ -93,7 +104,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const generationService = new GenerationService(locals.supabase);
 
     // Create generation
-    const result = await generationService.createGeneration(source_text);
+    const result = await generationService.createGeneration(source_text, userId);
 
     // Return successful response
     return new Response(

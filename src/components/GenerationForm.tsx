@@ -67,6 +67,7 @@ export function GenerationForm({
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-3">
             <Textarea
+              data-testid="generation-source-text"
               value={sourceText}
               onChange={handleTextChange}
               placeholder="Wklej tutaj tekst, z którego chcesz wygenerować fiszki (500-15,000 znaków)..."
@@ -98,6 +99,7 @@ export function GenerationForm({
           </div>
 
           <Button 
+            data-testid="generate-flashcards-button"
             type="submit" 
             disabled={isDisabled}
             className="w-full"

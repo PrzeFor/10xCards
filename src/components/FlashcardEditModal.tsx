@@ -123,6 +123,7 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
                 Przód fiszki
               </Label>
               <Textarea
+                data-testid="edit-flashcard-front"
                 id="front-input"
                 value={front}
                 onChange={handleFrontChange}
@@ -149,6 +150,7 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
                 Tył fiszki
               </Label>
               <Textarea
+                data-testid="edit-flashcard-back"
                 id="back-input"
                 value={back}
                 onChange={handleBackChange}
@@ -173,6 +175,7 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
 
           <DialogFooter className="gap-2">
             <Button
+              data-testid="edit-flashcard-cancel"
               type="button"
               variant="outline"
               onClick={onClose}
@@ -180,6 +183,7 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
               Anuluj
             </Button>
             <Button
+              data-testid="edit-flashcard-save"
               type="submit"
               disabled={!isValid || !hasChanges}
             >
