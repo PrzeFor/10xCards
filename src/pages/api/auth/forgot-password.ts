@@ -14,16 +14,16 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 
     // Validate input with Zod schema
     const validation = ForgotPasswordSchema.safeParse(body);
-    
+
     if (!validation.success) {
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Nieprawidłowe dane wejściowe',
-          details: validation.error.errors
-        }), 
+          details: validation.error.errors,
+        }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -32,11 +32,11 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 
     // Import createSupabaseServerInstance inside the handler
     const { createSupabaseServerInstance } = await import('@/db/supabase.client');
-    
+
     // Create Supabase server instance with proper cookie handling
-    const supabase = createSupabaseServerInstance({ 
-      cookies, 
-      headers: request.headers 
+    const supabase = createSupabaseServerInstance({
+      cookies,
+      headers: request.headers,
     });
 
     // Get the base URL for the redirect
@@ -60,25 +60,20 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 
     // Always return success response for security
     return new Response(
-      JSON.stringify({ 
-        message: 'Jeśli konto istnieje, wysłano e-mail z linkiem do resetowania hasła'
-      }), 
+      JSON.stringify({
+        message: 'Jeśli konto istnieje, wysłano e-mail z linkiem do resetowania hasła',
+      }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       }
     );
-
   } catch (error) {
     console.error('Forgot password error:', error);
-    
-    return new Response(
-      JSON.stringify({ error: 'Wystąpił błąd serwera. Spróbuj ponownie później.' }), 
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+
+    return new Response(JSON.stringify({ error: 'Wystąpił błąd serwera. Spróbuj ponownie później.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };
-

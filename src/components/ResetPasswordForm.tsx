@@ -13,7 +13,7 @@ interface ResetPasswordFormProps {
 export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const [formData, setFormData] = useState<ResetPasswordFormData>({
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof ResetPasswordFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,11 +22,11 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     // Clear field error when user starts typing
     if (errors[name as keyof ResetPasswordFormData]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
     if (serverError) {
       setServerError('');
@@ -35,14 +35,14 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Clear previous errors
     setErrors({});
     setServerError('');
 
     // Validate form data
     const result = ResetPasswordSchema.safeParse(formData);
-    
+
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof ResetPasswordFormData, string>> = {};
       result.error.errors.forEach((error) => {
@@ -65,7 +65,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         },
         body: JSON.stringify({
           token,
-          newPassword: formData.newPassword
+          newPassword: formData.newPassword,
         }),
       });
 
@@ -99,11 +99,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           <p className="text-body text-foreground">
             Twoje hasło zostało pomyślnie zmienione. Możesz teraz zalogować się używając nowego hasła.
           </p>
-          <Button 
-            onClick={() => window.location.href = '/auth/login'}
-            className="w-full"
-            size="lg"
-          >
+          <Button onClick={() => (window.location.href = '/auth/login')} className="w-full" size="lg">
             Przejdź do logowania
           </Button>
         </CardContent>
@@ -134,9 +130,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                 disabled={isSubmitting}
                 autoComplete="new-password"
               />
-              {errors.newPassword && (
-                <InlineError id="newPassword-error" message={errors.newPassword} />
-              )}
+              {errors.newPassword && <InlineError id="newPassword-error" message={errors.newPassword} />}
             </div>
 
             {/* Confirm Password field */}
@@ -154,23 +148,14 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                 disabled={isSubmitting}
                 autoComplete="new-password"
               />
-              {errors.confirmPassword && (
-                <InlineError id="confirmPassword-error" message={errors.confirmPassword} />
-              )}
+              {errors.confirmPassword && <InlineError id="confirmPassword-error" message={errors.confirmPassword} />}
             </div>
 
             {/* Server error */}
-            {serverError && (
-              <InlineError id="server-error" message={serverError} />
-            )}
+            {serverError && <InlineError id="server-error" message={serverError} />}
           </div>
 
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="w-full"
-            size="lg"
-          >
+          <Button type="submit" disabled={isSubmitting} className="w-full" size="lg">
             {isSubmitting ? 'Resetowanie...' : 'Zmień hasło'}
           </Button>
         </form>
@@ -178,4 +163,3 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     </Card>
   );
 }
-

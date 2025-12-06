@@ -19,14 +19,14 @@ export default function GenerationsView() {
   const handleGenerate = async (text: string) => {
     try {
       const response: CreateGenerationResponseDto = await generate(text);
-      
+
       // Convert proposals to view models
-      const viewModels: FlashcardProposalViewModel[] = response.flashcards_proposals.map(proposal => ({
+      const viewModels: FlashcardProposalViewModel[] = response.flashcards_proposals.map((proposal) => ({
         ...proposal,
         isSelected: false,
         status: 'pending' as const,
       }));
-      
+
       setProposals(viewModels);
       setCurrentGenerationId(response.id);
     } catch (error) {
@@ -35,21 +35,19 @@ export default function GenerationsView() {
   };
 
   const handleToggleSelect = (id: string) => {
-    setProposals(prev => prev.map(p => 
-      p.id === id ? { ...p, isSelected: !p.isSelected } : p
-    ));
+    setProposals((prev) => prev.map((p) => (p.id === id ? { ...p, isSelected: !p.isSelected } : p)));
   };
 
   const handleAccept = (id: string) => {
-    setProposals(prev => prev.map(p => 
-      p.id === id ? { ...p, status: 'accepted' as const, isSelected: true } : p
-    ));
+    setProposals((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, status: 'accepted' as const, isSelected: true } : p))
+    );
   };
 
   const handleReject = (id: string) => {
-    setProposals(prev => prev.map(p => 
-      p.id === id ? { ...p, status: 'rejected' as const, isSelected: false } : p
-    ));
+    setProposals((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, status: 'rejected' as const, isSelected: false } : p))
+    );
   };
 
   const handleEdit = (id: string) => {
@@ -57,60 +55,68 @@ export default function GenerationsView() {
   };
 
   const handleSaveEdit = (id: string, front: string, back: string) => {
-    setProposals(prev => prev.map(p => 
-      p.id === id ? { 
-        ...p, 
-        status: 'edited' as const, 
-        editedFront: front, 
-        editedBack: back,
-        isSelected: true 
-      } : p
-    ));
+    setProposals((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              status: 'edited' as const,
+              editedFront: front,
+              editedBack: back,
+              isSelected: true,
+            }
+          : p
+      )
+    );
     setEditingId(null);
-    
+
     toast.success('Fiszka została edytowana', {
       description: 'Zmiany zostały zapisane lokalnie. Pamiętaj o zapisaniu zaznaczonych fiszek.',
     });
   };
 
   const handleSelectAll = () => {
-    const allSelected = proposals.every(p => p.isSelected);
-    setProposals(prev => prev.map(p => ({ ...p, isSelected: !allSelected })));
+    const allSelected = proposals.every((p) => p.isSelected);
+    setProposals((prev) => prev.map((p) => ({ ...p, isSelected: !allSelected })));
   };
 
   const handleAcceptAll = () => {
-    setProposals(prev => prev.map(p => ({ 
-      ...p, 
-      status: 'accepted' as const, 
-      isSelected: true 
-    })));
+    setProposals((prev) =>
+      prev.map((p) => ({
+        ...p,
+        status: 'accepted' as const,
+        isSelected: true,
+      }))
+    );
   };
 
   const handleRejectAll = () => {
-    setProposals(prev => prev.map(p => ({ 
-      ...p, 
-      status: 'rejected' as const, 
-      isSelected: false 
-    })));
+    setProposals((prev) =>
+      prev.map((p) => ({
+        ...p,
+        status: 'rejected' as const,
+        isSelected: false,
+      }))
+    );
   };
 
   const handleSaveSelected = async () => {
     if (!currentGenerationId) return;
-    
-    const selectedProposals = proposals.filter(p => p.isSelected);
+
+    const selectedProposals = proposals.filter((p) => p.isSelected);
     if (selectedProposals.length === 0) return;
 
     try {
       await saveSelected(selectedProposals, currentGenerationId);
-      
+
       // Remove saved proposals from the list
-      setProposals(prev => prev.filter(p => !p.isSelected));
+      setProposals((prev) => prev.filter((p) => !p.isSelected));
     } catch (error) {
       console.error('Save failed:', error);
     }
   };
 
-  const selectedCount = proposals.filter(p => p.isSelected).length;
+  const selectedCount = proposals.filter((p) => p.isSelected).length;
 
   return (
     <div className="space-y-8">

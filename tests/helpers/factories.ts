@@ -13,11 +13,9 @@ let flashcardIdCounter = 1;
 let generationIdCounter = 1;
 let proposalIdCounter = 1;
 
-export function createTestFlashcard(
-  overrides?: Partial<FlashcardRow>
-): FlashcardRow {
+export function createTestFlashcard(overrides?: Partial<FlashcardRow>): FlashcardRow {
   const id = flashcardIdCounter++;
-  
+
   return {
     id: `test-flashcard-${id}`,
     user_id: 'test-user-id',
@@ -31,11 +29,9 @@ export function createTestFlashcard(
   };
 }
 
-export function createTestGeneration(
-  overrides?: Partial<GenerationRow>
-): GenerationRow {
+export function createTestGeneration(overrides?: Partial<GenerationRow>): GenerationRow {
   const id = generationIdCounter++;
-  
+
   return {
     id: `test-generation-${id}`,
     user_id: 'test-user-id',
@@ -58,9 +54,7 @@ export interface TestUser {
   email: string;
 }
 
-export function createTestUser(
-  overrides?: Partial<TestUser>
-): TestUser {
+export function createTestUser(overrides?: Partial<TestUser>): TestUser {
   return {
     id: 'test-user-id',
     email: 'test@example.com',
@@ -72,7 +66,7 @@ export function createTestFlashcardProposal(
   overrides?: Partial<FlashcardProposalViewModel>
 ): FlashcardProposalViewModel {
   const id = proposalIdCounter++;
-  
+
   return {
     id: `test-proposal-${id}`,
     front: `Test flashcard front ${id}`,
@@ -92,4 +86,3 @@ export function resetFactoryCounters() {
   generationIdCounter = 1;
   proposalIdCounter = 1;
 }
-

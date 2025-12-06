@@ -106,7 +106,7 @@ describe('FlashcardEditModal', () => {
       render(<FlashcardEditModal {...defaultProps} />);
 
       const frontInput = screen.getByLabelText(/Przód fiszki/i);
-      
+
       // Trigger error
       fireEvent.change(frontInput, { target: { value: '' } });
       const form = frontInput.closest('form')!;
@@ -182,7 +182,7 @@ describe('FlashcardEditModal', () => {
       render(<FlashcardEditModal {...defaultProps} />);
 
       const backInput = screen.getByLabelText(/Tył fiszki/i);
-      
+
       // Trigger error
       fireEvent.change(backInput, { target: { value: '' } });
       const form = backInput.closest('form')!;
@@ -370,16 +370,15 @@ describe('FlashcardEditModal', () => {
 
       const frontInput = screen.getByLabelText(/Przód fiszki/i);
       fireEvent.change(frontInput, { target: { value: '' } });
-      
+
       const form = frontInput.closest('form')!;
       fireEvent.submit(form);
 
       expect(frontInput).toHaveAttribute('aria-describedby', 'front-error');
       expect(frontInput).toHaveAttribute('aria-invalid', 'true');
-      
+
       const errorAlert = screen.getByText(/Przód fiszki nie może być pusty/i).closest('[role="alert"]');
       expect(errorAlert).toHaveAttribute('id', 'front-error');
     });
   });
 });
-

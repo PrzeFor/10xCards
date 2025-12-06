@@ -39,7 +39,7 @@ export function RegistrationForm() {
         },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.password
+          password: formData.password,
         }),
       });
 
@@ -57,7 +57,7 @@ export function RegistrationForm() {
         setRequiresEmailConfirmation(true);
       } else {
         // If no email confirmation needed, redirect immediately
-        window.location.href = '/generations';
+        window.location.replace('/generations');
       }
     } catch (error) {
       setServerError('Wystąpił błąd połączenia. Spróbuj ponownie.');
@@ -74,20 +74,14 @@ export function RegistrationForm() {
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div className="rounded-lg bg-green-50 dark:bg-green-950/30 p-4 border border-green-200 dark:border-green-800">
-              <p className="text-sm text-green-800 dark:text-green-300">
-                {successMessage}
-              </p>
+              <p className="text-sm text-green-800 dark:text-green-300">{successMessage}</p>
             </div>
             <p className="text-sm text-muted-foreground">
               Po kliknięciu w link aktywacyjny będziesz mógł się zalogować i korzystać z aplikacji.
             </p>
           </div>
 
-          <Button 
-            onClick={() => window.location.href = '/auth/login'}
-            className="w-full"
-            size="lg"
-          >
+          <Button onClick={() => (window.location.href = '/auth/login')} className="w-full" size="lg">
             Przejdź do logowania
           </Button>
 
@@ -130,9 +124,7 @@ export function RegistrationForm() {
                 autoComplete="email"
                 {...register('email')}
               />
-              {errors.email && (
-                <InlineError id="email-error" message={errors.email.message!} />
-              )}
+              {errors.email && <InlineError id="email-error" message={errors.email.message!} />}
             </div>
 
             {/* Password field */}
@@ -148,9 +140,7 @@ export function RegistrationForm() {
                 autoComplete="new-password"
                 {...register('password')}
               />
-              {errors.password && (
-                <InlineError id="password-error" message={errors.password.message!} />
-              )}
+              {errors.password && <InlineError id="password-error" message={errors.password.message!} />}
             </div>
 
             {/* Confirm Password field */}
@@ -172,26 +162,16 @@ export function RegistrationForm() {
             </div>
 
             {/* Server error */}
-            {serverError && (
-              <InlineError id="server-error" message={serverError} />
-            )}
+            {serverError && <InlineError id="server-error" message={serverError} />}
           </div>
 
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="w-full"
-            size="lg"
-          >
+          <Button type="submit" disabled={isSubmitting} className="w-full" size="lg">
             {isSubmitting ? 'Rejestracja...' : 'Zarejestruj się'}
           </Button>
 
           <p className="text-center text-caption text-muted-foreground">
             Masz już konto?{' '}
-            <a 
-              href="/auth/login" 
-              className="text-brand hover:underline font-medium"
-            >
+            <a href="/auth/login" className="text-brand hover:underline font-medium">
               Zaloguj się
             </a>
           </p>
@@ -200,4 +180,3 @@ export function RegistrationForm() {
     </Card>
   );
 }
-

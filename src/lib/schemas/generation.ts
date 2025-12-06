@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import type { 
-  CreateGenerationRequestDto, 
+import type {
+  CreateGenerationRequestDto,
   CreateGenerationResponseDto,
   FlashcardProposalDto,
   GenerationStatus,
-  FlashcardSource
+  FlashcardSource,
 } from '../../types';
 
 /**
@@ -15,7 +15,7 @@ export const createGenerationRequestSchema = z.object({
     .string()
     .min(500, 'Tekst musi mieć co najmniej 500 znaków')
     .max(15000, 'Tekst nie może przekraczać 15,000 znaków')
-    .trim()
+    .trim(),
 }) satisfies z.ZodType<CreateGenerationRequestDto>;
 
 /**
@@ -25,7 +25,7 @@ export const flashcardProposalSchema = z.object({
   id: z.string().uuid(),
   front: z.string().min(1, 'Front text cannot be empty').max(1000),
   back: z.string().min(1, 'Back text cannot be empty').max(2000),
-  source: z.enum(['manual', 'ai_full', 'ai_edited'] as const)
+  source: z.enum(['manual', 'ai_full', 'ai_edited'] as const),
 }) satisfies z.ZodType<FlashcardProposalDto>;
 
 /**
@@ -37,18 +37,20 @@ export const createGenerationResponseSchema = z.object({
   status: z.enum(['pending', 'completed', 'failed'] as const),
   generated_count: z.number().int().min(0),
   source_text_length: z.number().int().min(500).max(15000),
-  flashcards_proposals: z.array(flashcardProposalSchema)
+  flashcards_proposals: z.array(flashcardProposalSchema),
 }) satisfies z.ZodType<CreateGenerationResponseDto>;
 
 /**
  * Schema for validating AI service response
  */
 export const aiServiceResponseSchema = z.object({
-  flashcards: z.array(z.object({
-    front: z.string().min(1).max(1000),
-    back: z.string().min(1).max(2000)
-  })),
-  model: z.string().min(1)
+  flashcards: z.array(
+    z.object({
+      front: z.string().min(1).max(1000),
+      back: z.string().min(1).max(2000),
+    })
+  ),
+  model: z.string().min(1),
 });
 
 /**

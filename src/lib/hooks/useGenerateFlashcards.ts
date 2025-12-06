@@ -31,7 +31,7 @@ export function useGenerateFlashcards(): UseGenerateFlashcardsReturn {
 
       if (!response.ok) {
         let errorMessage = 'Wystąpił błąd podczas generowania fiszek';
-        
+
         try {
           const errorData = await response.json();
           if (errorData.message) {
@@ -51,21 +51,21 @@ export function useGenerateFlashcards(): UseGenerateFlashcardsReturn {
               break;
           }
         }
-        
+
         throw new Error(errorMessage);
       }
 
       const data: CreateGenerationResponseDto = await response.json();
-      
+
       toast.success('Fiszki zostały wygenerowane!', {
         description: `Wygenerowano ${data.generated_count} propozycji fiszek`,
       });
-      
+
       return data;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Nieznany błąd';
       setError(errorMessage);
-      
+
       toast.error('Błąd generowania fiszek', {
         description: errorMessage,
         action: {
@@ -75,7 +75,7 @@ export function useGenerateFlashcards(): UseGenerateFlashcardsReturn {
           },
         },
       });
-      
+
       throw err;
     } finally {
       setIsLoading(false);

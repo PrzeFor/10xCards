@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { 
-  CreateFlashcardsRequestDto, 
-  CreateFlashcardsResponseDto,
-  CreateFlashcardRequestDto 
-} from '../../types';
+import type { CreateFlashcardsRequestDto, CreateFlashcardsResponseDto, CreateFlashcardRequestDto } from '../../types';
 import type { FlashcardProposalViewModel } from '../../types/viewModels';
 
 interface UseSaveFlashcardsReturn {
@@ -18,14 +14,14 @@ export function useSaveFlashcards(): UseSaveFlashcardsReturn {
   const [error, setError] = useState<string | null>(null);
 
   const saveSelected = async (
-    proposals: FlashcardProposalViewModel[], 
+    proposals: FlashcardProposalViewModel[],
     generationId: string
   ): Promise<CreateFlashcardsResponseDto> => {
     setIsSaving(true);
     setError(null);
 
     try {
-      const flashcards: CreateFlashcardRequestDto[] = proposals.map(proposal => ({
+      const flashcards: CreateFlashcardRequestDto[] = proposals.map((proposal) => ({
         front: proposal.status === 'edited' ? proposal.editedFront! : proposal.front,
         back: proposal.status === 'edited' ? proposal.editedBack! : proposal.back,
         source: proposal.status === 'edited' ? 'ai_edited' : 'ai_full',
@@ -46,7 +42,7 @@ export function useSaveFlashcards(): UseSaveFlashcardsReturn {
 
       if (!response.ok) {
         let errorMessage = 'Wystąpił błąd podczas zapisywania fiszek';
-        
+
         try {
           const errorData = await response.json();
           if (errorData.message) {
@@ -66,21 +62,21 @@ export function useSaveFlashcards(): UseSaveFlashcardsReturn {
               break;
           }
         }
-        
+
         throw new Error(errorMessage);
       }
 
       const data: CreateFlashcardsResponseDto = await response.json();
-      
+
       toast.success('Fiszki zostały zapisane!', {
         description: `Zapisano ${data.length} ${data.length === 1 ? 'fiszkę' : data.length < 5 ? 'fiszki' : 'fiszek'}`,
       });
-      
+
       return data;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Nieznany błąd';
       setError(errorMessage);
-      
+
       toast.error('Błąd zapisywania fiszek', {
         description: errorMessage,
         action: {
@@ -90,7 +86,7 @@ export function useSaveFlashcards(): UseSaveFlashcardsReturn {
           },
         },
       });
-      
+
       throw err;
     } finally {
       setIsSaving(false);

@@ -62,7 +62,7 @@ describe('GenerationForm', () => {
       fireEvent.change(textarea, { target: { value: 'A'.repeat(500) } });
 
       const button = screen.getByRole('button', { name: /Generuj fiszki/i });
-      
+
       await waitFor(() => {
         expect(button).not.toBeDisabled();
       });
@@ -117,14 +117,14 @@ describe('GenerationForm', () => {
       // Trigger validation error
       fireEvent.change(textarea, { target: { value: 'A'.repeat(400) } });
       fireEvent.submit(form);
-      
+
       await waitFor(() => {
         expect(screen.getByText(/Tekst musi mieć co najmniej 500 znaków/i)).toBeInTheDocument();
       });
 
       // Type valid length text
       fireEvent.change(textarea, { target: { value: 'A'.repeat(500) } });
-      
+
       await waitFor(() => {
         expect(screen.queryByText(/Tekst musi mieć co najmniej 500 znaków/i)).not.toBeInTheDocument();
       });
@@ -154,7 +154,7 @@ describe('GenerationForm', () => {
       render(<GenerationForm {...defaultProps} />);
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
-      
+
       fireEvent.change(textarea, { target: { value: 'A'.repeat(750) } });
       expect(screen.getByText(/Znaki: 750 \/ 15,000/i)).toBeInTheDocument();
 
@@ -169,9 +169,9 @@ describe('GenerationForm', () => {
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
       const validText = 'A'.repeat(500);
-      
+
       fireEvent.change(textarea, { target: { value: validText } });
-      
+
       const form = textarea.closest('form')!;
       fireEvent.submit(form);
 
@@ -186,14 +186,14 @@ describe('GenerationForm', () => {
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
       fireEvent.change(textarea, { target: { value: 'A'.repeat(100) } });
-      
+
       const form = textarea.closest('form')!;
       fireEvent.submit(form);
 
       await waitFor(() => {
         expect(screen.getByText(/Tekst musi mieć co najmniej 500 znaków/i)).toBeInTheDocument();
       });
-      
+
       expect(mockOnGenerate).not.toHaveBeenCalled();
     });
 
@@ -203,9 +203,9 @@ describe('GenerationForm', () => {
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
       const validText = 'A'.repeat(500);
-      
+
       fireEvent.change(textarea, { target: { value: validText } });
-      
+
       const form = textarea.closest('form')!;
       fireEvent.submit(form);
 
@@ -254,7 +254,7 @@ describe('GenerationForm', () => {
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
       fireEvent.change(textarea, { target: { value: 'A'.repeat(100) } });
-      
+
       const form = textarea.closest('form')!;
       fireEvent.submit(form);
 
@@ -271,7 +271,7 @@ describe('GenerationForm', () => {
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
       fireEvent.change(textarea, { target: { value: 'A'.repeat(100) } });
-      
+
       const form = textarea.closest('form')!;
       fireEvent.submit(form);
 
@@ -286,7 +286,7 @@ describe('GenerationForm', () => {
 
       const textarea = screen.getByPlaceholderText(/Wklej tutaj tekst/i);
       fireEvent.change(textarea, { target: { value: 'A'.repeat(100) } });
-      
+
       const form = textarea.closest('form')!;
       fireEvent.submit(form);
 
@@ -303,4 +303,3 @@ describe('GenerationForm', () => {
     });
   });
 });
-

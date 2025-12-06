@@ -1,6 +1,6 @@
 /**
  * OpenRouter Service Types
- * 
+ *
  * Type definitions for the OpenRouter API integration
  */
 
@@ -95,14 +95,14 @@ export interface ChatResponse {
   id: string;
   model: string;
   created: number;
-  choices: Array<{
+  choices: {
     index: number;
     message: {
       role: string;
       content: string;
     };
     finish_reason: string;
-  }>;
+  }[];
   usage?: {
     prompt_tokens: number;
     completion_tokens: number;
@@ -129,5 +129,3 @@ export class OpenRouterError extends Error {
     Object.setPrototypeOf(this, OpenRouterError.prototype);
   }
 }
-
-

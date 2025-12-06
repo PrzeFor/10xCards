@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { 
+import {
   flashcardSourceSchema,
   createFlashcardRequestSchema,
-  createFlashcardsRequestSchema 
+  createFlashcardsRequestSchema,
 } from '@/lib/schemas/flashcards';
 
 describe('Flashcard Schemas', () => {
   describe('flashcardSourceSchema', () => {
     it('should validate all valid source types', () => {
       const validSources = ['manual', 'ai_full', 'ai_edited'] as const;
-      
+
       validSources.forEach((source) => {
         const result = flashcardSourceSchema.safeParse(source);
         expect(result.success).toBe(true);
@@ -18,9 +18,9 @@ describe('Flashcard Schemas', () => {
 
     it('should reject invalid source type', () => {
       const invalidSource = 'invalid_source';
-      
+
       const result = flashcardSourceSchema.safeParse(invalidSource);
-      
+
       expect(result.success).toBe(false);
     });
   });
@@ -32,9 +32,9 @@ describe('Flashcard Schemas', () => {
         back: 'JavaScript is a programming language.',
         source: 'manual' as const,
       };
-      
+
       const result = createFlashcardRequestSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -45,9 +45,9 @@ describe('Flashcard Schemas', () => {
         source: 'ai_full' as const,
         generation_id: '550e8400-e29b-41d4-a716-446655440000',
       };
-      
+
       const result = createFlashcardRequestSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -58,9 +58,9 @@ describe('Flashcard Schemas', () => {
         source: 'ai_edited' as const,
         generation_id: '550e8400-e29b-41d4-a716-446655440000',
       };
-      
+
       const result = createFlashcardRequestSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -70,9 +70,9 @@ describe('Flashcard Schemas', () => {
         back: 'TypeScript is a strongly typed programming language.',
         source: 'ai_full' as const,
       };
-      
+
       const result = createFlashcardRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('Generation ID is required');
@@ -85,9 +85,9 @@ describe('Flashcard Schemas', () => {
         back: 'React is a JavaScript library.',
         source: 'ai_edited' as const,
       };
-      
+
       const result = createFlashcardRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('Generation ID is required');
@@ -101,9 +101,9 @@ describe('Flashcard Schemas', () => {
         source: 'ai_full' as const,
         generation_id: 'not-a-uuid',
       };
-      
+
       const result = createFlashcardRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -113,9 +113,9 @@ describe('Flashcard Schemas', () => {
         back: 'Test back',
         source: 'manual' as const,
       };
-      
+
       const result = createFlashcardRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('300');
@@ -128,9 +128,9 @@ describe('Flashcard Schemas', () => {
         back: 'a'.repeat(501),
         source: 'manual' as const,
       };
-      
+
       const result = createFlashcardRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('500');
@@ -143,9 +143,9 @@ describe('Flashcard Schemas', () => {
         back: 'Test back',
         source: 'manual' as const,
       };
-      
+
       const result = createFlashcardRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('empty');
@@ -158,9 +158,9 @@ describe('Flashcard Schemas', () => {
         back: '',
         source: 'manual' as const,
       };
-      
+
       const result = createFlashcardRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('empty');
@@ -173,9 +173,9 @@ describe('Flashcard Schemas', () => {
         back: '  Test back  ',
         source: 'manual' as const,
       };
-      
+
       const result = createFlashcardRequestSchema.parse(data);
-      
+
       expect(result.front).toBe('Test front');
       expect(result.back).toBe('Test back');
     });
@@ -197,9 +197,9 @@ describe('Flashcard Schemas', () => {
           },
         ],
       };
-      
+
       const result = createFlashcardsRequestSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -207,9 +207,9 @@ describe('Flashcard Schemas', () => {
       const invalidData = {
         flashcards: [],
       };
-      
+
       const result = createFlashcardsRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('At least one');
@@ -222,11 +222,11 @@ describe('Flashcard Schemas', () => {
         back: `Back ${i}`,
         source: 'manual' as const,
       }));
-      
+
       const invalidData = { flashcards };
-      
+
       const result = createFlashcardsRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('100');
@@ -239,11 +239,11 @@ describe('Flashcard Schemas', () => {
         back: `Back ${i}`,
         source: 'manual' as const,
       }));
-      
+
       const validData = { flashcards };
-      
+
       const result = createFlashcardsRequestSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -262,11 +262,10 @@ describe('Flashcard Schemas', () => {
           },
         ],
       };
-      
+
       const result = createFlashcardsRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
   });
 });
-

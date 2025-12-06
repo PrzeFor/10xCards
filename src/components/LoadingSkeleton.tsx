@@ -8,7 +8,7 @@ export function LoadingSkeleton() {
         <div className="animate-spin size-5 border-2 border-primary border-t-transparent rounded-full" />
         <span className="text-muted-foreground">Generuję propozycje fiszek...</span>
       </div>
-      
+
       {/* Skeleton cards for flashcard proposals */}
       {Array.from({ length: 3 }).map((_, index) => (
         <Card key={index} className="animate-pulse">

@@ -3,22 +3,24 @@ import { z } from 'zod';
 /**
  * Schema for user registration validation (client-side with confirmPassword)
  */
-export const RegisterSchema = z.object({
-  email: z
-    .string()
-    .min(1, 'Adres e-mail jest wymagany')
-    .email('Nieprawidłowy format adresu e-mail')
-    .trim()
-    .toLowerCase(),
-  password: z
-    .string()
-    .min(8, 'Hasło musi mieć co najmniej 8 znaków')
-    .max(100, 'Hasło nie może przekraczać 100 znaków'),
-  confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Hasła muszą być identyczne',
-  path: ['confirmPassword'],
-});
+export const RegisterSchema = z
+  .object({
+    email: z
+      .string()
+      .min(1, 'Adres e-mail jest wymagany')
+      .email('Nieprawidłowy format adresu e-mail')
+      .trim()
+      .toLowerCase(),
+    password: z
+      .string()
+      .min(8, 'Hasło musi mieć co najmniej 8 znaków')
+      .max(100, 'Hasło nie może przekraczać 100 znaków'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Hasła muszą być identyczne',
+    path: ['confirmPassword'],
+  });
 
 /**
  * Schema for user registration API validation (server-side without confirmPassword)
@@ -30,10 +32,7 @@ export const RegisterApiSchema = z.object({
     .email('Nieprawidłowy format adresu e-mail')
     .trim()
     .toLowerCase(),
-  password: z
-    .string()
-    .min(8, 'Hasło musi mieć co najmniej 8 znaków')
-    .max(100, 'Hasło nie może przekraczać 100 znaków'),
+  password: z.string().min(8, 'Hasło musi mieć co najmniej 8 znaków').max(100, 'Hasło nie może przekraczać 100 znaków'),
 });
 
 /**
@@ -46,9 +45,7 @@ export const LoginSchema = z.object({
     .email('Nieprawidłowy format adresu e-mail')
     .trim()
     .toLowerCase(),
-  password: z
-    .string()
-    .min(1, 'Hasło jest wymagane')
+  password: z.string().min(1, 'Hasło jest wymagane'),
 });
 
 /**
@@ -60,22 +57,24 @@ export const ForgotPasswordSchema = z.object({
     .min(1, 'Adres e-mail jest wymagany')
     .email('Nieprawidłowy format adresu e-mail')
     .trim()
-    .toLowerCase()
+    .toLowerCase(),
 });
 
 /**
  * Schema for password reset validation
  */
-export const ResetPasswordSchema = z.object({
-  newPassword: z
-    .string()
-    .min(8, 'Hasło musi mieć co najmniej 8 znaków')
-    .max(100, 'Hasło nie może przekraczać 100 znaków'),
-  confirmPassword: z.string()
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: 'Hasła muszą być identyczne',
-  path: ['confirmPassword'],
-});
+export const ResetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(8, 'Hasło musi mieć co najmniej 8 znaków')
+      .max(100, 'Hasło nie może przekraczać 100 znaków'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Hasła muszą być identyczne',
+    path: ['confirmPassword'],
+  });
 
 /**
  * Types inferred from schemas
@@ -85,4 +84,3 @@ export type RegisterApiData = z.infer<typeof RegisterApiSchema>;
 export type LoginFormData = z.infer<typeof LoginSchema>;
 export type ForgotPasswordFormData = z.infer<typeof ForgotPasswordSchema>;
 export type ResetPasswordFormData = z.infer<typeof ResetPasswordSchema>;
-

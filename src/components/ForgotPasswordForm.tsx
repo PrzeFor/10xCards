@@ -8,7 +8,7 @@ import { ForgotPasswordSchema, type ForgotPasswordFormData } from '@/lib/schemas
 
 export function ForgotPasswordForm() {
   const [formData, setFormData] = useState<ForgotPasswordFormData>({
-    email: ''
+    email: '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof ForgotPasswordFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,11 +17,11 @@ export function ForgotPasswordForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     // Clear field error when user starts typing
     if (errors[name as keyof ForgotPasswordFormData]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
     if (serverError) {
       setServerError('');
@@ -30,14 +30,14 @@ export function ForgotPasswordForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Clear previous errors
     setErrors({});
     setServerError('');
 
     // Validate form data
     const result = ForgotPasswordSchema.safeParse(formData);
-    
+
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof ForgotPasswordFormData, string>> = {};
       result.error.errors.forEach((error) => {
@@ -94,11 +94,7 @@ export function ForgotPasswordForm() {
           <p className="text-caption text-muted-foreground">
             Link będzie ważny przez 60 minut. Jeśli nie otrzymasz wiadomości, sprawdź folder spam.
           </p>
-          <Button 
-            onClick={() => window.location.href = '/auth/login'}
-            className="w-full"
-            size="lg"
-          >
+          <Button onClick={() => (window.location.href = '/auth/login')} className="w-full" size="lg">
             Powrót do logowania
           </Button>
         </CardContent>
@@ -133,32 +129,20 @@ export function ForgotPasswordForm() {
                 disabled={isSubmitting}
                 autoComplete="email"
               />
-              {errors.email && (
-                <InlineError id="email-error" message={errors.email} />
-              )}
+              {errors.email && <InlineError id="email-error" message={errors.email} />}
             </div>
 
             {/* Server error */}
-            {serverError && (
-              <InlineError id="server-error" message={serverError} />
-            )}
+            {serverError && <InlineError id="server-error" message={serverError} />}
           </div>
 
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="w-full"
-            size="lg"
-          >
+          <Button type="submit" disabled={isSubmitting} className="w-full" size="lg">
             {isSubmitting ? 'Wysyłanie...' : 'Wyślij link resetujący'}
           </Button>
 
           <p className="text-center text-caption text-muted-foreground">
             Pamiętasz hasło?{' '}
-            <a 
-              href="/auth/login" 
-              className="text-brand hover:underline font-medium"
-            >
+            <a href="/auth/login" className="text-brand hover:underline font-medium">
               Zaloguj się
             </a>
           </p>
@@ -167,4 +151,3 @@ export function ForgotPasswordForm() {
     </Card>
   );
 }
-

@@ -1,5 +1,5 @@
-import { render, RenderOptions } from '@testing-library/react';
-import { ReactElement, ReactNode } from 'react';
+import { render, RenderOptions } from '@testing-library/react'
+import { ReactElement, ReactNode } from 'react'
 
 /**
  * Custom render function that wraps components with providers
@@ -10,17 +10,13 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 }
 
 function AllTheProviders({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return <>{children}</>
 }
 
-function customRender(
-  ui: ReactElement,
-  options?: CustomRenderOptions
-) {
-  return render(ui, { wrapper: AllTheProviders, ...options });
+function customRender(ui: ReactElement, options?: CustomRenderOptions) {
+  return render(ui, { wrapper: AllTheProviders, ...options })
 }
 
 // Re-export everything from React Testing Library
-export * from '@testing-library/react';
-export { customRender as render };
-
+export * from '@testing-library/react'
+export { customRender as render }

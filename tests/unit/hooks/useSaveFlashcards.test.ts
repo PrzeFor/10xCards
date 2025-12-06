@@ -26,9 +26,7 @@ describe('useSaveFlashcards', () => {
     global.fetch = originalFetch;
   });
 
-  const createMockProposal = (
-    overrides?: Partial<FlashcardProposalViewModel>
-  ): FlashcardProposalViewModel => ({
+  const createMockProposal = (overrides?: Partial<FlashcardProposalViewModel>): FlashcardProposalViewModel => ({
     id: 'proposal-1',
     front: 'Test front',
     back: 'Test back',
@@ -78,7 +76,7 @@ describe('useSaveFlashcards', () => {
       const { result } = renderHook(() => useSaveFlashcards());
 
       const proposals = [createMockProposal()];
-      
+
       // Start save
       let savePromise!: Promise<any>;
       act(() => {
@@ -337,10 +335,7 @@ describe('useSaveFlashcards', () => {
       const { result } = renderHook(() => useSaveFlashcards());
 
       await act(async () => {
-        await result.current.saveSelected(
-          [createMockProposal(), createMockProposal(), createMockProposal()],
-          'gen-1'
-        );
+        await result.current.saveSelected([createMockProposal(), createMockProposal(), createMockProposal()], 'gen-1');
       });
 
       await waitFor(() => {
@@ -502,9 +497,7 @@ describe('useSaveFlashcards', () => {
       const { result } = renderHook(() => useSaveFlashcards());
 
       await act(async () => {
-        await expect(result.current.saveSelected([createMockProposal()], 'gen-1')).rejects.toThrow(
-          customError
-        );
+        await expect(result.current.saveSelected([createMockProposal()], 'gen-1')).rejects.toThrow(customError);
       });
 
       await waitFor(() => {
@@ -536,9 +529,7 @@ describe('useSaveFlashcards', () => {
 
       // The hook throws the original error, but sets state to translated message
       await act(async () => {
-        await expect(result.current.saveSelected([createMockProposal()], 'gen-1')).rejects.toEqual(
-          'Unknown error'
-        );
+        await expect(result.current.saveSelected([createMockProposal()], 'gen-1')).rejects.toEqual('Unknown error');
       });
 
       await waitFor(() => {
@@ -667,9 +658,7 @@ describe('useSaveFlashcards', () => {
 
       const { result } = renderHook(() => useSaveFlashcards());
 
-      const proposals = Array.from({ length: 100 }, (_, i) =>
-        createMockProposal({ id: `p${i}` })
-      );
+      const proposals = Array.from({ length: 100 }, (_, i) => createMockProposal({ id: `p${i}` }));
 
       await act(async () => {
         await result.current.saveSelected(proposals, 'gen-1');
@@ -719,4 +708,3 @@ describe('useSaveFlashcards', () => {
     });
   });
 });
-

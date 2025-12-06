@@ -11,7 +11,7 @@ import { LoginSchema, type LoginFormData } from '@/lib/schemas/auth';
 
 export function LoginForm() {
   const [serverError, setServerError] = useState<string>('');
-  
+
   const {
     register,
     handleSubmit,
@@ -46,10 +46,10 @@ export function LoginForm() {
 
       // Success - show toast and redirect
       toast.success('Logowanie przebiegło pomyślnie!');
-      
+
       // Small delay to allow toast to be seen before redirect
       setTimeout(() => {
-        window.location.href = '/generations';
+        window.location.replace('/generations');
       }, 500);
     } catch (error) {
       setServerError('Wystąpił błąd połączenia. Spróbuj ponownie.');
@@ -78,9 +78,7 @@ export function LoginForm() {
                 autoComplete="email"
                 {...register('email')}
               />
-              {errors.email && (
-                <InlineError id="email-error" message={errors.email.message!} />
-              )}
+              {errors.email && <InlineError id="email-error" message={errors.email.message!} />}
             </div>
 
             {/* Password field */}
@@ -97,42 +95,26 @@ export function LoginForm() {
                 autoComplete="current-password"
                 {...register('password')}
               />
-              {errors.password && (
-                <InlineError id="password-error" message={errors.password.message!} />
-              )}
+              {errors.password && <InlineError id="password-error" message={errors.password.message!} />}
             </div>
 
             {/* Server error */}
-            {serverError && (
-              <InlineError id="server-error" message={serverError} />
-            )}
+            {serverError && <InlineError id="server-error" message={serverError} />}
           </div>
 
-          <Button 
-            data-testid="login-submit"
-            type="submit" 
-            disabled={isSubmitting}
-            className="w-full"
-            size="lg"
-          >
+          <Button data-testid="login-submit" type="submit" disabled={isSubmitting} className="w-full" size="lg">
             {isSubmitting ? 'Logowanie...' : 'Zaloguj się'}
           </Button>
 
           <div className="space-y-3">
             <p className="text-center text-caption text-muted-foreground">
-              <a 
-                href="/auth/forgot-password" 
-                className="text-brand hover:underline font-medium"
-              >
+              <a href="/auth/forgot-password" className="text-brand hover:underline font-medium">
                 Zapomniałeś hasła?
               </a>
             </p>
             <p className="text-center text-caption text-muted-foreground">
               Nie masz konta?{' '}
-              <a 
-                href="/auth/register" 
-                className="text-brand hover:underline font-medium"
-              >
+              <a href="/auth/register" className="text-brand hover:underline font-medium">
                 Zarejestruj się
               </a>
             </p>
@@ -142,4 +124,3 @@ export function LoginForm() {
     </Card>
   );
 }
-

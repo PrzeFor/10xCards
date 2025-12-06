@@ -1,33 +1,33 @@
 import { describe, it, expect } from 'vitest';
-import { 
+import {
   createGenerationRequestSchema,
   flashcardProposalSchema,
-  createGenerationResponseSchema 
+  createGenerationResponseSchema,
 } from '@/lib/schemas/generation';
 
 describe('Generation Schemas', () => {
   describe('createGenerationRequestSchema', () => {
     it('should validate correct source_text with minimum length', () => {
       const validData = { source_text: 'a'.repeat(500) };
-      
+
       const result = createGenerationRequestSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
     it('should validate correct source_text with maximum length', () => {
       const validData = { source_text: 'a'.repeat(15000) };
-      
+
       const result = createGenerationRequestSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
     it('should reject source_text shorter than 500 characters', () => {
       const invalidData = { source_text: 'too short' };
-      
+
       const result = createGenerationRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('co najmniej 500 znaków');
@@ -36,9 +36,9 @@ describe('Generation Schemas', () => {
 
     it('should reject source_text longer than 15000 characters', () => {
       const invalidData = { source_text: 'a'.repeat(15001) };
-      
+
       const result = createGenerationRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('nie może przekraczać 15,000 znaków');
@@ -47,25 +47,25 @@ describe('Generation Schemas', () => {
 
     it('should trim whitespace from source_text', () => {
       const dataWithWhitespace = { source_text: '  ' + 'a'.repeat(500) + '  ' };
-      
+
       const result = createGenerationRequestSchema.parse(dataWithWhitespace);
-      
+
       expect(result.source_text).toBe('a'.repeat(500));
     });
 
     it('should reject empty source_text', () => {
       const invalidData = { source_text: '' };
-      
+
       const result = createGenerationRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
     it('should reject missing source_text', () => {
       const invalidData = {};
-      
+
       const result = createGenerationRequestSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
   });
@@ -78,15 +78,15 @@ describe('Generation Schemas', () => {
         back: 'TypeScript is a strongly typed programming language.',
         source: 'ai_full' as const,
       };
-      
+
       const result = flashcardProposalSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
     it('should validate all valid source types', () => {
       const sources = ['manual', 'ai_full', 'ai_edited'] as const;
-      
+
       sources.forEach((source) => {
         const validData = {
           id: '550e8400-e29b-41d4-a716-446655440000',
@@ -94,9 +94,9 @@ describe('Generation Schemas', () => {
           back: 'Test back',
           source,
         };
-        
+
         const result = flashcardProposalSchema.safeParse(validData);
-        
+
         expect(result.success).toBe(true);
       });
     });
@@ -108,9 +108,9 @@ describe('Generation Schemas', () => {
         back: 'Test back',
         source: 'ai_full' as const,
       };
-      
+
       const result = flashcardProposalSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -121,9 +121,9 @@ describe('Generation Schemas', () => {
         back: 'Test back',
         source: 'ai_full' as const,
       };
-      
+
       const result = flashcardProposalSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -134,9 +134,9 @@ describe('Generation Schemas', () => {
         back: 'a'.repeat(2001),
         source: 'ai_full' as const,
       };
-      
+
       const result = flashcardProposalSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -147,9 +147,9 @@ describe('Generation Schemas', () => {
         back: 'Test back',
         source: 'ai_full' as const,
       };
-      
+
       const result = flashcardProposalSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -160,9 +160,9 @@ describe('Generation Schemas', () => {
         back: 'Test back',
         source: 'invalid_source',
       };
-      
+
       const result = flashcardProposalSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
   });
@@ -177,15 +177,15 @@ describe('Generation Schemas', () => {
         source_text_length: 1000,
         flashcards_proposals: [],
       };
-      
+
       const result = createGenerationResponseSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
     it('should validate all valid status types', () => {
       const statuses = ['pending', 'completed', 'failed'] as const;
-      
+
       statuses.forEach((status) => {
         const validData = {
           id: '550e8400-e29b-41d4-a716-446655440000',
@@ -195,9 +195,9 @@ describe('Generation Schemas', () => {
           source_text_length: 500,
           flashcards_proposals: [],
         };
-        
+
         const result = createGenerationResponseSchema.safeParse(validData);
-        
+
         expect(result.success).toBe(true);
       });
     });
@@ -211,9 +211,9 @@ describe('Generation Schemas', () => {
         source_text_length: 500,
         flashcards_proposals: [],
       };
-      
+
       const result = createGenerationResponseSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -226,9 +226,9 @@ describe('Generation Schemas', () => {
         source_text_length: 499,
         flashcards_proposals: [],
       };
-      
+
       const result = createGenerationResponseSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -241,11 +241,10 @@ describe('Generation Schemas', () => {
         source_text_length: 15001,
         flashcards_proposals: [],
       };
-      
+
       const result = createGenerationResponseSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
   });
 });
-

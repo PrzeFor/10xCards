@@ -54,13 +54,10 @@ export function AccountSettings() {
           <div className="space-y-3">
             <h3 className="text-subtitle-strong text-foreground">Strefa niebezpieczna</h3>
             <p className="text-caption text-muted-foreground">
-              Usunięcie konta jest nieodwracalne. Wszystkie Twoje dane, w tym fiszki i generacje, zostaną trwale usunięte.
+              Usunięcie konta jest nieodwracalne. Wszystkie Twoje dane, w tym fiszki i generacje, zostaną trwale
+              usunięte.
             </p>
-            <Button 
-              variant="destructive"
-              onClick={() => setIsDeleteModalOpen(true)}
-              size="lg"
-            >
+            <Button variant="destructive" onClick={() => setIsDeleteModalOpen(true)} size="lg">
               Usuń konto
             </Button>
           </div>
@@ -73,25 +70,21 @@ export function AccountSettings() {
           <DialogHeader>
             <DialogTitle>Czy na pewno chcesz usunąć konto?</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
-            <p className="text-body text-foreground">
-              Ta operacja jest nieodwracalna. Po usunięciu konta:
-            </p>
+            <p className="text-body text-foreground">Ta operacja jest nieodwracalna. Po usunięciu konta:</p>
             <ul className="list-disc list-inside space-y-2 text-body text-muted-foreground">
               <li>Wszystkie Twoje fiszki zostaną trwale usunięte</li>
               <li>Historia generacji zostanie usunięta</li>
               <li>Nie będzie można odzyskać Twoich danych</li>
             </ul>
 
-            {deleteError && (
-              <InlineError id="delete-error" message={deleteError} />
-            )}
+            {deleteError && <InlineError id="delete-error" message={deleteError} />}
           </div>
 
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 setIsDeleteModalOpen(false);
                 setDeleteError('');
@@ -100,11 +93,7 @@ export function AccountSettings() {
             >
               Anuluj
             </Button>
-            <Button 
-              variant="destructive"
-              onClick={handleDeleteAccount}
-              disabled={isDeleting}
-            >
+            <Button variant="destructive" onClick={handleDeleteAccount} disabled={isDeleting}>
               {isDeleting ? 'Usuwanie...' : 'Usuń konto definitywnie'}
             </Button>
           </DialogFooter>
@@ -113,4 +102,3 @@ export function AccountSettings() {
     </>
   );
 }
-

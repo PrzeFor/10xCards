@@ -8,7 +8,7 @@ import type {
   ChatRole,
   JSONSchema,
   OpenRouterServiceOptions,
-  ResponseFormat
+  ResponseFormat,
 } from './openRouter.types';
 import { OpenRouterError } from './openRouter.types';
 
@@ -36,25 +36,25 @@ interface RequestPayload {
 
 /**
  * Service for interacting with the OpenRouter API
- * 
+ *
  * Handles:
  * - Configuration and authorization
  * - Building and sending chat completion requests
  * - Parsing responses according to JSON schemas
  * - Error handling and logging
  * - Retry logic with exponential backoff
- * 
+ *
  * @example
  * ```ts
  * const service = new OpenRouterService(apiKey, {
  *   defaultModel: 'anthropic/claude-3.5-sonnet'
  * });
- * 
+ *
  * const messages = [
  *   { role: 'system', content: 'You are a helpful assistant.' },
  *   { role: 'user', content: 'Hello!' }
  * ];
- * 
+ *
  * const response = await service.sendChatCompletion(messages);
  * ```
  */
@@ -74,7 +74,7 @@ export class OpenRouterService {
 
   /**
    * Creates a new OpenRouterService instance
-   * 
+   *
    * @param apiKey - OpenRouter API key (required)
    * @param options - Configuration options
    * @param options.baseUrl - Base URL for OpenRouter API (default: 'https://openrouter.ai/api/v1')
@@ -83,16 +83,13 @@ export class OpenRouterService {
    * @param options.timeout - Request timeout in milliseconds (default: 60000)
    * @param options.maxRetries - Maximum number of retries (default: 3)
    * @param options.retryDelay - Initial retry delay in milliseconds (default: 1000)
-   * 
+   *
    * @throws {OpenRouterError} If API key is not provided
    */
   constructor(apiKey: string, options?: OpenRouterServiceOptions) {
     // Validate API key
     if (!apiKey || apiKey.trim() === '') {
-      throw new OpenRouterError(
-        'API key is required',
-        'MISSING_API_KEY'
-      );
+      throw new OpenRouterError('API key is required', 'MISSING_API_KEY');
     }
 
     // Initialize public fields
@@ -111,11 +108,11 @@ export class OpenRouterService {
       baseURL: this.baseUrl,
       timeout: this.timeout,
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://10xcards.app',
-        'X-Title': '10xCards'
-      }
+        'X-Title': '10xCards',
+      },
     });
   }
 
@@ -125,23 +122,17 @@ export class OpenRouterService {
 
   /**
    * Sends a chat completion request to OpenRouter API
-   * 
+   *
    * @param messages - Array of chat messages
    * @param options - Optional configuration for this request
    * @returns Promise resolving to the chat response
-   * 
+   *
    * @throws {OpenRouterError} If the request fails or response is invalid
    */
-  public async sendChatCompletion(
-    messages: ChatMessage[],
-    options?: ChatOptions
-  ): Promise<ChatResponse> {
+  public async sendChatCompletion(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse> {
     // Validate input
     if (!messages || messages.length === 0) {
-      throw new OpenRouterError(
-        'At least one message is required',
-        'INVALID_INPUT'
-      );
+      throw new OpenRouterError('At least one message is required', 'INVALID_INPUT');
     }
 
     // Prepend system message if set
@@ -154,22 +145,19 @@ export class OpenRouterService {
 
     // Send request with retry logic
     let lastError: Error | null = null;
-    
+
     for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
       try {
-        const response = await this.axiosInstance.post<ChatResponse>(
-          '/chat/completions',
-          payload
-        );
+        const response = await this.axiosInstance.post<ChatResponse>('/chat/completions', payload);
 
         // Handle and validate response
         return await this.handleResponse(response.data, options?.response_format);
       } catch (error) {
         lastError = error as Error;
-        
+
         // Determine if we should retry
         const shouldRetry = this.shouldRetry(error as AxiosError, attempt);
-        
+
         if (!shouldRetry) {
           throw this.handleError(error as AxiosError);
         }
@@ -177,10 +165,10 @@ export class OpenRouterService {
         // Wait before retrying with exponential backoff
         const delay = this.calculateBackoffDelay(attempt);
         await this.sleep(delay);
-        
+
         this.logError({
           message: `Retry attempt ${attempt + 1}/${this.maxRetries}`,
-          error: lastError
+          error: lastError,
         });
       }
     }
@@ -196,22 +184,19 @@ export class OpenRouterService {
 
   /**
    * Sets the default model for future requests
-   * 
+   *
    * @param modelName - Name of the model to use
    */
   public setModel(modelName: string): void {
     if (!modelName || modelName.trim() === '') {
-      throw new OpenRouterError(
-        'Model name cannot be empty',
-        'INVALID_MODEL_NAME'
-      );
+      throw new OpenRouterError('Model name cannot be empty', 'INVALID_MODEL_NAME');
     }
     this.defaultModel = modelName;
   }
 
   /**
    * Sets the system message for future requests
-   * 
+   *
    * @param message - System message content
    */
   public setSystemMessage(message: string): void {
@@ -229,10 +214,7 @@ export class OpenRouterService {
   /**
    * Builds the request payload from messages and options
    */
-  private buildPayload(
-    messages: ChatMessage[],
-    options?: ChatOptions
-  ): RequestPayload {
+  private buildPayload(messages: ChatMessage[], options?: ChatOptions): RequestPayload {
     const payload: RequestPayload = {
       model: options?.model ?? this.defaultModel,
       messages: messages,
@@ -260,34 +242,22 @@ export class OpenRouterService {
   /**
    * Handles and validates the API response
    */
-  private async handleResponse(
-    data: ChatResponse,
-    responseFormat?: ResponseFormat
-  ): Promise<ChatResponse> {
+  private async handleResponse(data: ChatResponse, responseFormat?: ResponseFormat): Promise<ChatResponse> {
     // Validate basic response structure
     if (!data.choices || data.choices.length === 0) {
-      throw new OpenRouterError(
-        'Invalid response format: no choices returned',
-        'INVALID_RESPONSE_FORMAT'
-      );
+      throw new OpenRouterError('Invalid response format: no choices returned', 'INVALID_RESPONSE_FORMAT');
     }
 
     const messageContent = data.choices[0]?.message?.content;
     if (!messageContent) {
-      throw new OpenRouterError(
-        'Invalid response format: no message content',
-        'INVALID_RESPONSE_FORMAT'
-      );
+      throw new OpenRouterError('Invalid response format: no message content', 'INVALID_RESPONSE_FORMAT');
     }
 
     // Validate JSON schema if response format is specified
     if (responseFormat) {
       const isValid = this.validateSchema(messageContent, responseFormat);
       if (!isValid) {
-        throw new OpenRouterError(
-          'Response does not match expected schema',
-          'SCHEMA_VALIDATION_FAILED'
-        );
+        throw new OpenRouterError('Response does not match expected schema', 'SCHEMA_VALIDATION_FAILED');
       }
     }
 
@@ -301,18 +271,18 @@ export class OpenRouterService {
     try {
       // Parse JSON content
       const parsedContent = JSON.parse(content);
-      
+
       // Convert JSON schema to Zod schema
       const zodSchema = this.jsonSchemaToZod(format.json_schema.schema);
-      
+
       // Validate using Zod
       zodSchema.parse(parsedContent);
-      
+
       return true;
     } catch (error) {
       this.logError({
         message: 'Schema validation failed',
-        error: error as Error
+        error: error as Error,
       });
       return false;
     }
@@ -325,10 +295,10 @@ export class OpenRouterService {
     // Basic implementation - can be extended for more complex schemas
     if (schema.type === 'object' && schema.properties) {
       const shape: Record<string, z.ZodTypeAny> = {};
-      
+
       for (const [key, value] of Object.entries(schema.properties)) {
         const propSchema = value as JSONSchema;
-        
+
         if (propSchema.type === 'string') {
           shape[key] = z.string();
         } else if (propSchema.type === 'number') {
@@ -340,16 +310,16 @@ export class OpenRouterService {
         } else {
           shape[key] = z.any();
         }
-        
+
         // Make optional if not in required array
         if (!schema.required?.includes(key)) {
           shape[key] = shape[key].optional();
         }
       }
-      
+
       return z.object(shape);
     }
-    
+
     return z.any();
   }
 
@@ -383,7 +353,7 @@ export class OpenRouterService {
    * Sleep utility for retry delays
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -392,12 +362,7 @@ export class OpenRouterService {
   private handleError(error: AxiosError): OpenRouterError {
     // Network error
     if (!error.response) {
-      return new OpenRouterError(
-        'Network error: Unable to reach OpenRouter API',
-        'NETWORK_ERROR',
-        undefined,
-        error
-      );
+      return new OpenRouterError('Network error: Unable to reach OpenRouter API', 'NETWORK_ERROR', undefined, error);
     }
 
     const status = error.response.status;
@@ -406,21 +371,11 @@ export class OpenRouterService {
     // Map status codes to error types
     switch (status) {
       case 401:
-        return new OpenRouterError(
-          'Authentication failed: Invalid API key',
-          'AUTHENTICATION_FAILED',
-          status,
-          error
-        );
-      
+        return new OpenRouterError('Authentication failed: Invalid API key', 'AUTHENTICATION_FAILED', status, error);
+
       case 429:
-        return new OpenRouterError(
-          'Rate limit exceeded: Too many requests',
-          'RATE_LIMIT_EXCEEDED',
-          status,
-          error
-        );
-      
+        return new OpenRouterError('Rate limit exceeded: Too many requests', 'RATE_LIMIT_EXCEEDED', status, error);
+
       case 500:
       case 502:
       case 503:
@@ -431,7 +386,7 @@ export class OpenRouterService {
           status,
           error
         );
-      
+
       default:
         return new OpenRouterError(
           `API request failed: ${data?.error?.message ?? error.message}`,
@@ -466,9 +421,6 @@ export type {
   JSONSchema,
   ModelParams,
   OpenRouterServiceOptions,
-  ResponseFormat
+  ResponseFormat,
 } from './openRouter.types';
 export { OpenRouterError } from './openRouter.types';
-
-
-

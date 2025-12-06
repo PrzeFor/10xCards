@@ -13,14 +13,7 @@ interface FlashcardItemProps {
   disabled: boolean;
 }
 
-export function FlashcardItem({
-  proposal,
-  onToggleSelect,
-  onAccept,
-  onReject,
-  onEdit,
-  disabled,
-}: FlashcardItemProps) {
+export function FlashcardItem({ proposal, onToggleSelect, onAccept, onReject, onEdit, disabled }: FlashcardItemProps) {
   const getStatusColor = (status: FlashcardProposalViewModel['status']) => {
     switch (status) {
       case 'accepted':
@@ -48,7 +41,7 @@ export function FlashcardItem({
   };
 
   return (
-    <Card 
+    <Card
       data-testid="flashcard-proposal-item"
       className={`transition-colors h-full flex flex-col overflow-hidden ${getStatusColor(proposal.status)}`}
     >
@@ -110,26 +103,16 @@ export function FlashcardItem({
 
       <CardContent className="flex-1 flex flex-col space-y-3 pt-0">
         <div className="space-y-1">
-          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Przód
-          </div>
+          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Przód</div>
           <div className="text-sm font-medium break-words overflow-hidden">
-            {proposal.status === 'edited' && proposal.editedFront 
-              ? proposal.editedFront 
-              : proposal.front
-            }
+            {proposal.status === 'edited' && proposal.editedFront ? proposal.editedFront : proposal.front}
           </div>
         </div>
 
         <div className="space-y-1 flex-1">
-          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Tył
-          </div>
+          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tył</div>
           <div className="text-sm break-words overflow-hidden">
-            {proposal.status === 'edited' && proposal.editedBack 
-              ? proposal.editedBack 
-              : proposal.back
-            }
+            {proposal.status === 'edited' && proposal.editedBack ? proposal.editedBack : proposal.back}
           </div>
         </div>
       </CardContent>

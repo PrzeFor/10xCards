@@ -120,4 +120,3 @@ export class BulkActionsBarComponent {
     return await this.rejectAllButton.isDisabled();
   }
 }
-

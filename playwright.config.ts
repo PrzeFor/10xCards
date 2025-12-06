@@ -8,39 +8,37 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.test') });
  */
 export default defineConfig({
   testDir: './tests/e2e',
-  
+
   /* Global teardown - clean up database after all tests */
   globalTeardown: './tests/e2e/global-teardown.ts',
-  
+
   /* Run tests in files in parallel */
   fullyParallel: true,
-  
+
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  
+
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  
-  /* Opt out of parallel tests on CI. 
+
+  /* Opt out of parallel tests on CI.
    * Also limit to 1 worker locally to avoid conflicts with shared test user */
   workers: 1,
-  
+
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI 
-    ? [['html'], ['github']] 
-    : [['html'], ['list']],
-  
+  reporter: process.env.CI ? [['html'], ['github']] : [['html'], ['list']],
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000',
-    
+
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    
+
     /* Screenshot on failure */
     screenshot: 'only-on-failure',
-    
+
     /* Video on failure */
     video: 'retain-on-failure',
   },
@@ -83,9 +81,8 @@ export default defineConfig({
     env: {
       // Pass test environment variables to the dev server
       SUPABASE_URL: process.env.SUPABASE_URL!,
-      SUPABASE_KEY: process.env.SUPABASE_PUBLIC_KEY!,  // E2E tests use SUPABASE_PUBLIC_KEY
+      SUPABASE_KEY: process.env.SUPABASE_PUBLIC_KEY!, // E2E tests use SUPABASE_PUBLIC_KEY
       OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY!,
     },
   },
 });
-

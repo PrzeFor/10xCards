@@ -4,13 +4,13 @@ import type { Database } from '../../src/db/database.types';
 /**
  * Global teardown for E2E tests
  * Cleans up test data from Supabase database after all tests complete
- * 
+ *
  * IMPORTANT SECURITY:
  * - Uses ONLY the public/anon key (SUPABASE_PUBLIC_KEY), never service role key
  * - Requires explicit E2E_USER_ID to prevent accidental data deletion
  * - Only deletes data for the specified test user ID
  * - Dedicated key variable for E2E tests ensures proper isolation
- * 
+ *
  * This runs once after all test files have finished executing.
  * It removes all flashcards and generations created during test runs
  * to keep the test database clean.
@@ -62,14 +62,11 @@ async function globalTeardown() {
     }
 
     // Delete generation_error_logs for test user's generations (must be done before deleting generations)
-    const { data: generationsData } = await supabase
-      .from('generations')
-      .select('id')
-      .eq('user_id', e2eUserId); // Only for E2E user!
+    const { data: generationsData } = await supabase.from('generations').select('id').eq('user_id', e2eUserId); // Only for E2E user!
 
     if (generationsData && generationsData.length > 0) {
-      const generationIds = generationsData.map(g => g.id);
-      
+      const generationIds = generationsData.map((g) => g.id);
+
       const { error: errorLogsError, count: errorLogsCount } = await supabase
         .from('generation_error_logs')
         .delete({ count: 'exact' })
@@ -103,4 +100,3 @@ async function globalTeardown() {
 }
 
 export default globalTeardown;
-

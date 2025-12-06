@@ -130,9 +130,7 @@ describe('GenerationsView', () => {
         status: 'completed',
         generated_count: 1,
         generation_duration: 1000,
-        flashcards_proposals: [
-          { id: 'prop-1', front: 'Front 1', back: 'Back 1', source: 'ai_full' },
-        ],
+        flashcards_proposals: [{ id: 'prop-1', front: 'Front 1', back: 'Back 1', source: 'ai_full' }],
       };
 
       mockGenerate.mockResolvedValueOnce(mockResponse);
@@ -165,7 +163,7 @@ describe('GenerationsView', () => {
 
     it('should handle generation error', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      
+
       mockGenerate.mockRejectedValueOnce(new Error('Generation failed'));
 
       render(<GenerationsView />);
@@ -217,12 +215,10 @@ describe('GenerationsView', () => {
       await setupWithProposals();
 
       const checkboxes = screen.getAllByRole('checkbox');
-      const firstProposalCheckbox = checkboxes.find(cb => 
-        cb.getAttribute('aria-label')?.includes('Front 1')
-      );
+      const firstProposalCheckbox = checkboxes.find((cb) => cb.getAttribute('aria-label')?.includes('Front 1'));
 
       expect(firstProposalCheckbox).not.toBeChecked();
-      
+
       fireEvent.click(firstProposalCheckbox!);
       expect(firstProposalCheckbox).toBeChecked();
 
@@ -239,9 +235,7 @@ describe('GenerationsView', () => {
       // Should be auto-selected and status changed
       await waitFor(() => {
         const checkboxes = screen.getAllByRole('checkbox');
-        const firstProposalCheckbox = checkboxes.find(cb => 
-          cb.getAttribute('aria-label')?.includes('Front 1')
-        );
+        const firstProposalCheckbox = checkboxes.find((cb) => cb.getAttribute('aria-label')?.includes('Front 1'));
         expect(firstProposalCheckbox).toBeChecked();
       });
     });
@@ -255,9 +249,7 @@ describe('GenerationsView', () => {
       // Should be deselected and status changed
       await waitFor(() => {
         const checkboxes = screen.getAllByRole('checkbox');
-        const firstProposalCheckbox = checkboxes.find(cb => 
-          cb.getAttribute('aria-label')?.includes('Front 1')
-        );
+        const firstProposalCheckbox = checkboxes.find((cb) => cb.getAttribute('aria-label')?.includes('Front 1'));
         expect(firstProposalCheckbox).not.toBeChecked();
       });
     });
@@ -356,11 +348,11 @@ describe('GenerationsView', () => {
       const selectAllButton = screen.getByRole('checkbox', { name: /Zaznacz wszystkie/i });
       fireEvent.click(selectAllButton);
 
-      const checkboxes = screen.getAllByRole('checkbox').filter(cb => 
-        cb.getAttribute('aria-label')?.includes('Front')
-      );
+      const checkboxes = screen
+        .getAllByRole('checkbox')
+        .filter((cb) => cb.getAttribute('aria-label')?.includes('Front'));
 
-      checkboxes.forEach(checkbox => {
+      checkboxes.forEach((checkbox) => {
         expect(checkbox).toBeChecked();
       });
     });
@@ -369,18 +361,18 @@ describe('GenerationsView', () => {
       await setupWithProposals();
 
       const selectAllButton = screen.getByRole('checkbox', { name: /Zaznacz wszystkie/i });
-      
+
       // Select all
       fireEvent.click(selectAllButton);
-      
+
       // Deselect all
       fireEvent.click(selectAllButton);
 
-      const checkboxes = screen.getAllByRole('checkbox').filter(cb => 
-        cb.getAttribute('aria-label')?.includes('Front')
-      );
+      const checkboxes = screen
+        .getAllByRole('checkbox')
+        .filter((cb) => cb.getAttribute('aria-label')?.includes('Front'));
 
-      checkboxes.forEach(checkbox => {
+      checkboxes.forEach((checkbox) => {
         expect(checkbox).not.toBeChecked();
       });
     });
@@ -391,11 +383,11 @@ describe('GenerationsView', () => {
       const acceptAllButton = screen.getByRole('button', { name: /Akceptuj wszystkie/i });
       fireEvent.click(acceptAllButton);
 
-      const checkboxes = screen.getAllByRole('checkbox').filter(cb => 
-        cb.getAttribute('aria-label')?.includes('Front')
-      );
+      const checkboxes = screen
+        .getAllByRole('checkbox')
+        .filter((cb) => cb.getAttribute('aria-label')?.includes('Front'));
 
-      checkboxes.forEach(checkbox => {
+      checkboxes.forEach((checkbox) => {
         expect(checkbox).toBeChecked();
       });
     });
@@ -406,11 +398,11 @@ describe('GenerationsView', () => {
       const rejectAllButton = screen.getByRole('button', { name: /Odrzuć wszystkie/i });
       fireEvent.click(rejectAllButton);
 
-      const checkboxes = screen.getAllByRole('checkbox').filter(cb => 
-        cb.getAttribute('aria-label')?.includes('Front')
-      );
+      const checkboxes = screen
+        .getAllByRole('checkbox')
+        .filter((cb) => cb.getAttribute('aria-label')?.includes('Front'));
 
-      checkboxes.forEach(checkbox => {
+      checkboxes.forEach((checkbox) => {
         expect(checkbox).not.toBeChecked();
       });
     });
@@ -452,9 +444,7 @@ describe('GenerationsView', () => {
 
       // Select first proposal
       const checkboxes = screen.getAllByRole('checkbox');
-      const firstProposalCheckbox = checkboxes.find(cb => 
-        cb.getAttribute('aria-label')?.includes('Front 1')
-      );
+      const firstProposalCheckbox = checkboxes.find((cb) => cb.getAttribute('aria-label')?.includes('Front 1'));
       fireEvent.click(firstProposalCheckbox!);
 
       const saveButton = screen.getByRole('button', { name: /Zapisz zaznaczone/i });
@@ -468,7 +458,7 @@ describe('GenerationsView', () => {
               front: 'Front 1',
               back: 'Back 1',
               isSelected: true,
-            })
+            }),
           ]),
           'gen-1'
         );
@@ -482,9 +472,7 @@ describe('GenerationsView', () => {
 
       // Select first proposal
       const checkboxes = screen.getAllByRole('checkbox');
-      const firstProposalCheckbox = checkboxes.find(cb => 
-        cb.getAttribute('aria-label')?.includes('Front 1')
-      );
+      const firstProposalCheckbox = checkboxes.find((cb) => cb.getAttribute('aria-label')?.includes('Front 1'));
       fireEvent.click(firstProposalCheckbox!);
 
       const saveButton = screen.getByRole('button', { name: /Zapisz zaznaczone/i });
@@ -505,9 +493,7 @@ describe('GenerationsView', () => {
 
       // Select first proposal
       const checkboxes = screen.getAllByRole('checkbox');
-      const firstProposalCheckbox = checkboxes.find(cb => 
-        cb.getAttribute('aria-label')?.includes('Front 1')
-      );
+      const firstProposalCheckbox = checkboxes.find((cb) => cb.getAttribute('aria-label')?.includes('Front 1'));
       fireEvent.click(firstProposalCheckbox!);
 
       const saveButton = screen.getByRole('button', { name: /Zapisz zaznaczone/i });
@@ -551,9 +537,7 @@ describe('GenerationsView', () => {
         status: 'completed',
         generated_count: 1,
         generation_duration: 1000,
-        flashcards_proposals: [
-          { id: 'prop-1', front: 'Front 1', back: 'Back 1', source: 'ai_full' },
-        ],
+        flashcards_proposals: [{ id: 'prop-1', front: 'Front 1', back: 'Back 1', source: 'ai_full' }],
       };
 
       mockGenerate.mockResolvedValueOnce(mockResponse);
@@ -580,4 +564,3 @@ describe('GenerationsView', () => {
     });
   });
 });
-

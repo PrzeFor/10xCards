@@ -11,4 +11,3 @@ export { GenerationFormComponent } from './components/GenerationFormComponent';
 export { FlashcardProposalsComponent } from './components/FlashcardProposalsComponent';
 export { FlashcardItemComponent } from './components/FlashcardItemComponent';
 export { BulkActionsBarComponent } from './components/BulkActionsBarComponent';
-

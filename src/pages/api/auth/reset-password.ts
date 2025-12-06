@@ -20,16 +20,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // Validate input with Zod schema
     const validation = ResetPasswordRequestSchema.safeParse(body);
-    
+
     if (!validation.success) {
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Nieprawidłowe dane wejściowe',
-          details: validation.error.errors
-        }), 
+          details: validation.error.errors,
+        }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -38,11 +38,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // Import createSupabaseServerInstance inside the handler
     const { createSupabaseServerInstance } = await import('@/db/supabase.client');
-    
+
     // Create Supabase server instance with proper cookie handling
-    const supabase = createSupabaseServerInstance({ 
-      cookies, 
-      headers: request.headers 
+    const supabase = createSupabaseServerInstance({
+      cookies,
+      headers: request.headers,
     });
 
     // Exchange token for session
@@ -53,12 +53,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     if (sessionError) {
       return new Response(
-        JSON.stringify({ 
-          error: 'Token resetowania jest nieprawidłowy lub wygasł'
-        }), 
+        JSON.stringify({
+          error: 'Token resetowania jest nieprawidłowy lub wygasł',
+        }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -71,37 +71,32 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (updateError) {
       console.error('Password update error:', updateError);
       return new Response(
-        JSON.stringify({ 
-          error: 'Wystąpił błąd podczas aktualizacji hasła'
-        }), 
+        JSON.stringify({
+          error: 'Wystąpił błąd podczas aktualizacji hasła',
+        }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
 
     // Return success response
     return new Response(
-      JSON.stringify({ 
-        message: 'Hasło zostało pomyślnie zmienione'
-      }), 
+      JSON.stringify({
+        message: 'Hasło zostało pomyślnie zmienione',
+      }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       }
     );
-
   } catch (error) {
     console.error('Reset password error:', error);
-    
-    return new Response(
-      JSON.stringify({ error: 'Wystąpił błąd serwera. Spróbuj ponownie później.' }), 
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+
+    return new Response(JSON.stringify({ error: 'Wystąpił błąd serwera. Spróbuj ponownie później.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };
-

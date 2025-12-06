@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { 
+import {
   RegisterSchema,
   RegisterApiSchema,
   LoginSchema,
   ForgotPasswordSchema,
-  ResetPasswordSchema 
+  ResetPasswordSchema,
 } from '@/lib/schemas/auth';
 
 describe('Auth Schemas', () => {
@@ -15,9 +15,9 @@ describe('Auth Schemas', () => {
         password: 'Password123!',
         confirmPassword: 'Password123!',
       };
-      
+
       const result = RegisterSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -27,9 +27,9 @@ describe('Auth Schemas', () => {
         password: 'Password123!',
         confirmPassword: 'Password123!',
       };
-      
+
       const result = RegisterSchema.parse(data);
-      
+
       expect(result.email).toBe('test@example.com');
     });
 
@@ -39,9 +39,9 @@ describe('Auth Schemas', () => {
         password: 'Password123!',
         confirmPassword: 'Password123!',
       };
-      
+
       const result = RegisterSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('format');
@@ -54,9 +54,9 @@ describe('Auth Schemas', () => {
         password: 'Pass1!',
         confirmPassword: 'Pass1!',
       };
-      
+
       const result = RegisterSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('8');
@@ -70,9 +70,9 @@ describe('Auth Schemas', () => {
         password: longPassword,
         confirmPassword: longPassword,
       };
-      
+
       const result = RegisterSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('100');
@@ -85,9 +85,9 @@ describe('Auth Schemas', () => {
         password: 'Password123!',
         confirmPassword: 'DifferentPassword123!',
       };
-      
+
       const result = RegisterSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('identyczne');
@@ -100,9 +100,9 @@ describe('Auth Schemas', () => {
         password: 'Password123!',
         confirmPassword: 'Password123!',
       };
-      
+
       const result = RegisterSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
   });
@@ -113,9 +113,9 @@ describe('Auth Schemas', () => {
         email: 'test@example.com',
         password: 'Password123!',
       };
-      
+
       const result = RegisterApiSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -124,9 +124,9 @@ describe('Auth Schemas', () => {
         email: 'invalid-email',
         password: 'short',
       };
-      
+
       const result = RegisterApiSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
   });
@@ -137,9 +137,9 @@ describe('Auth Schemas', () => {
         email: 'test@example.com',
         password: 'Password123!',
       };
-      
+
       const result = LoginSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -148,9 +148,9 @@ describe('Auth Schemas', () => {
         email: '',
         password: 'Password123!',
       };
-      
+
       const result = LoginSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -159,9 +159,9 @@ describe('Auth Schemas', () => {
         email: 'test@example.com',
         password: '',
       };
-      
+
       const result = LoginSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -170,9 +170,9 @@ describe('Auth Schemas', () => {
         email: 'TEST@EXAMPLE.COM',
         password: 'Password123!',
       };
-      
+
       const result = LoginSchema.parse(data);
-      
+
       expect(result.email).toBe('test@example.com');
     });
   });
@@ -182,9 +182,9 @@ describe('Auth Schemas', () => {
       const validData = {
         email: 'test@example.com',
       };
-      
+
       const result = ForgotPasswordSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -192,9 +192,9 @@ describe('Auth Schemas', () => {
       const invalidData = {
         email: 'not-an-email',
       };
-      
+
       const result = ForgotPasswordSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -202,9 +202,9 @@ describe('Auth Schemas', () => {
       const invalidData = {
         email: '',
       };
-      
+
       const result = ForgotPasswordSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
   });
@@ -215,9 +215,9 @@ describe('Auth Schemas', () => {
         newPassword: 'NewPassword123!',
         confirmPassword: 'NewPassword123!',
       };
-      
+
       const result = ResetPasswordSchema.safeParse(validData);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -226,9 +226,9 @@ describe('Auth Schemas', () => {
         newPassword: 'Pass1!',
         confirmPassword: 'Pass1!',
       };
-      
+
       const result = ResetPasswordSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
 
@@ -237,9 +237,9 @@ describe('Auth Schemas', () => {
         newPassword: 'NewPassword123!',
         confirmPassword: 'DifferentPassword123!',
       };
-      
+
       const result = ResetPasswordSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toContain('identyczne');
@@ -252,11 +252,10 @@ describe('Auth Schemas', () => {
         newPassword: longPassword,
         confirmPassword: longPassword,
       };
-      
+
       const result = ResetPasswordSchema.safeParse(invalidData);
-      
+
       expect(result.success).toBe(false);
     });
   });
 });
-

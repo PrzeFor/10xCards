@@ -330,9 +330,7 @@ describe('useGenerateFlashcards', () => {
       const { result } = renderHook(() => useGenerateFlashcards());
 
       await act(async () => {
-        await expect(result.current.generate('A'.repeat(500))).rejects.toThrow(
-          'Network connection failed'
-        );
+        await expect(result.current.generate('A'.repeat(500))).rejects.toThrow('Network connection failed');
       });
 
       await waitFor(() => {
@@ -599,4 +597,3 @@ describe('useGenerateFlashcards', () => {
     });
   });
 });
-

@@ -7,10 +7,10 @@ const prerender = false;
 /**
  * Error response structure
  */
-type ErrorResponse = {
+interface ErrorResponse {
   code: string;
   message: string;
-};
+}
 
 /**
  * POST /api/flashcards - Create one or more flashcards
@@ -22,11 +22,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'InternalServerError',
-          message: 'Database connection not available'
+          message: 'Database connection not available',
         } as ErrorResponse),
         {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -36,11 +36,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'Unauthorized',
-          message: 'Authentication required'
+          message: 'Authentication required',
         } as ErrorResponse),
         {
           status: 401,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -55,11 +55,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'ValidationError',
-          message: 'Content-Type must be application/json'
+          message: 'Content-Type must be application/json',
         } as ErrorResponse),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -72,11 +72,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'ValidationError',
-          message: 'Invalid JSON in request body'
+          message: 'Invalid JSON in request body',
         } as ErrorResponse),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -85,17 +85,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const validationResult = createFlashcardsRequestSchema.safeParse(requestBody);
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors
-        .map(err => `${err.path.join('.')}: ${err.message}`)
+        .map((err) => `${err.path.join('.')}: ${err.message}`)
         .join('; ');
-      
+
       return new Response(
         JSON.stringify({
           code: 'ValidationError',
-          message: `Validation failed: ${errorMessages}`
+          message: `Validation failed: ${errorMessages}`,
         } as ErrorResponse),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -111,14 +111,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     console.log(`Successfully created ${createdFlashcards.length} flashcards for user: ${userId}`);
 
     // Return created flashcards
-    return new Response(
-      JSON.stringify(createdFlashcards),
-      {
-        status: 201,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-
+    return new Response(JSON.stringify(createdFlashcards), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Error creating flashcards:', error);
 
@@ -129,11 +125,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return new Response(
           JSON.stringify({
             code: 'NotFound',
-            message: 'Generacja nie znaleziona lub brak dostępu.'
+            message: 'Generacja nie znaleziona lub brak dostępu.',
           } as ErrorResponse),
           {
             status: 404,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
           }
         );
       }
@@ -145,11 +141,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return new Response(
           JSON.stringify({
             code: 'ConflictError',
-            message: 'Fiszka o takiej treści już istnieje.'
+            message: 'Fiszka o takiej treści już istnieje.',
           } as ErrorResponse),
           {
             status: 409,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
           }
         );
       }
@@ -159,11 +155,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return new Response(
           JSON.stringify({
             code: 'ServiceUnavailable',
-            message: 'Tymczasowy problem z bazą danych. Spróbuj ponownie.'
+            message: 'Tymczasowy problem z bazą danych. Spróbuj ponownie.',
           } as ErrorResponse),
           {
             status: 503,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
           }
         );
       }
@@ -173,11 +169,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return new Response(
           JSON.stringify({
             code: 'ValidationError',
-            message: `Błąd walidacji: ${error.message}`
+            message: `Błąd walidacji: ${error.message}`,
           } as ErrorResponse),
           {
             status: 400,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
           }
         );
       }
@@ -187,11 +183,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return new Response(
           JSON.stringify({
             code: 'RequestTimeout',
-            message: 'Przekroczono limit czasu żądania. Spróbuj ponownie.'
+            message: 'Przekroczono limit czasu żądania. Spróbuj ponownie.',
           } as ErrorResponse),
           {
             status: 408,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
           }
         );
       }
@@ -201,11 +197,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return new Response(
       JSON.stringify({
         code: 'InternalServerError',
-        message: 'Wystąpił nieoczekiwany błąd wewnętrzny.'
+        message: 'Wystąpił nieoczekiwany błąd wewnętrzny.',
       } as ErrorResponse),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }

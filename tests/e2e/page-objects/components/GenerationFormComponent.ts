@@ -107,11 +107,11 @@ export class GenerationFormComponent {
   async hasValidationError(errorMessage?: string) {
     const errorLocator = this.page.getByRole('alert');
     const isVisible = await errorLocator.isVisible();
-    
+
     if (errorMessage && isVisible) {
       await expect(errorLocator).toContainText(errorMessage);
     }
-    
+
     return isVisible;
   }
 
@@ -132,4 +132,3 @@ export class GenerationFormComponent {
     return await feedbackLocator.textContent();
   }
 }
-

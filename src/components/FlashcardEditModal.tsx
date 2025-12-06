@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from './ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
@@ -96,8 +89,8 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
   };
 
   const isValid = front.trim() && back.trim() && front.length <= 300 && back.length <= 500;
-  const hasChanges = front !== (proposal.editedFront || proposal.front) ||
-    back !== (proposal.editedBack || proposal.back);
+  const hasChanges =
+    front !== (proposal.editedFront || proposal.front) || back !== (proposal.editedBack || proposal.back);
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -108,9 +101,7 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
         aria-describedby="edit-modal-description"
       >
         <DialogHeader>
-          <DialogTitle>
-            Edytuj fiszkę
-          </DialogTitle>
+          <DialogTitle>Edytuj fiszkę</DialogTitle>
           <DialogDescription>
             Wprowadź zmiany w treści fiszki. Użyj Ctrl+Enter aby zapisać lub Escape aby anulować.
           </DialogDescription>
@@ -119,9 +110,7 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
         <form onSubmit={handleSave}>
           <div className="space-y-6 py-4">
             <div className="space-y-3">
-              <Label htmlFor="front-input">
-                Przód fiszki
-              </Label>
+              <Label htmlFor="front-input">Przód fiszki</Label>
               <Textarea
                 data-testid="edit-flashcard-front"
                 id="front-input"
@@ -129,7 +118,7 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
                 onChange={handleFrontChange}
                 placeholder="Wprowadź treść przodu fiszki..."
                 className="min-h-[80px] resize-y"
-                aria-describedby={frontError ? "front-error" : undefined}
+                aria-describedby={frontError ? 'front-error' : undefined}
                 aria-invalid={!!frontError}
               />
               <div className="flex justify-between items-center text-caption text-muted-foreground">
@@ -140,15 +129,11 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
                   </span>
                 )}
               </div>
-              {frontError && (
-                <InlineError id="front-error" message={frontError} />
-              )}
+              {frontError && <InlineError id="front-error" message={frontError} />}
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="back-input">
-                Tył fiszki
-              </Label>
+              <Label htmlFor="back-input">Tył fiszki</Label>
               <Textarea
                 data-testid="edit-flashcard-back"
                 id="back-input"
@@ -156,7 +141,7 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
                 onChange={handleBackChange}
                 placeholder="Wprowadź treść tyłu fiszki..."
                 className="min-h-[120px] resize-y"
-                aria-describedby={backError ? "back-error" : undefined}
+                aria-describedby={backError ? 'back-error' : undefined}
                 aria-invalid={!!backError}
               />
               <div className="flex justify-between items-center text-xs text-muted-foreground">
@@ -167,26 +152,15 @@ export function FlashcardEditModal({ proposal, onSave, onClose }: FlashcardEditM
                   </span>
                 )}
               </div>
-              {backError && (
-                <InlineError id="back-error" message={backError} />
-              )}
+              {backError && <InlineError id="back-error" message={backError} />}
             </div>
           </div>
 
           <DialogFooter className="gap-2">
-            <Button
-              data-testid="edit-flashcard-cancel"
-              type="button"
-              variant="outline"
-              onClick={onClose}
-            >
+            <Button data-testid="edit-flashcard-cancel" type="button" variant="outline" onClick={onClose}>
               Anuluj
             </Button>
-            <Button
-              data-testid="edit-flashcard-save"
-              type="submit"
-              disabled={!isValid || !hasChanges}
-            >
+            <Button data-testid="edit-flashcard-save" type="submit" disabled={!isValid || !hasChanges}>
               Zapisz zmiany
             </Button>
           </DialogFooter>

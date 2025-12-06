@@ -1,10 +1,6 @@
 import type { SupabaseClient } from '../../db/supabase.client';
 import type { Database } from '../../db/database.types';
-import type { 
-  CreateFlashcardRequestDto,
-  FlashcardDto,
-  FlashcardSource
-} from '../../types';
+import type { CreateFlashcardRequestDto, FlashcardDto, FlashcardSource } from '../../types';
 
 /**
  * Service for handling flashcard operations
@@ -22,20 +18,17 @@ export class FlashcardService {
    * @param requests - Array of flashcard creation requests
    * @returns Array of created flashcard DTOs
    */
-  async createFlashcards(
-    userId: string,
-    requests: CreateFlashcardRequestDto[]
-  ): Promise<FlashcardDto[]> {
+  async createFlashcards(userId: string, requests: CreateFlashcardRequestDto[]): Promise<FlashcardDto[]> {
     // Validate generation IDs for AI sources
     await this.validateGenerationIds(userId, requests);
 
     // Prepare records for insertion
-    const records = requests.map(request => ({
+    const records = requests.map((request) => ({
       user_id: userId,
       front: request.front,
       back: request.back,
       source: request.source,
-      generation_id: request.generation_id || null
+      generation_id: request.generation_id || null,
     }));
 
     // Insert flashcards in a single transaction
@@ -53,14 +46,14 @@ export class FlashcardService {
     }
 
     // Map to FlashcardDto format
-    return data.map(record => ({
+    return data.map((record) => ({
       id: record.id,
       generation_id: record.generation_id,
       front: record.front,
       back: record.back,
       source: record.source as FlashcardSource,
       created_at: record.created_at,
-      updated_at: record.updated_at
+      updated_at: record.updated_at,
     }));
   }
 
@@ -69,14 +62,11 @@ export class FlashcardService {
    * @param userId - The authenticated user ID
    * @param requests - Array of flashcard creation requests
    */
-  private async validateGenerationIds(
-    userId: string,
-    requests: CreateFlashcardRequestDto[]
-  ): Promise<void> {
+  private async validateGenerationIds(userId: string, requests: CreateFlashcardRequestDto[]): Promise<void> {
     // Extract unique generation IDs from AI sources
     const generationIds = requests
-      .filter(req => req.source !== 'manual' && req.generation_id)
-      .map(req => req.generation_id!)
+      .filter((req) => req.source !== 'manual' && req.generation_id)
+      .map((req) => req.generation_id!)
       .filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
 
     if (generationIds.length === 0) {
@@ -98,17 +88,19 @@ export class FlashcardService {
       throw new Error(`Database error during validation: ${error.message}`);
     }
 
-    const foundIds = generations?.map(g => g.id) || [];
-    const missingIds = generationIds.filter(id => !foundIds.includes(id));
+    const foundIds = generations?.map((g) => g.id) || [];
+    const missingIds = generationIds.filter((id) => !foundIds.includes(id));
 
     if (missingIds.length > 0) {
       throw new Error(`Generation not found or access denied: ${missingIds.join(', ')}`);
     }
 
     // Check if any generations are still pending (optional validation)
-    const pendingGenerations = generations?.filter(g => g.status === 'pending') || [];
+    const pendingGenerations = generations?.filter((g) => g.status === 'pending') || [];
     if (pendingGenerations.length > 0) {
-      console.warn(`Warning: Using flashcards from pending generations: ${pendingGenerations.map(g => g.id).join(', ')}`);
+      console.warn(
+        `Warning: Using flashcards from pending generations: ${pendingGenerations.map((g) => g.id).join(', ')}`
+      );
     }
   }
 
@@ -140,7 +132,7 @@ export class FlashcardService {
       back: data.back,
       source: data.source as FlashcardSource,
       created_at: data.created_at,
-      updated_at: data.updated_at
+      updated_at: data.updated_at,
     };
   }
 }

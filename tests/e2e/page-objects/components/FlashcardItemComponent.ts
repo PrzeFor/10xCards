@@ -98,14 +98,14 @@ export class FlashcardItemComponent {
    * Get the front text of the flashcard
    */
   async getFrontText() {
-    return await this.frontText.textContent() || '';
+    return (await this.frontText.textContent()) || '';
   }
 
   /**
    * Get the back text of the flashcard
    */
   async getBackText() {
-    return await this.backText.textContent() || '';
+    return (await this.backText.textContent()) || '';
   }
 
   /**
@@ -113,17 +113,17 @@ export class FlashcardItemComponent {
    */
   async getStatus(): Promise<'pending' | 'accepted' | 'rejected' | 'edited'> {
     const isVisible = await this.statusBadge.isVisible();
-    
+
     if (!isVisible) {
       return 'pending';
     }
-    
+
     const statusText = await this.statusBadge.textContent();
-    
+
     if (statusText?.includes('Zaakceptowana')) return 'accepted';
     if (statusText?.includes('Odrzucona')) return 'rejected';
     if (statusText?.includes('Edytowana')) return 'edited';
-    
+
     return 'pending';
   }
 
@@ -137,9 +137,8 @@ export class FlashcardItemComponent {
       rejected: 'Odrzucona',
       edited: 'Edytowana',
     }[status];
-    
+
     await this.statusBadge.waitFor({ state: 'visible' });
     await this.container.locator(`text=${expectedText}`).waitFor({ state: 'visible' });
   }
 }
-

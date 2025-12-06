@@ -8,10 +8,10 @@ const prerender = false;
 /**
  * Error response structure
  */
-type ErrorResponse = {
+interface ErrorResponse {
   code: string;
   message: string;
-};
+}
 
 /**
  * POST /api/generations - Create a new flashcard generation
@@ -23,11 +23,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'InternalError',
-          message: 'Database connection not available'
+          message: 'Database connection not available',
         } as ErrorResponse),
         {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -37,11 +37,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'Unauthorized',
-          message: 'Authentication required'
+          message: 'Authentication required',
         } as ErrorResponse),
         {
           status: 401,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -56,11 +56,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'InvalidContentType',
-          message: 'Content-Type must be application/json'
+          message: 'Content-Type must be application/json',
         } as ErrorResponse),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -73,11 +73,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'InvalidJSON',
-          message: 'Request body must be valid JSON'
+          message: 'Request body must be valid JSON',
         } as ErrorResponse),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -89,11 +89,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'InvalidSourceText',
-          message: firstError?.message || 'Invalid source text'
+          message: firstError?.message || 'Invalid source text',
         } as ErrorResponse),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -107,14 +107,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const result = await generationService.createGeneration(source_text, userId);
 
     // Return successful response
-    return new Response(
-      JSON.stringify(result),
-      {
-        status: 201,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-
+    return new Response(JSON.stringify(result), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     // Log error for debugging (in production, use proper logging service)
     console.error('Generation endpoint error:', error);
@@ -129,11 +125,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
           return new Response(
             JSON.stringify({
               code: 'ConfigurationError',
-              message: 'AI service configuration error'
+              message: 'AI service configuration error',
             } as ErrorResponse),
             {
               status: 500,
-              headers: { 'Content-Type': 'application/json' }
+              headers: { 'Content-Type': 'application/json' },
             }
           );
 
@@ -141,14 +137,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
           return new Response(
             JSON.stringify({
               code: 'RateLimitExceeded',
-              message: 'Too many requests. Please try again later.'
+              message: 'Too many requests. Please try again later.',
             } as ErrorResponse),
             {
               status: 429,
               headers: {
                 'Content-Type': 'application/json',
-                'Retry-After': '60'
-              }
+                'Retry-After': '60',
+              },
             }
           );
 
@@ -156,11 +152,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
           return new Response(
             JSON.stringify({
               code: 'NetworkError',
-              message: 'Network error occurred. Please check your connection.'
+              message: 'Network error occurred. Please check your connection.',
             } as ErrorResponse),
             {
               status: 503,
-              headers: { 'Content-Type': 'application/json' }
+              headers: { 'Content-Type': 'application/json' },
             }
           );
 
@@ -169,11 +165,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
           return new Response(
             JSON.stringify({
               code: 'AIServiceError',
-              message: 'AI service is temporarily unavailable. Please try again later.'
+              message: 'AI service is temporarily unavailable. Please try again later.',
             } as ErrorResponse),
             {
               status: 503,
-              headers: { 'Content-Type': 'application/json' }
+              headers: { 'Content-Type': 'application/json' },
             }
           );
 
@@ -182,11 +178,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
           return new Response(
             JSON.stringify({
               code: 'AIServiceError',
-              message: 'AI service returned invalid data. Please try again.'
+              message: 'AI service returned invalid data. Please try again.',
             } as ErrorResponse),
             {
               status: 500,
-              headers: { 'Content-Type': 'application/json' }
+              headers: { 'Content-Type': 'application/json' },
             }
           );
 
@@ -194,11 +190,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
           return new Response(
             JSON.stringify({
               code: 'AIServiceError',
-              message: error.message || 'Failed to generate flashcards. Please try again.'
+              message: error.message || 'Failed to generate flashcards. Please try again.',
             } as ErrorResponse),
             {
               status: statusCode >= 400 ? statusCode : 500,
-              headers: { 'Content-Type': 'application/json' }
+              headers: { 'Content-Type': 'application/json' },
             }
           );
       }
@@ -212,11 +208,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'ConfigurationError',
-          message: 'AI service configuration error'
+          message: 'AI service configuration error',
         } as ErrorResponse),
         {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -225,11 +221,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'AIServiceError',
-          message: 'Failed to generate flashcards. Please try again.'
+          message: 'Failed to generate flashcards. Please try again.',
         } as ErrorResponse),
         {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -238,11 +234,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return new Response(
         JSON.stringify({
           code: 'DatabaseError',
-          message: 'Database operation failed. Please try again.'
+          message: 'Database operation failed. Please try again.',
         } as ErrorResponse),
         {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -251,11 +247,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return new Response(
       JSON.stringify({
         code: 'InternalError',
-        message: 'An unexpected error occurred. Please try again.'
+        message: 'An unexpected error occurred. Please try again.',
       } as ErrorResponse),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }
@@ -268,14 +264,14 @@ export const GET: APIRoute = () => {
   return new Response(
     JSON.stringify({
       code: 'MethodNotAllowed',
-      message: 'GET method not supported for this endpoint'
+      message: 'GET method not supported for this endpoint',
     } as ErrorResponse),
     {
       status: 405,
       headers: {
         'Content-Type': 'application/json',
-        'Allow': 'POST'
-      }
+        Allow: 'POST',
+      },
     }
   );
 };
@@ -284,14 +280,14 @@ export const PUT: APIRoute = () => {
   return new Response(
     JSON.stringify({
       code: 'MethodNotAllowed',
-      message: 'PUT method not supported for this endpoint'
+      message: 'PUT method not supported for this endpoint',
     } as ErrorResponse),
     {
       status: 405,
       headers: {
         'Content-Type': 'application/json',
-        'Allow': 'POST'
-      }
+        Allow: 'POST',
+      },
     }
   );
 };
@@ -300,14 +296,14 @@ export const DELETE: APIRoute = () => {
   return new Response(
     JSON.stringify({
       code: 'MethodNotAllowed',
-      message: 'DELETE method not supported for this endpoint'
+      message: 'DELETE method not supported for this endpoint',
     } as ErrorResponse),
     {
       status: 405,
       headers: {
         'Content-Type': 'application/json',
-        'Allow': 'POST'
-      }
+        Allow: 'POST',
+      },
     }
   );
 };

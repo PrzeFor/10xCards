@@ -13,27 +13,23 @@ interface GenerationFormProps {
   errorMessage?: string;
 }
 
-type GenerationFormData = {
+interface GenerationFormData {
   source_text: string;
-};
+}
 
-export function GenerationForm({ 
-  onGenerate, 
-  isGenerating, 
-  errorMessage
-}: GenerationFormProps) {
+export function GenerationForm({ onGenerate, isGenerating, errorMessage }: GenerationFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
     watch,
-    reset
+    reset,
   } = useForm<GenerationFormData>({
     resolver: zodResolver(createGenerationRequestSchema),
     mode: 'onChange',
     defaultValues: {
-      source_text: ''
-    }
+      source_text: '',
+    },
   });
 
   const sourceTextValue = watch('source_text');
@@ -44,12 +40,12 @@ export function GenerationForm({
     if (charCount < 500) {
       return {
         text: `Potrzebujesz jeszcze ${500 - charCount} znaków`,
-        className: 'text-danger'
+        className: 'text-danger',
       };
     }
     return {
       text: 'Gotowe do generacji',
-      className: 'text-success'
+      className: 'text-success',
     };
   }, [charCount]);
 
@@ -73,33 +69,24 @@ export function GenerationForm({
               placeholder="Wklej tutaj tekst, z którego chcesz wygenerować fiszki (500-15,000 znaków)..."
               className="min-h-[200px] resize-y"
               aria-invalid={!!errors.source_text}
-              aria-describedby={errors.source_text || errorMessage ? "sourceTextError" : undefined}
+              aria-describedby={errors.source_text || errorMessage ? 'sourceTextError' : undefined}
               disabled={isGenerating || isSubmitting}
               {...register('source_text')}
             />
-            
+
             <div className="flex justify-between items-center text-caption text-muted-foreground">
-              <span>
-                Znaki: {charCount.toLocaleString()} / 15,000
-              </span>
-              {statusMessage && (
-                <span className={statusMessage.className}>
-                  {statusMessage.text}
-                </span>
-              )}
+              <span>Znaki: {charCount.toLocaleString()} / 15,000</span>
+              {statusMessage && <span className={statusMessage.className}>{statusMessage.text}</span>}
             </div>
 
             {(errors.source_text || errorMessage) && (
-              <InlineError 
-                id="sourceTextError"
-                message={errors.source_text?.message || errorMessage || ''} 
-              />
+              <InlineError id="sourceTextError" message={errors.source_text?.message || errorMessage || ''} />
             )}
           </div>
 
-          <Button 
+          <Button
             data-testid="generate-flashcards-button"
-            type="submit" 
+            type="submit"
             disabled={isDisabled}
             className="w-full"
             size="lg"

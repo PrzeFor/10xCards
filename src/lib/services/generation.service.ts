@@ -1,11 +1,7 @@
 import { createHash } from 'crypto';
 import type { SupabaseClient } from '../../db/supabase.client';
 import type { Database } from '../../db/database.types';
-import type {
-  CreateGenerationResponseDto,
-  FlashcardProposalDto,
-  GenerationStatus
-} from '../../types';
+import type { CreateGenerationResponseDto, FlashcardProposalDto, GenerationStatus } from '../../types';
 import { aiServiceResponseSchema, type AIServiceResponse } from '../schemas/generation';
 import { createFlashcardGenerationService } from './openRouter/openRouter.factory';
 import type { ChatMessage, ResponseFormat } from './openRouter/openRouter.types';
@@ -29,11 +25,7 @@ export class GenerationService {
    * @param sourceText - The source text to generate flashcards from
    * @param userId - The authenticated user's ID
    */
-  async createGeneration(
-    sourceText: string,
-    userId: string
-  ): Promise<CreateGenerationResponseDto> {
-
+  async createGeneration(sourceText: string, userId: string): Promise<CreateGenerationResponseDto> {
     // Start timing the generation process
     const startTime = Date.now();
 
@@ -52,7 +44,7 @@ export class GenerationService {
         source_text_length: sourceTextLength,
         status: 'pending' as GenerationStatus,
         model: 'pending', // Will be updated after AI call
-        generated_count: 0
+        generated_count: 0,
       })
       .select('id, source_text_length')
       .single();
@@ -83,7 +75,7 @@ export class GenerationService {
           model: aiResponse.model,
           generated_count: limitedFlashcards.length,
           generation_duration: generationDuration,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', generation.id);
 
@@ -97,7 +89,7 @@ export class GenerationService {
         id: this.generateHash(`${generation.id}-${index}-${card.front}`),
         front: card.front,
         back: card.back,
-        source: 'ai_full' as const
+        source: 'ai_full' as const,
       }));
 
       return {
@@ -106,9 +98,8 @@ export class GenerationService {
         status: 'completed',
         generated_count: flashcardProposals.length,
         generation_duration: generationDuration,
-        flashcards_proposals: flashcardProposals
+        flashcards_proposals: flashcardProposals,
       };
-
     } catch (error) {
       // Handle AI service or database errors
       await this.handleGenerationError(generation.id, error as Error);
@@ -139,23 +130,23 @@ export class GenerationService {
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${openrouterApiKey}`,
+            Authorization: `Bearer ${openrouterApiKey}`,
             'Content-Type': 'application/json',
             'HTTP-Referer': 'https://10xcards.app',
-            'X-Title': '10xCards'
+            'X-Title': '10xCards',
           },
           body: JSON.stringify({
             model: 'openai/gpt-4o-mini',
             messages: [
               {
                 role: 'user',
-                content: prompt
-              }
+                content: prompt,
+              },
             ],
             temperature: 0.7,
-            max_tokens: 4000
+            max_tokens: 4000,
           }),
-          signal: controller.signal
+          signal: controller.signal,
         });
 
         clearTimeout(timeoutId);
@@ -183,23 +174,21 @@ export class GenerationService {
         // Validate the AI response structure
         const validatedResponse = aiServiceResponseSchema.parse({
           flashcards: parsedContent.flashcards || [],
-          model: data.model || 'anthropic/claude-3.5-sonnet'
+          model: data.model || 'anthropic/claude-3.5-sonnet',
         });
 
         return validatedResponse;
-
       } catch (error) {
         lastError = error as Error;
 
         // Don't retry on validation errors or abort errors
-        if (error instanceof Error &&
-          (error.name === 'AbortError' || error.message.includes('parse'))) {
+        if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('parse'))) {
           break;
         }
 
         // Wait before retry (exponential backoff)
         if (attempt < this.MAX_RETRIES) {
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 1000));
         }
       }
     }
@@ -246,22 +235,19 @@ Important: Return only the JSON object, no additional text or formatting.`;
   private async handleGenerationError(generationId: string, error: Error): Promise<void> {
     try {
       // Log the error
-      await this.supabase
-        .from('generation_error_logs')
-        .insert({
-          generation_id: generationId,
-          error_message: error.message
-        });
+      await this.supabase.from('generation_error_logs').insert({
+        generation_id: generationId,
+        error_message: error.message,
+      });
 
       // Update generation status to failed
       await this.supabase
         .from('generations')
         .update({
           status: 'failed' as GenerationStatus,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', generationId);
-
     } catch (logError) {
       // If we can't log the error, at least log it to console
       console.error('Failed to log generation error:', logError);
