@@ -2,7 +2,9 @@
 
 ## Przegląd
 
-Pipeline CI/CD automatycznie weryfikuje jakość kodu i buduje aplikację przy każdej aktualizacji brancha `master`. Może być również uruchomiony manualnie.
+Pipeline CI/CD automatycznie weryfikuje jakość kodu, buduje aplikację i wdraża ją na Cloudflare Pages przy każdej aktualizacji brancha `master`. Może być również uruchomiony manualnie.
+
+**Uwaga**: Ta dokumentacja opisuje poprzednią wersję workflow. Aktualna wersja używa Cloudflare Pages - zobacz [README-CLOUDFLARE-DEPLOYMENT.md](./README-CLOUDFLARE-DEPLOYMENT.md)
 
 ## Triggery
 
