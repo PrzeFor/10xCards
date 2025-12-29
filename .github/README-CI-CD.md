@@ -59,6 +59,9 @@ Aby pipeline działał poprawnie, należy skonfigurować następujące sekrety w
 | `SUPABASE_KEY` | Klucz API Supabase (service_role) | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
 | `SUPABASE_PUBLIC_KEY` | Publiczny klucz API Supabase (anon) | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
 | `OPENROUTER_API_KEY` | Klucz API OpenRouter | `sk-or-v1-...` |
+| `E2E_USER_ID` | UUID testowego użytkownika dla E2E | `4d803b8f-2add-4610-9af3-2103e9b6714b` |
+| `E2E_USERNAME` | Email testowego użytkownika dla E2E | `test@example.com` |
+| `E2E_PASSWORD` | Hasło testowego użytkownika dla E2E | `TestPassword123!` |
 
 ### Gdzie znaleźć klucze Supabase?
 
@@ -75,6 +78,25 @@ Aby pipeline działał poprawnie, należy skonfigurować następujące sekrety w
 1. Przejdź do [OpenRouter Dashboard](https://openrouter.ai/keys)
 2. Stwórz nowy klucz API lub użyj istniejącego
 3. Skopiuj klucz → `OPENROUTER_API_KEY`
+
+### Jak skonfigurować testowego użytkownika E2E?
+
+⚠️ **WAŻNE**: Użyj osobnej testowej bazy danych Supabase, nie produkcyjnej!
+
+1. **Utwórz testowego użytkownika w Supabase**:
+   - Przejdź do Supabase Dashboard → Authentication → Users
+   - Kliknij "Add user" → "Create new user"
+   - Wpisz email i hasło (np. `test@example.com` / `TestPassword123!`)
+   - Zanotuj UUID użytkownika (będzie widoczny w kolumnie "UID")
+
+2. **Dodaj sekrety do GitHub**:
+   - `E2E_USER_ID` → UUID użytkownika z Supabase
+   - `E2E_USERNAME` → Email użytkownika
+   - `E2E_PASSWORD` → Hasło użytkownika
+
+3. **Dla Pull Request workflow**:
+   - Utwórz środowisko `integration` w Settings → Environments
+   - Dodaj te same sekrety do środowiska `integration`
 
 ## Artefakty
 

@@ -20,9 +20,17 @@ Workflow wymaga skonfigurowania następujących sekretów w repozytorium GitHub:
 
 Przejdź do: `Settings` → `Environments` → `integration` → `Environment secrets`
 
+**Supabase:**
 - `SUPABASE_URL` - URL instancji Supabase
 - `SUPABASE_PUBLIC_KEY` - Publiczny klucz API Supabase (dla testów E2E)
+
+**OpenRouter:**
 - `OPENROUTER_API_KEY` - Klucz API OpenRouter
+
+**Dane testowego użytkownika (wymagane dla E2E):**
+- `E2E_USER_ID` - UUID testowego użytkownika (np. `4d803b8f-2add-4610-9af3-2103e9b6714b`)
+- `E2E_USERNAME` - Email testowego użytkownika (np. `test@example.com`)
+- `E2E_PASSWORD` - Hasło testowego użytkownika (np. `TestPassword123!`)
 
 #### Repository Secrets
 

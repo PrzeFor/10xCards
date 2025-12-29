@@ -1,7 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
-import path from 'path';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 
+// Load .env.test if it exists (local development)
+// In CI, environment variables are passed directly
 dotenv.config({ path: path.resolve(process.cwd(), '.env.test') });
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -80,9 +82,10 @@ export default defineConfig({
     timeout: 120 * 1000,
     env: {
       // Pass test environment variables to the dev server
-      SUPABASE_URL: process.env.SUPABASE_URL!,
-      SUPABASE_KEY: process.env.SUPABASE_PUBLIC_KEY!, // E2E tests use SUPABASE_PUBLIC_KEY
-      OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY!,
+      // These can come from .env.test (local) or CI environment variables
+      SUPABASE_URL: process.env.SUPABASE_URL || '',
+      SUPABASE_KEY: process.env.SUPABASE_PUBLIC_KEY || process.env.SUPABASE_KEY || '',
+      OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY || '',
     },
   },
 });
