@@ -111,7 +111,9 @@ export class GenerationService {
    * Calls the AI service to generate flashcards from source text
    */
   private async callAIService(sourceText: string): Promise<AIServiceResponse> {
-    const openrouterApiKey = import.meta.env.OPENROUTER_API_KEY;
+    // Import the API key dynamically to avoid issues with build-time imports
+    const { OPENROUTER_API_KEY } = await import('astro:env/server');
+    const openrouterApiKey = OPENROUTER_API_KEY;
 
     if (!openrouterApiKey) {
       throw new Error('OPENROUTER_API_KEY environment variable is not set');

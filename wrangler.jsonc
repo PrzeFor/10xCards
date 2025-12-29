@@ -1,0 +1,26 @@
+{
+  // Wrangler Configuration for Cloudflare Pages
+  // https://developers.cloudflare.com/pages/platform/functions/wrangler-configuration/
+  
+  "name": "10xcards",
+  "compatibility_date": "2024-12-29",
+  
+  // Pages configuration
+  "pages_build_output_dir": "./dist",
+  
+  // Node.js compatibility for Astro SSR
+  "compatibility_flags": ["nodejs_compat"],
+  
+  // Environment Variables (można nadpisać w Cloudflare Dashboard)
+  "vars": {
+    // "PUBLIC_SUPABASE_URL": "",
+    // "PUBLIC_SUPABASE_ANON_KEY": ""
+  },
+  
+  // Konfiguracja dla local development
+  "dev": {
+    "port": 8788,
+    "local_protocol": "http"
+  }
+}
+

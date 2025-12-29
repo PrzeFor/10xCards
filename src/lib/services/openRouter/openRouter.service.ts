@@ -403,9 +403,7 @@ export class OpenRouterService {
   private logError(errorInfo: { message: string; error?: Error }): void {
     // In production, this should use a proper logging service
     // For now, we'll just log to console in development
-    if (import.meta.env.DEV) {
-      console.error('[OpenRouterService]', errorInfo.message, errorInfo.error);
-    }
+    console.error('[OpenRouterService]', errorInfo.message, errorInfo.error);
   }
 }
 

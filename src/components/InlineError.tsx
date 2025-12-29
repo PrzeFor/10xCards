@@ -3,14 +3,16 @@ import React from 'react';
 interface InlineErrorProps {
   message: string;
   id?: string;
+  'data-testid'?: string;
 }
 
-export function InlineError({ message, id }: InlineErrorProps) {
+export function InlineError({ message, id, 'data-testid': dataTestId }: InlineErrorProps) {
   if (!message) return null;
 
   return (
     <div
       id={id}
+      data-testid={dataTestId}
       className="text-body text-danger flex items-center gap-2 bg-danger p-3 rounded-fluent-md border border-danger"
       role="alert"
       aria-live="polite"

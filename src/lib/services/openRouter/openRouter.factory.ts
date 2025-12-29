@@ -2,6 +2,7 @@
  * Factory functions for creating OpenRouterService instances
  */
 
+import { OPENROUTER_API_KEY } from 'astro:env/server';
 import { OpenRouterService } from './openRouter.service';
 import type { OpenRouterServiceOptions } from './openRouter.types';
 
@@ -19,7 +20,7 @@ import type { OpenRouterServiceOptions } from './openRouter.types';
  * ```
  */
 export function createOpenRouterService(options?: Omit<OpenRouterServiceOptions, 'apiKey'>): OpenRouterService {
-  const apiKey = import.meta.env.OPENROUTER_API_KEY;
+  const apiKey = OPENROUTER_API_KEY;
 
   if (!apiKey) {
     throw new Error('OPENROUTER_API_KEY environment variable is not set');

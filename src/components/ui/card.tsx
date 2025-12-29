@@ -28,8 +28,16 @@ function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="card-title" className={cn('text-title text-foreground', className)} {...props} />;
+function CardTitle({ 
+  className, 
+  children,
+  ...props 
+}: React.ComponentProps<'h3'> & { children: React.ReactNode }) {
+  return (
+    <h3 data-slot="card-title" className={cn('text-title text-foreground', className)} {...props}>
+      {children}
+    </h3>
+  );
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<'div'>) {

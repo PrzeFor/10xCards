@@ -48,16 +48,25 @@ A modern web application enabling fast, AI-powered generation and management of 
    ```bash
    npm install
    ```
-3. Copy and configure environment variables:  
-   ```bash
-   cp .env.example .env
-   # Set SUPABASE_URL, SUPABASE_ANON_KEY, OPENROUTER_API_KEY, etc.
+3. Configure environment variables:  
+   Create a `.env` file in the root directory:
+   ```env
+   SUPABASE_URL=https://your-project.supabase.co
+   SUPABASE_KEY=your-supabase-anon-key
+   OPENROUTER_API_KEY=sk-or-v1-your-api-key
    ```
-4. Start the development server:  
+   
+   **Note:** This project uses `astro:env` for environment variable management. See [ASTRO-ENV-MIGRATION.md](./ASTRO-ENV-MIGRATION.md) for details.
+
+4. Generate TypeScript types:  
+   ```bash
+   npm run astro sync
+   ```
+5. Start the development server:  
    ```bash
    npm run dev
    ```
-5. Open your browser at `http://localhost:3000`
+6. Open your browser at `http://localhost:3000`
 
 ## Available Scripts
 
