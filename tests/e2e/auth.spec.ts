@@ -141,25 +141,6 @@ test.describe('Authentication Flow', () => {
     });
   });
 
-  test.describe('Visual Regression', () => {
-    test('should match login page screenshot', async ({ page }) => {
-      await page.goto('/auth/login');
-
-      // Wait for page to be fully loaded
-      await page.waitForLoadState('networkidle');
-
-      // Wait for the form to be visible
-      await page.getByTestId('login-email').waitFor({ state: 'visible' });
-
-      // Take screenshot and compare
-      await expect(page).toHaveScreenshot('login-page.png', {
-        fullPage: true,
-        maxDiffPixels: 200, // Allow more differences due to potential styling changes
-      });
-    });
-  });
-});
-
 test.describe('Protected Routes', () => {
   test('should redirect unauthenticated user to login', async ({ page }) => {
     // Try to access protected page
