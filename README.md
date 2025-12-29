@@ -1,4 +1,4 @@
-# 10xCards
+# 10xCards.pl
 
 A modern web application enabling fast, AI-powered generation and management of high-quality educational flashcards, integrated with a spaced-repetition system (SRS) and built with Astro, React, and Supabase.
 
