@@ -6,7 +6,7 @@ export const prerender = false;
  * POST /api/auth/logout
  * Handles user logout and session cleanup
  */
-export const POST: APIRoute = async ({ cookies, request, redirect }) => {
+export const POST: APIRoute = async ({ cookies, request, redirect, locals }) => {
   try {
     // Import createSupabaseServerInstance inside the handler
     const { createSupabaseServerInstance } = await import('@/db/supabase.client');
@@ -15,6 +15,7 @@ export const POST: APIRoute = async ({ cookies, request, redirect }) => {
     const supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
+      runtime: locals.runtime as { env?: { SUPABASE_URL?: string; SUPABASE_KEY?: string } } | undefined,
     });
 
     // Sign out from Supabase

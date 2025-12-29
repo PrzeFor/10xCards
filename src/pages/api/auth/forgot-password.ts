@@ -7,7 +7,7 @@ export const prerender = false;
  * POST /api/auth/forgot-password
  * Sends password reset email to the user
  */
-export const POST: APIRoute = async ({ request, cookies, url }) => {
+export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
   try {
     // Parse request body
     const body = await request.json();
@@ -37,6 +37,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
     const supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
+      runtime: locals.runtime as { env?: { SUPABASE_URL?: string; SUPABASE_KEY?: string } } | undefined,
     });
 
     // Get the base URL for the redirect

@@ -9,6 +9,7 @@ import type { OpenRouterServiceOptions } from './openRouter.types';
  * Creates a new OpenRouterService instance with environment configuration
  *
  * @param options - Optional configuration overrides
+ * @param apiKeyOverride - Optional API key override (for runtime environments like Cloudflare)
  * @returns Configured OpenRouterService instance
  * @throws {Error} If OPENROUTER_API_KEY environment variable is not set
  *
@@ -18,8 +19,11 @@ import type { OpenRouterServiceOptions } from './openRouter.types';
  * const response = await openRouter.sendChatCompletion(messages);
  * ```
  */
-export function createOpenRouterService(options?: Omit<OpenRouterServiceOptions, 'apiKey'>): OpenRouterService {
-  const apiKey = import.meta.env.OPENROUTER_API_KEY;
+export function createOpenRouterService(
+  options?: Omit<OpenRouterServiceOptions, 'apiKey'>,
+  apiKeyOverride?: string
+): OpenRouterService {
+  const apiKey = apiKeyOverride || import.meta.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
     throw new Error('OPENROUTER_API_KEY environment variable is not set');
@@ -32,6 +36,7 @@ export function createOpenRouterService(options?: Omit<OpenRouterServiceOptions,
  * Creates a new OpenRouterService instance for flashcard generation
  * Pre-configured with optimal settings for flashcard generation
  *
+ * @param apiKeyOverride - Optional API key override (for runtime environments like Cloudflare)
  * @returns Configured OpenRouterService instance for flashcard generation
  *
  * @example
@@ -40,11 +45,14 @@ export function createOpenRouterService(options?: Omit<OpenRouterServiceOptions,
  * const response = await openRouter.sendChatCompletion(messages);
  * ```
  */
-export function createFlashcardGenerationService(): OpenRouterService {
-  return createOpenRouterService({
-    defaultModel: 'openai/gpt-4o-mini',
-    timeout: 60000, // 60 seconds
-    maxRetries: 2,
-    retryDelay: 1000,
-  });
+export function createFlashcardGenerationService(apiKeyOverride?: string): OpenRouterService {
+  return createOpenRouterService(
+    {
+      defaultModel: 'openai/gpt-4o-mini',
+      timeout: 60000, // 60 seconds
+      maxRetries: 2,
+      retryDelay: 1000,
+    },
+    apiKeyOverride
+  );
 }

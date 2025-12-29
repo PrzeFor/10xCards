@@ -43,10 +43,11 @@ function isPublicPath(pathname: string): boolean {
 }
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
-  // Create Supabase server instance
+  // Create Supabase server instance with Cloudflare runtime environment
   const supabase = createSupabaseServerInstance({
     cookies,
     headers: request.headers,
+    runtime: locals.runtime as { env?: { SUPABASE_URL?: string; SUPABASE_KEY?: string } } | undefined,
   });
 
   // IMPORTANT: Always get user session first before any other operations

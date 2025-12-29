@@ -100,8 +100,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const { source_text } = validationResult.data;
 
-    // Initialize generation service
-    const generationService = new GenerationService(locals.supabase);
+    // Get OpenRouter API key from runtime or environment
+    const openrouterApiKey =
+      (locals.runtime as { env?: { OPENROUTER_API_KEY?: string } } | undefined)?.env?.OPENROUTER_API_KEY;
+
+    // Initialize generation service with API key from runtime
+    const generationService = new GenerationService(locals.supabase, openrouterApiKey);
 
     // Create generation
     const result = await generationService.createGeneration(source_text, userId);

@@ -13,7 +13,7 @@ const ResetPasswordRequestSchema = ResetPasswordSchema.extend({
  * POST /api/auth/reset-password
  * Resets user password using the token from email
  */
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies, locals }) => {
   try {
     // Parse request body
     const body = await request.json();
@@ -43,6 +43,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
+      runtime: locals.runtime as { env?: { SUPABASE_URL?: string; SUPABASE_KEY?: string } } | undefined,
     });
 
     // Exchange token for session

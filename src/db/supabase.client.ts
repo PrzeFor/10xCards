@@ -5,11 +5,30 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '../db/database.types.ts';
 
-const supabaseUrl = import.meta.env.SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
+/**
+ * Get environment variables from import.meta.env or runtime
+ * This supports both build-time and Cloudflare runtime environment variables
+ */
+function getEnvVars(runtime?: { env?: { SUPABASE_URL?: string; SUPABASE_KEY?: string } }) {
+  return {
+    supabaseUrl: runtime?.env?.SUPABASE_URL || import.meta.env.SUPABASE_URL,
+    supabaseAnonKey: runtime?.env?.SUPABASE_KEY || import.meta.env.SUPABASE_KEY,
+  };
+}
 
 // Client-side Supabase client (for backwards compatibility)
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// This will use build-time environment variables
+let _clientInstance: SupabaseClient<Database> | null = null;
+export const supabaseClient = (() => {
+  if (!_clientInstance) {
+    const { supabaseUrl, supabaseAnonKey } = getEnvVars();
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('SUPABASE_URL and SUPABASE_KEY must be defined');
+    }
+    _clientInstance = createClient<Database>(supabaseUrl, supabaseAnonKey);
+  }
+  return _clientInstance;
+})();
 
 // Export the SupabaseClient type for use in other files
 export type { SupabaseClient };
@@ -39,7 +58,17 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
  * Create Supabase server instance for SSR with proper cookie handling
  * Use this in Astro pages and API endpoints instead of the client-side supabaseClient
  */
-export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
+export const createSupabaseServerInstance = (context: {
+  headers: Headers;
+  cookies: AstroCookies;
+  runtime?: { env?: { SUPABASE_URL?: string; SUPABASE_KEY?: string } };
+}) => {
+  const { supabaseUrl, supabaseAnonKey } = getEnvVars(context.runtime);
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('SUPABASE_URL and SUPABASE_KEY must be defined');
+  }
+
   const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookieOptions,
     cookies: {

@@ -15,9 +15,11 @@ export class GenerationService {
   private readonly AI_TIMEOUT = 60000; // 60 seconds
   private readonly MAX_RETRIES = 2;
   private readonly MAX_FLASHCARDS = 50;
+  private readonly openrouterApiKey?: string;
 
-  constructor(supabase: SupabaseClient<Database>) {
+  constructor(supabase: SupabaseClient<Database>, openrouterApiKey?: string) {
     this.supabase = supabase;
+    this.openrouterApiKey = openrouterApiKey;
   }
 
   /**
@@ -111,7 +113,8 @@ export class GenerationService {
    * Calls the AI service to generate flashcards from source text
    */
   private async callAIService(sourceText: string): Promise<AIServiceResponse> {
-    const openrouterApiKey = import.meta.env.OPENROUTER_API_KEY;
+    // Use constructor-provided API key or fallback to import.meta.env
+    const openrouterApiKey = this.openrouterApiKey || import.meta.env.OPENROUTER_API_KEY;
 
     if (!openrouterApiKey) {
       throw new Error('OPENROUTER_API_KEY environment variable is not set');
