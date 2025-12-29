@@ -140,6 +140,7 @@ test.describe('Authentication Flow', () => {
       await expect(page.locator('text=/hasło musi mieć co najmniej 8 znaków/i')).toBeVisible({ timeout: 5000 });
     });
   });
+});
 
 test.describe('Protected Routes', () => {
   test('should redirect unauthenticated user to login', async ({ page }) => {
