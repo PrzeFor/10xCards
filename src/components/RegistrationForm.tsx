@@ -115,6 +115,7 @@ export function RegistrationForm() {
             <div className="space-y-2">
               <Label htmlFor="email">Adres e-mail</Label>
               <Input
+                data-testid="register-email"
                 id="email"
                 type="email"
                 placeholder="twoj.email@example.com"
@@ -131,6 +132,7 @@ export function RegistrationForm() {
             <div className="space-y-2">
               <Label htmlFor="password">Hasło</Label>
               <Input
+                data-testid="register-password"
                 id="password"
                 type="password"
                 placeholder="Minimum 8 znaków"
@@ -147,6 +149,7 @@ export function RegistrationForm() {
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Potwierdź hasło</Label>
               <Input
+                data-testid="register-confirm-password"
                 id="confirmPassword"
                 type="password"
                 placeholder="Powtórz hasło"
@@ -165,7 +168,7 @@ export function RegistrationForm() {
             {serverError && <InlineError id="server-error" message={serverError} />}
           </div>
 
-          <Button type="submit" disabled={isSubmitting} className="w-full" size="lg">
+          <Button data-testid="register-submit" type="submit" disabled={isSubmitting} className="w-full" size="lg">
             {isSubmitting ? 'Rejestracja...' : 'Zarejestruj się'}
           </Button>
 
