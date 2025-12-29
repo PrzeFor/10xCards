@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -18,13 +18,20 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(LoginSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
+  useEffect(() => {
+    console.log('Form errors:', errors);
+  }, [errors]);
+
   const onSubmit = async (formData: LoginFormData) => {
+    console.log('Form submitted with data:', formData);
     // Clear previous server errors
     setServerError('');
 
@@ -62,7 +69,7 @@ export function LoginForm() {
         <CardTitle className="text-brand">Logowanie</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
           <div className="space-y-4">
             {/* Email field */}
             <div className="space-y-2">
@@ -78,7 +85,7 @@ export function LoginForm() {
                 autoComplete="email"
                 {...register('email')}
               />
-              {errors.email && <InlineError id="email-error" message={errors.email.message!} />}
+              {errors.email && <InlineError data-testid="login-email-error" id="email-error" message={errors.email.message!} />}
             </div>
 
             {/* Password field */}

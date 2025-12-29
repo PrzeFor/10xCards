@@ -108,7 +108,7 @@ export function ForgotPasswordForm() {
         <CardTitle className="text-brand">Resetuj hasło</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <p className="text-body text-muted-foreground">
             Podaj adres e-mail przypisany do Twojego konta. Wyślemy Ci link do resetowania hasła.
           </p>

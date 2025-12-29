@@ -20,6 +20,8 @@ export function RegistrationForm() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(RegisterSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     defaultValues: {
       email: '',
       password: '',
@@ -109,7 +111,7 @@ export function RegistrationForm() {
         <CardTitle className="text-brand">Utwórz konto</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
           <div className="space-y-4">
             {/* Email field */}
             <div className="space-y-2">

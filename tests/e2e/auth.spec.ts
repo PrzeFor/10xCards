@@ -43,18 +43,26 @@ test.describe('Authentication Flow', () => {
   test('should show validation error for invalid email', async ({ page }) => {
     await page.goto('/auth/login');
 
-    // Fill in invalid email
-    await page.getByTestId('login-email').fill('invalid-email');
-    await page.getByTestId('login-password').fill('password123');
+    // Wait for form to be fully hydrated
+    await page.getByTestId('login-submit').waitFor({ state: 'visible' });
+    await page.waitForLoadState('networkidle');
 
-    // Submit form
+    // Fill in invalid email
+    const emailInput = page.getByTestId('login-email');
+    await emailInput.fill('invalid-email');
+    await expect(emailInput).toHaveValue('invalid-email');
+
+    // Fill in password
+    const passwordInput = page.getByTestId('login-password');
+    await passwordInput.fill('password123');
+    await expect(passwordInput).toHaveValue('password123');
+
+    // Submit form - this will trigger React Hook Form validation
     await page.getByTestId('login-submit').click();
 
-    // Wait for validation
-    await page.waitForTimeout(500);
-
     // Check for error message
-    await expect(page.locator('text=/nieprawidłowy format adresu e-mail/i')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('login-email-error')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('login-email-error')).toContainText(/nieprawidłowy.*format/i);
   });
 
   test('should navigate to forgot password page', async ({ page }) => {
@@ -65,18 +73,18 @@ test.describe('Authentication Flow', () => {
 
     // Verify navigation
     await expect(page).toHaveURL(/\/auth\/forgot-password/);
-    await expect(page.locator('h1, h2')).toContainText(/zapomnia|forgot/i);
+    await expect(page.getByText(/odzyskaj dostęp do konta/i)).toBeVisible();
   });
 
   test('should navigate between login and registration pages', async ({ page }) => {
     await page.goto('/auth/login');
 
-    // Navigate to registration
-    await page.getByRole('link', { name: /zarejestruj się/i }).click();
+    // Navigate to registration - click the link in main content, not navigation
+    await page.getByRole('main').getByRole('link', { name: /zarejestruj się/i }).click();
     await expect(page).toHaveURL(/\/auth\/register/);
 
-    // Navigate back to login
-    await page.getByRole('link', { name: /zaloguj się/i }).click();
+    // Navigate back to login - click the link in main content, not navigation
+    await page.getByRole('main').getByRole('link', { name: /zaloguj się/i }).click();
     await expect(page).toHaveURL(/\/auth\/login/);
   });
 
@@ -103,11 +111,12 @@ test.describe('Authentication Flow', () => {
     test('should show error for empty fields on login', async ({ page }) => {
       await page.goto('/auth/login');
 
+      // Wait for form to be fully hydrated
+      await page.getByTestId('login-submit').waitFor({ state: 'visible' });
+      await page.waitForLoadState('networkidle');
+
       // Try to submit without filling fields
       await page.getByTestId('login-submit').click();
-
-      // Wait for validation errors to appear
-      await page.waitForTimeout(500);
 
       // Check if validation error for email is shown
       await expect(page.locator('text=/adres e-mail jest wymagany/i')).toBeVisible({ timeout: 5000 });
