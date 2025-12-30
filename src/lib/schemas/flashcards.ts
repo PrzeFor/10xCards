@@ -67,3 +67,27 @@ export const listFlashcardsQuerySchema = z.object({
  * Type for validated query parameters
  */
 export type ListFlashcardsQuery = z.infer<typeof listFlashcardsQuerySchema>;
+
+/**
+ * Schema for validating flashcard ID parameter in URL
+ */
+export const flashcardIdParamSchema = z.object({
+  cardId: z.string().uuid('Card ID must be a valid UUID'),
+});
+
+/**
+ * Schema for validating flashcard update request
+ * Uses the same schema as creation since the structure is identical
+ */
+export const updateFlashcardRequestSchema = createFlashcardRequestSchema;
+
+/**
+ * Schema for validating delete flashcard params
+ * Same as flashcardIdParamSchema but exported with semantic name for delete operations
+ */
+export const deleteFlashcardParamsSchema = flashcardIdParamSchema;
+
+/**
+ * Type for validated delete flashcard parameters
+ */
+export type DeleteFlashcardParams = z.infer<typeof deleteFlashcardParamsSchema>;

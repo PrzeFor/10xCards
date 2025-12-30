@@ -193,4 +193,193 @@ export class FlashcardService {
       offset,
     };
   }
+
+  /**
+   * Updates an existing flashcard
+   * @param userId - The authenticated user ID
+   * @param cardId - The flashcard ID to update
+   * @param updateData - The update data
+   * @returns Updated flashcard DTO
+   * @throws Error if flashcard not found, forbidden, or generation validation fails
+   */
+  async updateFlashcard(
+    userId: string,
+    cardId: string,
+    updateData: CreateFlashcardRequestDto
+  ): Promise<FlashcardDto> {
+    // Step 1: Fetch existing flashcard and verify ownership
+    const existingFlashcard = await this.getFlashcard(userId, cardId);
+
+    if (!existingFlashcard) {
+      throw new Error('Flashcard not found');
+    }
+
+    // Step 2: Ownership is already verified by getFlashcard (filters by userId)
+    // No additional check needed
+
+    // Step 3: Validate generation_id if provided
+    if (updateData.generation_id) {
+      const { data: generation, error } = await this.supabase
+        .from('generations')
+        .select('user_id')
+        .eq('id', updateData.generation_id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          throw new Error('Generation not found');
+        }
+        console.error('Error fetching generation:', error);
+        throw new Error('Failed to validate generation');
+      }
+
+      if (!generation) {
+        throw new Error('Generation not found');
+      }
+
+      if (generation.user_id !== userId) {
+        throw new Error('Generation forbidden');
+      }
+    }
+
+    // Step 4: Update flashcard
+    const { data, error } = await this.supabase
+      .from('flashcards')
+      .update({
+        front: updateData.front,
+        back: updateData.back,
+        source: updateData.source,
+        generation_id: updateData.generation_id || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', cardId)
+      .eq('user_id', userId) // Double-check ownership
+      .select('id, front, back, source, generation_id, created_at, updated_at')
+      .single();
+
+    if (error) {
+      console.error('Database error updating flashcard:', error);
+      throw new Error(`Failed to update flashcard: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error('Flashcard not found after update');
+    }
+
+    // Step 5: Transform to DTO
+    return {
+      id: data.id,
+      front: data.front,
+      back: data.back,
+      source: data.source as FlashcardSource,
+      generation_id: data.generation_id,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+    };
+  }
+
+  /**
+   * Deletes a flashcard and updates related generation statistics.
+   * @param userId - The authenticated user ID
+   * @param cardId - The flashcard ID to delete
+   * @throws Error with code 'NOT_FOUND' if flashcard doesn't exist
+   * @throws Error with code 'FORBIDDEN' if user doesn't own the flashcard
+   * @throws Error for database errors
+   */
+  async deleteFlashcard(userId: string, cardId: string): Promise<void> {
+    // Step 1: Verify flashcard exists and get its data
+    const { data: flashcard, error: fetchError } = await this.supabase
+      .from('flashcards')
+      .select('id, generation_id, source, user_id')
+      .eq('id', cardId)
+      .single();
+
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') {
+        // Not found
+        const error = new Error('Flashcard not found');
+        (error as any).code = 'NOT_FOUND';
+        throw error;
+      }
+      throw fetchError;
+    }
+
+    // Step 2: Verify ownership
+    if (flashcard.user_id !== userId) {
+      const error = new Error("You don't have permission to delete this flashcard");
+      (error as any).code = 'FORBIDDEN';
+      throw error;
+    }
+
+    // Step 3: Delete the flashcard
+    const { error: deleteError } = await this.supabase
+      .from('flashcards')
+      .delete()
+      .eq('id', cardId)
+      .eq('user_id', userId); // Double-check ownership
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    // Step 4: Update generation statistics if applicable
+    if (flashcard.generation_id) {
+      await this.updateGenerationStatsAfterDeletion(
+        flashcard.generation_id,
+        flashcard.source
+      );
+    }
+  }
+
+  /**
+   * Updates generation statistics after a flashcard is deleted.
+   * Decrements counters based on flashcard source.
+   * @param generationId - The generation ID to update
+   * @param source - The source type of the deleted flashcard
+   */
+  private async updateGenerationStatsAfterDeletion(
+    generationId: string,
+    source: string
+  ): Promise<void> {
+    // Fetch current generation data
+    const { data: generation, error: fetchError } = await this.supabase
+      .from('generations')
+      .select('generated_count, accepted_unedited_count, accepted_edited_count')
+      .eq('id', generationId)
+      .single();
+
+    if (fetchError || !generation) {
+      // Generation might have been deleted (ON DELETE SET NULL)
+      // This is not an error condition, just return
+      return;
+    }
+
+    // Calculate new values
+    const updates: any = {
+      generated_count: Math.max(0, generation.generated_count - 1),
+    };
+
+    if (source === 'ai_full') {
+      updates.accepted_unedited_count = Math.max(
+        0,
+        (generation.accepted_unedited_count || 0) - 1
+      );
+    } else if (source === 'ai_edited') {
+      updates.accepted_edited_count = Math.max(
+        0,
+        (generation.accepted_edited_count || 0) - 1
+      );
+    }
+
+    // Update generation
+    const { error: updateError } = await this.supabase
+      .from('generations')
+      .update(updates)
+      .eq('id', generationId);
+
+    if (updateError) {
+      // Log error but don't throw - flashcard is already deleted
+      console.error('Failed to update generation stats:', updateError);
+    }
+  }
 }
