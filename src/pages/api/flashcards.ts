@@ -1,8 +1,8 @@
 import type { APIRoute } from 'astro';
-import { createFlashcardsRequestSchema } from '../../lib/schemas/flashcards';
+import { createFlashcardsRequestSchema, listFlashcardsQuerySchema } from '../../lib/schemas/flashcards';
 import { FlashcardService } from '../../lib/services/flashcard.service';
 
-const prerender = false;
+export const prerender = false;
 
 /**
  * Error response structure
@@ -198,6 +198,103 @@ export const POST: APIRoute = async ({ request, locals }) => {
       JSON.stringify({
         code: 'InternalServerError',
         message: 'Wystąpił nieoczekiwany błąd wewnętrzny.',
+      } as ErrorResponse),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
+};
+
+/**
+ * GET /api/flashcards - List user's flashcards with pagination
+ */
+export const GET: APIRoute = async ({ request, locals }) => {
+  try {
+    // Guard clause: Check Supabase client availability
+    if (!locals.supabase) {
+      return new Response(
+        JSON.stringify({
+          code: 'InternalServerError',
+          message: 'Database connection not available',
+        } as ErrorResponse),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Guard clause: Check authentication
+    if (!locals.user) {
+      return new Response(
+        JSON.stringify({
+          code: 'Unauthorized',
+          message: 'Authentication required',
+        } as ErrorResponse),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    const userId = locals.user.id;
+
+    console.log(`Processing flashcards list request for user: ${userId}`);
+
+    // Parse query parameters from URL
+    const url = new URL(request.url);
+    const queryParams = {
+      limit: url.searchParams.get('limit') || undefined,
+      offset: url.searchParams.get('offset') || undefined,
+      filter_source: url.searchParams.get('filter[source]') || undefined,
+      sort_created_at: url.searchParams.get('sort[created_at]') || undefined,
+    };
+
+    // Validate query parameters
+    const validationResult = listFlashcardsQuerySchema.safeParse(queryParams);
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      return new Response(
+        JSON.stringify({
+          code: 'ValidationError',
+          message: `Invalid query parameter: ${firstError.path.join('.')} - ${firstError.message}`,
+        } as ErrorResponse),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Initialize flashcard service
+    const flashcardService = new FlashcardService(locals.supabase);
+
+    // Get paginated flashcards
+    const result = await flashcardService.listFlashcards(userId, validationResult.data);
+
+    console.log(`Returned ${result.items.length} flashcards (total: ${result.total})`);
+
+    // Return successful response
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    // Log error for debugging
+    console.error('Error in GET /api/flashcards:', {
+      userId: locals.user?.id,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
+    // Return generic error response
+    return new Response(
+      JSON.stringify({
+        code: 'InternalServerError',
+        message: 'An unexpected error occurred',
       } as ErrorResponse),
       {
         status: 500,

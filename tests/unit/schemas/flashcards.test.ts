@@ -3,6 +3,7 @@ import {
   flashcardSourceSchema,
   createFlashcardRequestSchema,
   createFlashcardsRequestSchema,
+  listFlashcardsQuerySchema,
 } from '@/lib/schemas/flashcards';
 
 describe('Flashcard Schemas', () => {
@@ -266,6 +267,253 @@ describe('Flashcard Schemas', () => {
       const result = createFlashcardsRequestSchema.safeParse(invalidData);
 
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe('listFlashcardsQuerySchema', () => {
+    it('should validate with default values', () => {
+      const data = {};
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.limit).toBe(20);
+      expect(result.offset).toBe(0);
+      expect(result.sort_created_at).toBe('desc');
+      expect(result.filter_source).toBeUndefined();
+    });
+
+    it('should validate custom limit', () => {
+      const data = {
+        limit: '50',
+      };
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.limit).toBe(50);
+      expect(result.offset).toBe(0); // Should use default
+    });
+
+    it('should validate custom offset', () => {
+      const data = {
+        offset: '100',
+      };
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.offset).toBe(100);
+      expect(result.limit).toBe(20); // Should use default
+    });
+
+    it('should coerce string to number for limit', () => {
+      const data = {
+        limit: '25',
+      };
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.limit).toBe(25);
+      expect(typeof result.limit).toBe('number');
+    });
+
+    it('should coerce string to number for offset', () => {
+      const data = {
+        offset: '50',
+      };
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.offset).toBe(50);
+      expect(typeof result.offset).toBe('number');
+    });
+
+    it('should validate filter_source as manual', () => {
+      const data = {
+        filter_source: 'manual',
+      };
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.filter_source).toBe('manual');
+    });
+
+    it('should validate filter_source as ai_full', () => {
+      const data = {
+        filter_source: 'ai_full',
+      };
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.filter_source).toBe('ai_full');
+    });
+
+    it('should validate filter_source as ai_edited', () => {
+      const data = {
+        filter_source: 'ai_edited',
+      };
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.filter_source).toBe('ai_edited');
+    });
+
+    it('should validate sort_created_at as asc', () => {
+      const data = {
+        sort_created_at: 'asc',
+      };
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.sort_created_at).toBe('asc');
+    });
+
+    it('should validate sort_created_at as desc', () => {
+      const data = {
+        sort_created_at: 'desc',
+      };
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.sort_created_at).toBe('desc');
+    });
+
+    it('should validate all parameters together', () => {
+      const data = {
+        limit: '10',
+        offset: '20',
+        filter_source: 'ai_full',
+        sort_created_at: 'asc',
+      };
+
+      const result = listFlashcardsQuerySchema.parse(data);
+
+      expect(result.limit).toBe(10);
+      expect(result.offset).toBe(20);
+      expect(result.filter_source).toBe('ai_full');
+      expect(result.sort_created_at).toBe('asc');
+    });
+
+    it('should reject limit less than 1', () => {
+      const data = {
+        limit: '0',
+      };
+
+      const result = listFlashcardsQuerySchema.safeParse(data);
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain('at least 1');
+      }
+    });
+
+    it('should reject limit greater than 100', () => {
+      const data = {
+        limit: '101',
+      };
+
+      const result = listFlashcardsQuerySchema.safeParse(data);
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain('cannot exceed 100');
+      }
+    });
+
+    it('should reject negative offset', () => {
+      const data = {
+        offset: '-1',
+      };
+
+      const result = listFlashcardsQuerySchema.safeParse(data);
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain('non-negative');
+      }
+    });
+
+    it('should reject invalid filter_source', () => {
+      const data = {
+        filter_source: 'invalid',
+      };
+
+      const result = listFlashcardsQuerySchema.safeParse(data);
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject invalid sort_created_at', () => {
+      const data = {
+        sort_created_at: 'invalid',
+      };
+
+      const result = listFlashcardsQuerySchema.safeParse(data);
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject non-integer limit', () => {
+      const data = {
+        limit: '10.5',
+      };
+
+      const result = listFlashcardsQuerySchema.safeParse(data);
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain('integer');
+      }
+    });
+
+    it('should reject non-integer offset', () => {
+      const data = {
+        offset: '20.7',
+      };
+
+      const result = listFlashcardsQuerySchema.safeParse(data);
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain('integer');
+      }
+    });
+
+    it('should accept limit at boundary (1)', () => {
+      const data = {
+        limit: '1',
+      };
+
+      const result = listFlashcardsQuerySchema.safeParse(data);
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.limit).toBe(1);
+      }
+    });
+
+    it('should accept limit at boundary (100)', () => {
+      const data = {
+        limit: '100',
+      };
+
+      const result = listFlashcardsQuerySchema.safeParse(data);
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.limit).toBe(100);
+      }
+    });
+
+    it('should accept offset at boundary (0)', () => {
+      const data = {
+        offset: '0',
+      };
+
+      const result = listFlashcardsQuerySchema.safeParse(data);
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.offset).toBe(0);
+      }
     });
   });
 });

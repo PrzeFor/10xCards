@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '../../db/supabase.client';
 import type { Database } from '../../db/database.types';
-import type { CreateFlashcardRequestDto, FlashcardDto, FlashcardSource } from '../../types';
+import type { CreateFlashcardRequestDto, FlashcardDto, FlashcardSource, ListFlashcardsResponseDto } from '../../types';
+import type { ListFlashcardsQuery } from '../schemas/flashcards';
 
 /**
  * Service for handling flashcard operations
@@ -133,6 +134,63 @@ export class FlashcardService {
       source: data.source as FlashcardSource,
       created_at: data.created_at,
       updated_at: data.updated_at,
+    };
+  }
+
+  /**
+   * Lists flashcards for a user with pagination, filtering, and sorting
+   * @param userId - The authenticated user ID
+   * @param query - Query parameters (limit, offset, filters, sort)
+   * @returns Paginated list of flashcards
+   */
+  async listFlashcards(userId: string, query: ListFlashcardsQuery): Promise<ListFlashcardsResponseDto> {
+    const { limit, offset, filter_source, sort_created_at } = query;
+
+    // Build base query with count
+    let supabaseQuery = this.supabase
+      .from('flashcards')
+      .select('id, front, back, source, generation_id, created_at, updated_at', {
+        count: 'exact',
+      })
+      .eq('user_id', userId); // Explicit user filter (RLS also enforces this)
+
+    // Apply optional source filter
+    if (filter_source) {
+      supabaseQuery = supabaseQuery.eq('source', filter_source);
+    }
+
+    // Apply sorting
+    const ascending = sort_created_at === 'asc';
+    supabaseQuery = supabaseQuery.order('created_at', { ascending });
+
+    // Apply pagination
+    supabaseQuery = supabaseQuery.range(offset, offset + limit - 1);
+
+    // Execute query
+    const { data, error, count } = await supabaseQuery;
+
+    if (error) {
+      console.error('Database error listing flashcards:', error);
+      throw new Error(`Failed to list flashcards: ${error.message}`);
+    }
+
+    // Transform to DTOs
+    const items: FlashcardDto[] = (data || []).map((record) => ({
+      id: record.id,
+      front: record.front,
+      back: record.back,
+      source: record.source as FlashcardSource,
+      generation_id: record.generation_id,
+      created_at: record.created_at,
+      updated_at: record.updated_at,
+    }));
+
+    // Return paginated response
+    return {
+      items,
+      total: count || 0,
+      limit,
+      offset,
     };
   }
 }
