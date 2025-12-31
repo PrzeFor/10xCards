@@ -1,0 +1,14 @@
+---
+import AuthLayout from '../../../components/layouts/AuthLayout.astro';
+import { ResetPasswordForm } from '../../../components/ResetPasswordForm';
+
+export const prerender = false;
+
+// This page is for users who have an active recovery session (PKCE flow)
+// No token needed - the session itself proves they clicked the reset link
+---
+
+<AuthLayout title="Resetuj hasło - 10xCards" subtitle="Ustaw nowe, bezpieczne hasło">
+  <ResetPasswordForm client:load token="session" />
+</AuthLayout>
+

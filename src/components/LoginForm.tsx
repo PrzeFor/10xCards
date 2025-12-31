@@ -9,7 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { InlineError } from './InlineError';
 import { LoginSchema, type LoginFormData } from '@/lib/schemas/auth';
 
-export function LoginForm() {
+interface LoginFormProps {
+  redirectTo?: string;
+}
+
+export function LoginForm({ redirectTo = '/generations' }: LoginFormProps) {
   const [serverError, setServerError] = useState<string>('');
 
   const {
@@ -56,7 +60,7 @@ export function LoginForm() {
 
       // Small delay to allow toast to be seen before redirect
       setTimeout(() => {
-        window.location.replace('/generations');
+        window.location.replace(redirectTo);
       }, 500);
     } catch (error) {
       setServerError('Wystąpił błąd połączenia. Spróbuj ponownie.');

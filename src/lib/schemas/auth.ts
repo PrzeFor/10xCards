@@ -61,7 +61,7 @@ export const ForgotPasswordSchema = z.object({
 });
 
 /**
- * Schema for password reset validation
+ * Schema for password reset validation (client-side with confirmPassword)
  */
 export const ResetPasswordSchema = z
   .object({
@@ -77,6 +77,16 @@ export const ResetPasswordSchema = z
   });
 
 /**
+ * Schema for password reset API validation (server-side without confirmPassword)
+ */
+export const ResetPasswordApiSchema = z.object({
+  newPassword: z
+    .string()
+    .min(8, 'Hasło musi mieć co najmniej 8 znaków')
+    .max(100, 'Hasło nie może przekraczać 100 znaków'),
+});
+
+/**
  * Types inferred from schemas
  */
 export type RegisterFormData = z.infer<typeof RegisterSchema>;
@@ -84,3 +94,4 @@ export type RegisterApiData = z.infer<typeof RegisterApiSchema>;
 export type LoginFormData = z.infer<typeof LoginSchema>;
 export type ForgotPasswordFormData = z.infer<typeof ForgotPasswordSchema>;
 export type ResetPasswordFormData = z.infer<typeof ResetPasswordSchema>;
+export type ResetPasswordApiData = z.infer<typeof ResetPasswordApiSchema>;

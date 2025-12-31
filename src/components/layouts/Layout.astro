@@ -11,6 +11,9 @@ const { title = '10xCards - Fluent 2.0' } = Astro.props;
 // Check if user is logged in
 const { user } = Astro.locals;
 const isLoggedIn = !!user;
+
+// Get current path for active state
+const currentPath = Astro.url.pathname;
 ---
 
 <!doctype html>
@@ -30,70 +33,250 @@ const isLoggedIn = !!user;
   <body class="min-h-screen bg-background text-foreground antialiased">
     <!-- Navigation -->
     <nav class="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div class="container mx-auto px-fluent-xl">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-fluent-xl">
         <div class="flex h-16 items-center justify-between">
           <div class="flex items-center gap-fluent-xl">
-            <a href="/" class="text-title text-brand font-semibold hover:opacity-80 transition-opacity"> 10xCards </a>
+            <a href="/" class="text-xl text-brand font-bold hover:opacity-80 transition-opacity"> 10xCards </a>
             {
               isLoggedIn && (
-                <div class="hidden md:flex items-center gap-fluent-l">
+                <div class="hidden md:flex items-center gap-2 bg-subtle/40 rounded-xl p-1.5">
                   <a
                     href="/generations"
-                    class="text-body text-foreground hover:text-brand transition-colors px-3 py-2 rounded-fluent-md hover:bg-subtle"
+                    class:list={[
+                      "relative inline-flex items-center gap-2 text-base font-semibold transition-all duration-200 px-4 py-2.5 rounded-lg group",
+                      currentPath === '/generations' 
+                        ? "bg-brand text-white shadow-md" 
+                        : "text-foreground hover:text-brand hover:bg-white dark:hover:bg-neutral-800"
+                    ]}
                   >
-                    Generuj fiszki
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span class="relative z-10">Generuj fiszki</span>
                   </a>
                   <a
                     href="/flashcards"
-                    class="text-body text-foreground hover:text-brand transition-colors px-3 py-2 rounded-fluent-md hover:bg-subtle"
+                    class:list={[
+                      "relative inline-flex items-center gap-2 text-base font-semibold transition-all duration-200 px-4 py-2.5 rounded-lg group",
+                      currentPath === '/flashcards' 
+                        ? "bg-brand text-white shadow-md" 
+                        : "text-foreground hover:text-brand hover:bg-white dark:hover:bg-neutral-800"
+                    ]}
                   >
-                    Moje fiszki
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <span class="relative z-10">Moje fiszki</span>
+                  </a>
+                  <a
+                    href="/flashcards?message=start_session"
+                    class:list={[
+                      "relative inline-flex items-center gap-2 text-base font-semibold transition-all duration-200 px-4 py-2.5 rounded-lg group",
+                      currentPath.startsWith('/sessions') 
+                        ? "bg-brand text-white shadow-md" 
+                        : "text-foreground hover:text-brand hover:bg-white dark:hover:bg-neutral-800"
+                    ]}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    <span class="relative z-10">Powtórki</span>
                   </a>
                 </div>
               )
             }
           </div>
 
-          <div class="flex items-center gap-fluent-m">
+          <div class="flex items-center gap-3">
             {
               !isLoggedIn ? (
                 <>
                   <a
                     href="/auth/login"
-                    class="text-body text-foreground hover:text-brand transition-colors px-4 py-2 rounded-fluent-md hover:bg-subtle"
+                    class="hidden sm:inline-flex items-center justify-center text-base font-medium text-foreground hover:text-brand transition-all duration-200 px-5 py-2.5 rounded-lg hover:bg-subtle/80 border border-transparent hover:border-border"
                   >
                     Zaloguj się
                   </a>
                   <a
                     href="/auth/register"
-                    class="text-body text-primary-foreground bg-brand hover:opacity-90 transition-opacity px-4 py-2 rounded-fluent-md font-medium"
+                    class="inline-flex items-center justify-center text-base font-semibold text-white bg-brand hover:bg-brand/90 transition-all duration-200 px-5 py-2.5 rounded-lg shadow-sm hover:shadow-md text-sm sm:text-base"
                   >
                     Zarejestruj się
                   </a>
                 </>
               ) : (
-                <div class="flex items-center gap-fluent-m">
-                  <a
-                    href="/settings"
-                    class="text-body text-foreground hover:text-brand transition-colors px-3 py-2 rounded-fluent-md hover:bg-subtle"
-                  >
-                    Ustawienia
-                  </a>
-                  <form action="/api/auth/logout" method="POST" class="inline-block">
-                    <button
-                      type="submit"
-                      class="text-body text-foreground hover:text-brand transition-colors px-4 py-2 rounded-fluent-md hover:bg-subtle"
+                <>
+                  <div class="hidden md:flex items-center gap-2">
+                    <a
+                      href="/settings"
+                      class="inline-flex items-center justify-center text-base font-medium text-foreground hover:text-brand transition-all duration-200 px-4 py-2 rounded-lg hover:bg-subtle/80 border border-transparent hover:border-border"
                     >
-                      Wyloguj się
-                    </button>
-                  </form>
-                </div>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Ustawienia
+                    </a>
+                    <form action="/api/auth/logout" method="POST" class="inline-block">
+                      <button
+                        type="submit"
+                        class="cursor-pointer inline-flex items-center justify-center text-base font-medium text-foreground hover:text-red-600 transition-all duration-200 px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 border border-transparent hover:border-red-200 dark:hover:border-red-900/50"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Wyloguj się
+                      </button>
+                    </form>
+                  </div>
+                  <!-- Mobile menu button -->
+                  <button
+                    type="button"
+                    class="md:hidden inline-flex items-center justify-center p-2 rounded-fluent-md text-foreground hover:text-brand hover:bg-subtle focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand"
+                    aria-controls="mobile-menu"
+                    aria-expanded="false"
+                    id="mobile-menu-button"
+                  >
+                    <span class="sr-only">Otwórz menu</span>
+                    <!-- Hamburger icon -->
+                    <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                    <!-- Close icon (hidden by default) -->
+                    <svg class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </>
               )
             }
           </div>
         </div>
       </div>
+
+      <!-- Mobile menu, show/hide based on menu state -->
+      {
+        isLoggedIn && (
+          <div class="md:hidden hidden" id="mobile-menu">
+            <div class="space-y-1 px-4 pb-3 pt-2 bg-subtle/20">
+              <a
+                href="/generations"
+                class:list={[
+                  "flex items-center gap-3 text-base font-medium px-4 py-3 rounded-lg transition-all duration-200",
+                  currentPath === '/generations'
+                    ? "bg-brand text-white shadow-sm"
+                    : "text-foreground hover:text-brand hover:bg-subtle"
+                ]}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Generuj fiszki
+              </a>
+              <a
+                href="/flashcards"
+                class:list={[
+                  "flex items-center gap-3 text-base font-medium px-4 py-3 rounded-lg transition-all duration-200",
+                  currentPath === '/flashcards'
+                    ? "bg-brand text-white shadow-sm"
+                    : "text-foreground hover:text-brand hover:bg-subtle"
+                ]}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Moje fiszki
+              </a>
+              <a
+                href="/flashcards?message=start_session"
+                class:list={[
+                  "flex items-center gap-3 text-base font-medium px-4 py-3 rounded-lg transition-all duration-200",
+                  currentPath.startsWith('/sessions')
+                    ? "bg-brand text-white shadow-sm"
+                    : "text-foreground hover:text-brand hover:bg-subtle"
+                ]}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                Powtórki
+              </a>
+              <a
+                href="/settings"
+                class:list={[
+                  "flex items-center gap-3 text-base font-medium px-4 py-3 rounded-lg transition-all duration-200",
+                  currentPath === '/settings'
+                    ? "bg-brand text-white shadow-sm"
+                    : "text-foreground hover:text-brand hover:bg-subtle"
+                ]}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Ustawienia
+              </a>
+              <form action="/api/auth/logout" method="POST">
+                <button
+                  type="submit"
+                  class="cursor-pointer w-full flex items-center gap-3 text-base font-medium text-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 px-4 py-3 rounded-lg transition-all duration-200"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Wyloguj się
+                </button>
+              </form>
+            </div>
+          </div>
+        )
+      }
     </nav>
+
+    <script>
+      // Mobile menu toggle
+      const menuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      if (menuButton && mobileMenu) {
+        const hamburgerIcon = menuButton.querySelector('svg:first-of-type');
+        const closeIcon = menuButton.querySelector('svg:last-of-type');
+        
+        menuButton.addEventListener('click', () => {
+          const isOpen = mobileMenu.classList.contains('hidden');
+          
+          if (isOpen) {
+            mobileMenu.classList.remove('hidden');
+            menuButton.setAttribute('aria-expanded', 'true');
+            hamburgerIcon?.classList.add('hidden');
+            closeIcon?.classList.remove('hidden');
+          } else {
+            mobileMenu.classList.add('hidden');
+            menuButton.setAttribute('aria-expanded', 'false');
+            hamburgerIcon?.classList.remove('hidden');
+            closeIcon?.classList.add('hidden');
+          }
+        });
+      }
+
+      // Smooth session modal opening - prevent page reload if already on flashcards
+      document.addEventListener('DOMContentLoaded', () => {
+        const sessionLinks = document.querySelectorAll('a[href="/flashcards?message=start_session"]');
+        sessionLinks.forEach(link => {
+          link.addEventListener('click', (e) => {
+            // Jeśli już jesteśmy na stronie flashcards, nie rób redirectu
+            if (window.location.pathname === '/flashcards') {
+              e.preventDefault();
+              // Użyj localStorage jako sygnału dla React
+              localStorage.setItem('openSessionModal', 'true');
+              // Wyzwól event który React może złapać
+              window.dispatchEvent(new Event('openSessionModal'));
+            }
+            // W przeciwnym razie pozwól na normalny redirect
+          });
+        });
+      });
+    </script>
 
     <main class="min-h-screen">
       <slot />

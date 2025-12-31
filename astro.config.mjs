@@ -5,21 +5,24 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import cloudflare from '@astrojs/cloudflare';
+import node from '@astrojs/node';
+
+// Use Cloudflare adapter for production, Node adapter for development/testing
+const isProd = process.env.NODE_ENV === 'production' || process.env.CF_PAGES === '1';
 
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
-  integrations: [
-    react({
-      experimentalReactChildren: true,
-    }),
-    sitemap(),
-  ],
+  integrations: [react(), sitemap()],
   server: { port: 3000 },
   vite: {
     plugins: [tailwindcss()],
-    ssr: {
-      noExternal: ['lucide-react'],
+    resolve: {
+      alias: isProd
+        ? {
+          'react-dom/server': 'react-dom/server.edge',
+        }
+        : {},
     },
   },
   adapter: cloudflare(),

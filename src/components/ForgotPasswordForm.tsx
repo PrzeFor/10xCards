@@ -15,6 +15,23 @@ export function ForgotPasswordForm() {
   const [serverError, setServerError] = useState<string>('');
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Check for error in URL params (e.g. from failed reset redirect)
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const errorParam = params.get('error');
+    const errorCode = params.get('error_code');
+    
+    if (errorParam === 'no_token') {
+      setServerError('Link resetowania hasła jest nieprawidłowy lub wygasł. Wyślij nową prośbę o reset hasła.');
+    } else if (errorParam === 'access_denied' && errorCode === 'otp_expired') {
+      setServerError('Link resetowania hasła wygasł (ważny przez 60 minut). Wyślij nową prośbę poniżej.');
+    } else if (errorParam === 'access_denied') {
+      setServerError('Link resetowania hasła jest nieprawidłowy lub został już użyty. Wyślij nową prośbę poniżej.');
+    } else if (errorParam) {
+      setServerError('Wystąpił błąd podczas resetowania hasła. Spróbuj ponownie.');
+    }
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));

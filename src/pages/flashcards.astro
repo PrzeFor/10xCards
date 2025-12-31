@@ -2,6 +2,7 @@
 import Layout from '../components/layouts/Layout.astro';
 import { FlashcardListView } from '../components/FlashcardListView';
 import { Toaster } from '../components/ui/sonner';
+import { FlashcardService } from '../lib/services/flashcard.service';
 
 // Sprawdź uwierzytelnienie
 const user = Astro.locals.user;
@@ -9,12 +10,24 @@ if (!user) {
   return Astro.redirect('/auth/login?redirect=/flashcards');
 }
 
+// Pobierz liczbę fiszek do powtórki
+const supabase = Astro.locals.supabase;
+const flashcardService = new FlashcardService(supabase);
+let dueCount = 0;
+
+try {
+  dueCount = await flashcardService.getFlashcardsDueCount(user.id);
+} catch (error) {
+  console.error('Error fetching due count:', error);
+}
+
+const message = Astro.url.searchParams.get('message');
 const title = 'Moje fiszki';
 const description = 'Przeglądaj, edytuj i zarządzaj swoimi fiszkami';
 ---
 
 <Layout title={title} description={description}>
-  <FlashcardListView client:load />
+  <FlashcardListView client:load message={message} dueCount={dueCount} />
   <Toaster client:load />
 </Layout>
 

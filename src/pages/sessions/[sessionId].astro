@@ -1,0 +1,54 @@
+---
+import Layout from '../../components/layouts/Layout.astro';
+import { SessionContainer } from '../../components/SessionContainer';
+
+// Disable prerendering for dynamic route
+export const prerender = false;
+
+// Get session ID from route params
+const { sessionId } = Astro.params;
+
+// Validate sessionId
+if (!sessionId) {
+  return Astro.redirect('/flashcards');
+}
+
+// Get authenticated user from middleware
+const user = Astro.locals.user;
+const supabase = Astro.locals.supabase;
+
+// Redirect to login if not authenticated
+if (!user) {
+  return Astro.redirect(`/auth/login?redirect=/sessions/${sessionId}`);
+}
+
+// Fetch session data with flashcards for SSR
+import { SessionService } from '../../lib/services/session.service';
+
+let initialFlashcards = undefined;
+
+try {
+  const sessionService = new SessionService(supabase);
+  const sessionData = await sessionService.getSession(sessionId, user.id, true); // includeFlashcards = true
+  
+  if (sessionData && sessionData.flashcards) {
+    initialFlashcards = sessionData.flashcards;
+  } else {
+    // Session exists but no flashcards
+    return Astro.redirect('/flashcards?message=session_error');
+  }
+} catch (error) {
+  console.error('Error fetching session data:', error);
+  // If session not found or error, redirect to flashcards
+  return Astro.redirect('/flashcards?message=session_error');
+}
+
+// Page metadata
+const title = 'Sesja Powtórek | 10xCards';
+const description = 'Powtórz swoje fiszki używając systemu Spaced Repetition';
+---
+
+<Layout title={title} description={description}>
+  <SessionContainer client:only="react" sessionId={sessionId} initialFlashcards={initialFlashcards} />
+</Layout>
+

@@ -1,4 +1,12 @@
-import type { FlashcardProposalDto, FlashcardSource, FlashcardDto } from '../types';
+import type {
+  FlashcardProposalDto,
+  FlashcardSource,
+  FlashcardDto,
+  FlashcardWithSRSDto,
+  SessionStatus,
+  SessionCardResultDto,
+  SessionStatsDto,
+} from '../types';
 
 /**
  * Extended flashcard proposal with UI state for the generations view
@@ -115,4 +123,102 @@ export function getInitialPagination(): PaginationState {
 
 export function calculateTotalPages(total: number, limit: number): number {
   return Math.ceil(total / limit);
+}
+
+// ============================================================================
+// SRS Session ViewModels
+// ============================================================================
+
+/**
+ * Model widoku dla sesji SRS
+ */
+export interface SessionViewModel {
+  /** ID sesji */
+  sessionId: string;
+  /** Lista fiszek w sesji */
+  flashcards: FlashcardWithSRSDto[];
+  /** Indeks bieżącej fiszki (0-based) */
+  currentIndex: number;
+  /** Czy bieżąca karta jest odkryta (pokazany tył) */
+  isFlipped: boolean;
+  /** Wyniki ocen dla ukończonych kart */
+  completedResults: SessionCardResultDto[];
+  /** Status sesji */
+  status: SessionStatus;
+  /** Timestamp rozpoczęcia sesji */
+  startedAt: string;
+  /** Timestamp rozpoczęcia przeglądania bieżącej karty (dla obliczenia review_duration) */
+  currentCardStartedAt: string | null;
+}
+
+/**
+ * Stan lokalny komponentu SessionContainer
+ */
+export interface SessionState {
+  /** Dane sesji */
+  session: SessionViewModel | null;
+  /** Stan ładowania */
+  isLoading: boolean;
+  /** Czy trwa zapisywanie oceny */
+  isSavingRating: boolean;
+  /** Błąd */
+  error: string | null;
+  /** Czy wyświetlić podsumowanie */
+  showSummary: boolean;
+}
+
+/**
+ * Props dla komponentu SessionContainer
+ */
+export interface SessionContainerProps {
+  sessionId: string;
+  /** Opcjonalne dane początkowe dla SSR */
+  initialFlashcards?: FlashcardWithSRSDto[];
+}
+
+/**
+ * Pending SRS update dla offline support
+ */
+export interface PendingSRSUpdate {
+  flashcardId: string;
+  rating: 'easy' | 'medium' | 'hard';
+  reviewDuration: number;
+  timestamp: string;
+}
+
+/**
+ * Funkcje pomocnicze dla sesji
+ */
+export function getInitialSessionState(): SessionState {
+  return {
+    session: null,
+    isLoading: true,
+    isSavingRating: false,
+    error: null,
+    showSummary: false,
+  };
+}
+
+export function calculateSessionStats(
+  completedResults: SessionCardResultDto[],
+  startedAt: string,
+  completedAt: string
+): SessionStatsDto {
+  const easyCount = completedResults.filter((r) => r.rating === 'easy').length;
+  const mediumCount = completedResults.filter((r) => r.rating === 'medium').length;
+  const hardCount = completedResults.filter((r) => r.rating === 'hard').length;
+
+  const duration = Math.floor(
+    (new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000
+  );
+
+  return {
+    total_cards: completedResults.length,
+    easy_count: easyCount,
+    medium_count: mediumCount,
+    hard_count: hardCount,
+    duration,
+    started_at: startedAt,
+    completed_at: completedAt,
+  };
 }

@@ -1,11 +1,11 @@
 import type { APIRoute } from 'astro';
-import { ResetPasswordSchema } from '@/lib/schemas/auth';
+import { ResetPasswordApiSchema } from '@/lib/schemas/auth';
 import { z } from 'zod';
 
 export const prerender = false;
 
 // Schema for the full reset password request (includes token)
-const ResetPasswordRequestSchema = ResetPasswordSchema.extend({
+const ResetPasswordRequestSchema = ResetPasswordApiSchema.extend({
   token: z.string().min(1, 'Token jest wymagany'),
 });
 

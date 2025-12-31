@@ -218,3 +218,154 @@ export interface FlashcardStatsResponseDto {
  * Possible flashcard sources.
  */
 export type FlashcardSource = 'manual' | 'ai_full' | 'ai_edited';
+
+// ============================================================================
+// SRS (Spaced Repetition System) Types
+// ============================================================================
+
+/**
+ * Possible states of a flashcard in the SRS system
+ */
+export type SRSCardState = 'new' | 'learning' | 'review' | 'relearning';
+
+/**
+ * Metadata SRS dla pojedynczej fiszki
+ */
+export interface SRSStateDto {
+  /** Data następnej powtórki w formacie ISO 8601 */
+  next_review: string;
+  /** Interwał do następnej powtórki (w dniach) */
+  interval: number;
+  /** Współczynnik łatwości (ease factor) */
+  ease_factor: number;
+  /** Liczba powtórzeń */
+  repetitions: number;
+  /** Stan fiszki: 'new' | 'learning' | 'review' | 'relearning' */
+  state: SRSCardState;
+  /** Data ostatniej powtórki (opcjonalna) */
+  last_reviewed_at?: string;
+}
+
+/**
+ * Fiszka z metadanymi SRS
+ */
+export interface FlashcardWithSRSDto extends FlashcardDto {
+  srs_state: SRSStateDto;
+}
+
+/**
+ * Ocena trudności fiszki przez użytkownika
+ */
+export type RatingValue = 'easy' | 'medium' | 'hard';
+
+/**
+ * Żądanie aktualizacji stanu SRS fiszki
+ */
+export interface UpdateSRSStateRequestDto {
+  rating: RatingValue;
+  /** Czas spędzony na karcie (w sekundach) - opcjonalne */
+  review_duration?: number;
+}
+
+/**
+ * Odpowiedź po aktualizacji stanu SRS
+ */
+export interface UpdateSRSStateResponseDto {
+  flashcard: FlashcardWithSRSDto;
+  /** Data następnej powtórki */
+  next_review: string;
+}
+
+// ============================================================================
+// Session Types
+// ============================================================================
+
+/**
+ * Status sesji
+ */
+export type SessionStatus = 'active' | 'completed' | 'abandoned';
+
+/**
+ * Wynik oceny pojedynczej fiszki w sesji
+ */
+export interface SessionCardResultDto {
+  flashcard_id: string;
+  rating: RatingValue;
+  /** Timestamp w formacie ISO 8601 */
+  timestamp: string;
+  /** Czas spędzony na karcie (w sekundach) */
+  review_duration: number;
+}
+
+/**
+ * Statystyki zakończonej sesji
+ */
+export interface SessionStatsDto {
+  /** Całkowita liczba fiszek w sesji */
+  total_cards: number;
+  /** Liczba ocen "łatwa" */
+  easy_count: number;
+  /** Liczba ocen "średnia" */
+  medium_count: number;
+  /** Liczba ocen "trudna" */
+  hard_count: number;
+  /** Czas trwania sesji w sekundach */
+  duration: number;
+  /** Data rozpoczęcia sesji */
+  started_at: string;
+  /** Data zakończenia sesji */
+  completed_at: string;
+}
+
+/**
+ * Request body dla utworzenia sesji
+ */
+export interface CreateSessionRequestDto {
+  /** Opcjonalne: konkretne IDs fiszek do sesji. Jeśli puste, system wybiera fiszki do powtórki */
+  flashcard_ids?: string[];
+  /** Maksymalna liczba fiszek w sesji */
+  max_cards?: number;
+}
+
+/**
+ * Odpowiedź po utworzeniu sesji
+ */
+export interface CreateSessionResponseDto {
+  session_id: string;
+  flashcards: FlashcardWithSRSDto[];
+  /** Liczba fiszek w sesji */
+  total_cards: number;
+  /** Data utworzenia sesji */
+  created_at: string;
+}
+
+/**
+ * Szczegóły sesji
+ */
+export interface SessionDto {
+  id: string;
+  user_id: string;
+  status: SessionStatus;
+  total_cards: number;
+  completed_cards: number;
+  started_at: string;
+  completed_at: string | null;
+  stats: SessionStatsDto | null;
+  flashcards?: FlashcardWithSRSDto[];
+}
+
+/**
+ * Request body dla zakończenia sesji
+ */
+export interface CompleteSessionRequestDto {
+  results: SessionCardResultDto[];
+  stats: SessionStatsDto;
+}
+
+/**
+ * Response po zakończeniu sesji
+ */
+export interface CompleteSessionResponseDto {
+  success: boolean;
+  session: SessionDto;
+}

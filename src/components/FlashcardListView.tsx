@@ -6,6 +6,7 @@ import { FlashcardList } from './FlashcardList';
 import { Pagination } from './Pagination';
 import { FlashcardFormModal } from './FlashcardFormModal';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
+import { SessionStartModal } from './SessionStartModal';
 import { useFlashcards } from '../lib/hooks/useFlashcards';
 import { useFlashcardMutations } from '../lib/hooks/useFlashcardMutations';
 import { useFlashcardModal } from '../lib/hooks/useFlashcardModal';
@@ -15,13 +16,20 @@ import {
   calculateTotalPages,
 } from '../types/viewModels';
 import type { FlashcardFilters, PaginationState, FlashcardFormData } from '../types/viewModels';
+import { PlayCircle } from 'lucide-react';
+
+interface FlashcardListViewProps {
+  message?: string | null;
+  dueCount?: number;
+}
 
 /**
  * Główny kontener React zarządzający widokiem fiszek
  */
-export function FlashcardListView() {
+export function FlashcardListView({ message, dueCount = 0 }: FlashcardListViewProps) {
   const [filters, setFilters] = useState<FlashcardFilters>(getDefaultFilters());
   const [pagination, setPagination] = useState<PaginationState>(getInitialPagination());
+  const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
 
   // Custom hooks
   const { flashcards, loading, error, total, refetch } = useFlashcards({ filters, pagination });
@@ -112,14 +120,71 @@ export function FlashcardListView() {
     }
   }, [error, refetch]);
 
+  // Obsługa komunikatów z query params (np. po zakończeniu sesji)
+  useEffect(() => {
+    if (message === 'no_cards_due') {
+      toast.info('Nie masz fiszek zaplanowanych do powtórki', {
+        description: 'Wszystkie fiszki są aktualne. Wróć później!',
+      });
+    } else if (message === 'session_error') {
+      toast.error('Wystąpił błąd podczas tworzenia sesji', {
+        description: 'Spróbuj ponownie za chwilę.',
+      });
+    } else if (message === 'session_completed') {
+      toast.success('Sesja zakończona pomyślnie!', {
+        description: 'Gratulacje! Twoje fiszki zostały zaktualizowane.',
+      });
+    } else if (message === 'start_session') {
+      // Automatycznie otwórz modal gdy przekierowano z Welcome
+      setIsSessionModalOpen(true);
+      // Wyczyść URL bez przeładowania strony
+      window.history.replaceState({}, '', '/flashcards');
+    }
+  }, [message]);
+
+  // Sprawdź localStorage przy starcie (dla smooth UX bez migania)
+  useEffect(() => {
+    const shouldOpenModal = localStorage.getItem('openSessionModal');
+    if (shouldOpenModal === 'true') {
+      localStorage.removeItem('openSessionModal');
+      setIsSessionModalOpen(true);
+    }
+
+    // Nasłuchuj na event z vanilla JS (dla linków w menu)
+    const handleOpenModal = () => {
+      setIsSessionModalOpen(true);
+      localStorage.removeItem('openSessionModal');
+    };
+
+    window.addEventListener('openSessionModal', handleOpenModal);
+    
+    return () => {
+      window.removeEventListener('openSessionModal', handleOpenModal);
+    };
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
       {/* Nagłówek strony */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-3xl font-bold">Moje fiszki</h1>
-        <Button onClick={openCreateModal} size="lg">
-          Nowa fiszka
-        </Button>
+        <div>
+          <h1 className="text-3xl font-bold">Moje fiszki</h1>
+          {dueCount > 0 && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              <span className="font-semibold text-primary">{dueCount}</span> fiszek czeka na
+              powtórkę
+            </p>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsSessionModalOpen(true)} size="lg" variant="default">
+            <PlayCircle className="mr-2 h-5 w-5" />
+            Rozpocznij sesję
+          </Button>
+          <Button onClick={openCreateModal} size="lg" variant="outline">
+            Nowa fiszka
+          </Button>
+        </div>
       </div>
 
       {/* Pasek filtrów */}
@@ -165,6 +230,14 @@ export function FlashcardListView() {
         flashcard={modalState.flashcard || null}
         onConfirm={handleDeleteConfirm}
         onClose={closeModal}
+      />
+
+      {/* Modal rozpoczęcia sesji */}
+      <SessionStartModal
+        isOpen={isSessionModalOpen}
+        onClose={() => setIsSessionModalOpen(false)}
+        totalFlashcards={total}
+        dueFlashcards={dueCount}
       />
     </div>
   );

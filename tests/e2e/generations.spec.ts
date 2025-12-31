@@ -61,12 +61,13 @@ test.describe('Flashcard Generation Flow', () => {
     // Step 4: Save selected proposals
     await generationsPage.flashcardProposals.bulkActions.saveSelected();
 
-    // Wait for save to complete
-    await generationsPage.flashcardProposals.bulkActions.waitForSaveComplete();
+    // Wait for save to complete and proposals to be removed
+    const expectedRemainingCount = proposalCount - 2;
+    await generationsPage.flashcardProposals.bulkActions.waitForSaveComplete(expectedRemainingCount);
 
     // Verify proposals are removed after saving
     const remainingCount = await generationsPage.flashcardProposals.getProposalCount();
-    expect(remainingCount).toBe(proposalCount - 2);
+    expect(remainingCount).toBe(expectedRemainingCount);
   });
 
   test('should allow accepting proposals before saving', async () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -19,6 +19,20 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string>('');
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Auto-redirect after successful password change
+  useEffect(() => {
+    if (isSuccess) {
+      const isAlreadyLoggedIn = token === 'session';
+      const redirectUrl = isAlreadyLoggedIn ? '/generations' : '/auth/login';
+      
+      const timer = setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, token]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -58,15 +72,21 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      // If token is 'session', use the session-based endpoint
+      const endpoint = token === 'session' 
+        ? '/api/auth/reset-password-session'
+        : '/api/auth/reset-password';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          token,
-          newPassword: formData.newPassword,
-        }),
+        body: JSON.stringify(
+          token === 'session'
+            ? { newPassword: formData.newPassword }
+            : { token, newPassword: formData.newPassword }
+        ),
       });
 
       const data = await response.json();
@@ -90,6 +110,14 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   };
 
   if (isSuccess) {
+    // If token is 'session', user is already logged in via PKCE flow
+    const isAlreadyLoggedIn = token === 'session';
+    const redirectUrl = isAlreadyLoggedIn ? '/generations' : '/auth/login';
+    const buttonText = isAlreadyLoggedIn ? 'Przejdź do aplikacji' : 'Przejdź do logowania';
+    const message = isAlreadyLoggedIn 
+      ? 'Twoje hasło zostało pomyślnie zmienione. Jesteś już zalogowany.' 
+      : 'Twoje hasło zostało pomyślnie zmienione. Możesz teraz zalogować się używając nowego hasła.';
+
     return (
       <Card className="hover-lift">
         <CardHeader>
@@ -97,10 +125,13 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-body text-foreground">
-            Twoje hasło zostało pomyślnie zmienione. Możesz teraz zalogować się używając nowego hasła.
+            {message}
           </p>
-          <Button onClick={() => (window.location.href = '/auth/login')} className="w-full" size="lg">
-            Przejdź do logowania
+          <p className="text-caption text-muted-foreground">
+            Przekierowanie za chwilę...
+          </p>
+          <Button onClick={() => (window.location.href = redirectUrl)} className="w-full" size="lg">
+            {buttonText}
           </Button>
         </CardContent>
       </Card>

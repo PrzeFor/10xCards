@@ -1,7 +1,17 @@
 import type { SupabaseClient } from '../../db/supabase.client';
 import type { Database } from '../../db/database.types';
-import type { CreateFlashcardRequestDto, FlashcardDto, FlashcardSource, ListFlashcardsResponseDto } from '../../types';
+import type {
+  CreateFlashcardRequestDto,
+  FlashcardDto,
+  FlashcardSource,
+  ListFlashcardsResponseDto,
+  UpdateSRSStateRequestDto,
+  UpdateSRSStateResponseDto,
+  FlashcardWithSRSDto,
+  SRSStateDto,
+} from '../../types';
 import type { ListFlashcardsQuery } from '../schemas/flashcards';
+import { srsService } from './srs.service';
 
 /**
  * Service for handling flashcard operations
@@ -23,6 +33,9 @@ export class FlashcardService {
     // Validate generation IDs for AI sources
     await this.validateGenerationIds(userId, requests);
 
+    // Initialize SRS state for new flashcards
+    const srsState = srsService.initializeCard();
+
     // Prepare records for insertion
     const records = requests.map((request) => ({
       user_id: userId,
@@ -30,6 +43,12 @@ export class FlashcardService {
       back: request.back,
       source: request.source,
       generation_id: request.generation_id || null,
+      // SRS fields
+      next_review: srsState.next_review,
+      interval: srsState.interval,
+      ease_factor: srsState.ease_factor,
+      repetitions: srsState.repetitions,
+      srs_state: srsState.state,
     }));
 
     // Insert flashcards in a single transaction
@@ -424,5 +443,220 @@ export class FlashcardService {
       // Log error but don't throw - flashcard is already deleted
       console.error('Failed to update generation stats:', updateError);
     }
+  }
+
+  // ============================================================================
+  // SRS (Spaced Repetition System) Methods
+  // ============================================================================
+
+  /**
+   * Updates the SRS state of a flashcard after user review
+   * @param flashcardId - The flashcard ID
+   * @param userId - The authenticated user ID
+   * @param request - Rating and review duration
+   * @returns Updated flashcard with new SRS state
+   * @throws Error if flashcard not found or forbidden
+   */
+  async updateSRSState(
+    flashcardId: string,
+    userId: string,
+    request: UpdateSRSStateRequestDto
+  ): Promise<UpdateSRSStateResponseDto> {
+    // Step 1: Fetch flashcard with current SRS state
+    const { data: flashcard, error: fetchError } = await this.supabase
+      .from('flashcards')
+      .select(
+        `
+        id,
+        user_id,
+        front,
+        back,
+        source,
+        generation_id,
+        created_at,
+        updated_at,
+        next_review,
+        interval,
+        ease_factor,
+        repetitions,
+        srs_state,
+        last_reviewed_at
+      `
+      )
+      .eq('id', flashcardId)
+      .single();
+
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') {
+        throw new Error('Flashcard not found');
+      }
+      throw new Error(`Failed to fetch flashcard: ${fetchError.message}`);
+    }
+
+    // Step 2: Verify ownership
+    if (flashcard.user_id !== userId) {
+      throw new Error('Access denied to this flashcard');
+    }
+
+    // Step 3: Build current SRS state
+    const currentSRSState: SRSStateDto = {
+      next_review: flashcard.next_review,
+      interval: flashcard.interval,
+      ease_factor: Number(flashcard.ease_factor),
+      repetitions: flashcard.repetitions,
+      state: flashcard.srs_state as 'new' | 'learning' | 'review' | 'relearning',
+      last_reviewed_at: flashcard.last_reviewed_at || undefined,
+    };
+
+    // Step 4: Calculate new SRS state using algorithm
+    const reviewDate = new Date();
+    const newSRSState = srsService.calculateNextReview(currentSRSState, request.rating, reviewDate);
+
+    // Step 5: Update flashcard in database
+    const { data: updatedFlashcard, error: updateError } = await this.supabase
+      .from('flashcards')
+      .update({
+        next_review: newSRSState.next_review,
+        interval: newSRSState.interval,
+        ease_factor: newSRSState.ease_factor,
+        repetitions: newSRSState.repetitions,
+        srs_state: newSRSState.state,
+        last_reviewed_at: newSRSState.last_reviewed_at,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', flashcardId)
+      .eq('user_id', userId)
+      .select(
+        `
+        id,
+        front,
+        back,
+        source,
+        generation_id,
+        created_at,
+        updated_at,
+        next_review,
+        interval,
+        ease_factor,
+        repetitions,
+        srs_state,
+        last_reviewed_at
+      `
+      )
+      .single();
+
+    if (updateError) {
+      throw new Error(`Failed to update flashcard SRS state: ${updateError.message}`);
+    }
+
+    if (!updatedFlashcard) {
+      throw new Error('Flashcard not found after update');
+    }
+
+    // Step 6: Transform to response DTO
+    const flashcardWithSRS: FlashcardWithSRSDto = {
+      id: updatedFlashcard.id,
+      front: updatedFlashcard.front,
+      back: updatedFlashcard.back,
+      source: updatedFlashcard.source as FlashcardSource,
+      generation_id: updatedFlashcard.generation_id,
+      created_at: updatedFlashcard.created_at,
+      updated_at: updatedFlashcard.updated_at,
+      srs_state: {
+        next_review: updatedFlashcard.next_review,
+        interval: updatedFlashcard.interval,
+        ease_factor: Number(updatedFlashcard.ease_factor),
+        repetitions: updatedFlashcard.repetitions,
+        state: updatedFlashcard.srs_state as 'new' | 'learning' | 'review' | 'relearning',
+        last_reviewed_at: updatedFlashcard.last_reviewed_at || undefined,
+      },
+    };
+
+    return {
+      flashcard: flashcardWithSRS,
+      next_review: newSRSState.next_review,
+    };
+  }
+
+  /**
+   * Get flashcards that are due for review
+   * @param userId - The authenticated user ID
+   * @param limit - Maximum number of flashcards to return (default 20)
+   * @returns Array of flashcards with SRS state that are due for review
+   */
+  async getFlashcardsDueForReview(userId: string, limit: number = 20): Promise<FlashcardWithSRSDto[]> {
+    const now = new Date().toISOString();
+
+    const { data, error } = await this.supabase
+      .from('flashcards')
+      .select(
+        `
+        id,
+        front,
+        back,
+        source,
+        generation_id,
+        created_at,
+        updated_at,
+        next_review,
+        interval,
+        ease_factor,
+        repetitions,
+        srs_state,
+        last_reviewed_at
+      `
+      )
+      .eq('user_id', userId)
+      .lte('next_review', now)
+      .order('next_review', { ascending: true })
+      .limit(limit);
+
+    if (error) {
+      throw new Error(`Failed to fetch flashcards due for review: ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    // Transform to FlashcardWithSRSDto
+    return data.map((record) => ({
+      id: record.id,
+      front: record.front,
+      back: record.back,
+      source: record.source as FlashcardSource,
+      generation_id: record.generation_id,
+      created_at: record.created_at,
+      updated_at: record.updated_at,
+      srs_state: {
+        next_review: record.next_review,
+        interval: record.interval,
+        ease_factor: Number(record.ease_factor),
+        repetitions: record.repetitions,
+        state: record.srs_state as 'new' | 'learning' | 'review' | 'relearning',
+        last_reviewed_at: record.last_reviewed_at || undefined,
+      },
+    }));
+  }
+
+  /**
+   * Get count of flashcards due for review
+   * @param userId - The authenticated user ID
+   * @returns Number of flashcards due for review
+   */
+  async getFlashcardsDueCount(userId: string): Promise<number> {
+    const now = new Date().toISOString();
+
+    const { count, error } = await this.supabase
+      .from('flashcards')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .lte('next_review', now);
+
+    if (error) {
+      throw new Error(`Failed to count flashcards due for review: ${error.message}`);
+    }
+
+    return count || 0;
   }
 }

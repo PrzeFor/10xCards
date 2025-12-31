@@ -7,11 +7,14 @@ export const prerender = false;
 // Check if user is already logged in
 const { user } = Astro.locals;
 
+// Get redirect parameter from query string
+const redirectTo = Astro.url.searchParams.get('redirect') || '/generations';
+
 if (user) {
-  return Astro.redirect('/generations');
+  return Astro.redirect(redirectTo);
 }
 ---
 
 <AuthLayout title="Rejestracja - 10xCards" subtitle="Zacznij swoją przygodę z fiszkami AI">
-  <RegistrationForm client:load />
+  <RegistrationForm client:load redirectTo={redirectTo} />
 </AuthLayout>

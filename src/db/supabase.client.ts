@@ -1,5 +1,5 @@
 import type { AstroCookies } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createServerClient, type CookieOptionsWithName } from '@supabase/ssr';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_KEY } from 'astro:env/server';
@@ -10,7 +10,7 @@ const supabaseUrl = SUPABASE_URL;
 const supabaseAnonKey = SUPABASE_KEY;
 
 // Client-side Supabase client (for backwards compatibility)
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabaseClient = createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey);
 
 // Export the SupabaseClient type for use in other files
 export type { SupabaseClient };
@@ -55,3 +55,39 @@ export const createSupabaseServerInstance = (context: { headers: Headers; cookie
 
   return supabase;
 };
+
+/**
+ * Simplified function for creating Supabase client in Astro pages
+ * This is a wrapper that creates a server client with minimal cookie handling
+ * For full functionality, prefer using Astro.locals.supabase from middleware
+ * @param cookies - Astro.cookies object
+ */
+export function createClient(cookies: AstroCookies) {
+  return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+    cookieOptions,
+    cookies: {
+      getAll() {
+        // Try to get Supabase auth cookies
+        const authCookies: { name: string; value: string }[] = [];
+        const possibleCookieNames = [
+          'sb-access-token',
+          'sb-refresh-token',
+        ];
+        
+        for (const name of possibleCookieNames) {
+          const cookie = cookies.get(name);
+          if (cookie?.value) {
+            authCookies.push({ name, value: cookie.value });
+          }
+        }
+        
+        return authCookies;
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          cookies.set(name, value, options);
+        });
+      },
+    },
+  });
+}

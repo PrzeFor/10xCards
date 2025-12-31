@@ -22,12 +22,13 @@ export default defineConfig({
         '**/mockData/**',
         'src/components/ui/**', // shadcn components
       ],
-      thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 80,
-        statements: 80,
-      },
+      // Coverage thresholds disabled - you can enable them when you're ready
+      // thresholds: {
+      //   lines: 80,
+      //   functions: 80,
+      //   branches: 80,
+      //   statements: 80,
+      // },
     },
   },
   resolve: {

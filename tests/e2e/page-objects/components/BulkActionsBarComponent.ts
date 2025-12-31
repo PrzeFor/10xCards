@@ -58,10 +58,17 @@ export class BulkActionsBarComponent {
 
   /**
    * Wait for the save operation to complete
+   * @param expectedRemainingCount - Optional: expected number of proposals after save
    */
-  async waitForSaveComplete() {
+  async waitForSaveComplete(expectedRemainingCount?: number) {
+    // First wait for the button state to change
     await expect(this.saveSelectedButton).not.toContainText('Zapisuję...');
     await expect(this.saveSelectedButton).toContainText('Zapisz zaznaczone');
+    
+    // If expectedRemainingCount is provided, also wait for the count to update
+    if (expectedRemainingCount !== undefined) {
+      await expect(this.selectedCountBadge).toContainText(`(0/${expectedRemainingCount})`, { timeout: 5000 });
+    }
   }
 
   /**

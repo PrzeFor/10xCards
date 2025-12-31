@@ -16,6 +16,8 @@ const PUBLIC_PATHS = [
   '/api/auth/logout',
   '/api/auth/forgot-password',
   '/api/auth/reset-password',
+  '/api/auth/reset-password-session',
+  '/api/auth/exchange-code',
   // Static assets
   '/favicon.png',
 ];
@@ -67,8 +69,9 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
 
   // Check if path requires authentication
   if (!isPublicPath(url.pathname) && !user) {
-    // Redirect to login for protected routes
-    return redirect('/auth/login');
+    // Redirect to login for protected routes with redirect parameter
+    const redirectUrl = `/auth/login?redirect=${encodeURIComponent(url.pathname + url.search)}`;
+    return redirect(redirectUrl);
   }
 
   return next();

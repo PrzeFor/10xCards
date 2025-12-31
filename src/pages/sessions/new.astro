@@ -1,0 +1,38 @@
+---
+import { SessionService } from '../../lib/services/session.service';
+
+// Disable prerendering for dynamic endpoint
+export const prerender = false;
+
+// Get authenticated user from middleware
+const user = Astro.locals.user;
+const supabase = Astro.locals.supabase;
+
+// Redirect to login if not authenticated
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/sessions/new');
+}
+
+// Create new session using SessionService directly
+try {
+  const sessionService = new SessionService(supabase);
+  const sessionData = await sessionService.createSession(user.id, {
+    max_cards: 20, // Default limit
+  });
+
+  // Redirect to the new session
+  return Astro.redirect(`/sessions/${sessionData.session_id}`);
+} catch (error) {
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  
+  if (errorMessage.includes('No flashcards available')) {
+    // No flashcards available for review
+    return Astro.redirect('/flashcards?message=no_cards_due');
+  }
+  
+  // Other error
+  console.error('Error creating session:', error);
+  return Astro.redirect('/flashcards?message=session_error');
+}
+---
+

@@ -13,6 +13,8 @@
 
 ### Przepływ Resetowania Hasła (Krok po Kroku)
 
+**UWAGA**: Supabase używa **PKCE flow** (bezpieczniejszy sposób) w produkcji.
+
 ```
 1. Użytkownik → /auth/forgot-password
    ↓
@@ -23,22 +25,31 @@
 4. Backend wywołuje Supabase resetPasswordForEmail()
    ↓
 5. Supabase wysyła email z linkiem
-   Link: https://twoja-domena.com/auth/reset-password#token_hash=XXX&type=recovery
+   Link (PKCE flow): https://twoja-domena.com/auth/reset-password?code=XXX
+   Link (legacy): https://twoja-domena.com/auth/reset-password#token_hash=XXX&type=recovery
    ↓
 6. Użytkownik klika link w emailu
    ↓
 7. Strona /auth/reset-password.astro
-   - Ekstraktuje token_hash z URL
-   - Przekierowuje do /auth/reset-password/[token]
+   - Wykrywa typ flow (PKCE lub legacy)
+   
+   **Jeśli PKCE (code w URL)**:
+   a) Przekierowuje do /auth/reset-password/exchange
+   b) Wymienia code na session przez exchangeCodeForSession()
+   c) Przekierowuje do /auth/reset-password/with-session
+   
+   **Jeśli legacy (token_hash w URL)**:
+   a) Ekstraktuje token_hash z URL
+   b) Przekierowuje do /auth/reset-password/[token]
    ↓
 8. Użytkownik wpisuje nowe hasło
    ↓
-9. Frontend → POST /api/auth/reset-password
-   Body: { token, newPassword }
+9. Frontend → POST /api/auth/reset-password-session (PKCE)
+   lub POST /api/auth/reset-password (legacy)
    ↓
 10. Backend:
-    - Weryfikuje token przez verifyOtp()
-    - Aktualizuje hasło przez updateUser()
+    PKCE: Używa aktywnej sesji do updateUser()
+    Legacy: Weryfikuje token przez verifyOtp(), potem updateUser()
     ↓
 11. Sukces! Użytkownik może się zalogować
 ```
@@ -50,13 +61,16 @@ src/
 ├── pages/
 │   ├── auth/
 │   │   ├── forgot-password.astro          # Strona z formularzem zapomnienia hasła
-│   │   ├── reset-password.astro           # Landing page - ekstraktuje token
+│   │   ├── reset-password.astro           # Landing page - wykrywa typ flow
 │   │   └── reset-password/
-│   │       └── [token].astro              # Formularz ustawiania nowego hasła
+│   │       ├── [token].astro              # Legacy: Formularz z tokenem
+│   │       ├── exchange.astro             # PKCE: Wymienia code na session
+│   │       └── with-session.astro         # PKCE: Formularz z aktywną sesją
 │   └── api/
 │       └── auth/
 │           ├── forgot-password.ts         # Endpoint wysyłający email
-│           └── reset-password.ts          # Endpoint resetujący hasło
+│           ├── reset-password.ts          # Legacy: Endpoint z tokenem
+│           └── reset-password-session.ts  # PKCE: Endpoint z sesją
 ├── components/
 │   ├── ForgotPasswordForm.tsx             # Komponent formularza zapomnienia hasła
 │   └── ResetPasswordForm.tsx              # Komponent formularza nowego hasła
@@ -64,6 +78,23 @@ src/
     └── schemas/
         └── auth.ts                        # Schematy walidacji Zod
 ```
+
+### PKCE vs Legacy Flow
+
+**PKCE Flow** (Proof Key for Code Exchange) - używany w produkcji:
+- ✅ Bezpieczniejszy - kod wymienia się na sesję przez serwer
+- ✅ Zalecany przez Supabase
+- ✅ Domyślny w nowych projektach
+- 📍 Link: `?code=XXX` (query parameter)
+- 🔄 Wymiana: `exchangeCodeForSession(code)`
+
+**Legacy Flow** - może być używany lokalnie:
+- ⚠️ Mniej bezpieczny - token w URL hash
+- ⚠️ Przestarzały
+- 📍 Link: `#token_hash=XXX&type=recovery` (hash fragment)
+- 🔄 Weryfikacja: `verifyOtp(token_hash)`
+
+**Nasza aplikacja obsługuje oba flow** - automatycznie wykrywa który typ jest używany!
 
 ---
 
@@ -223,6 +254,30 @@ W Chrome DevTools możesz sprawdzić:
 
 ## Rozwiązywanie Problemów
 
+### Problem 0: "No reset token or PKCE code found in URL"
+
+**Komunikat w console**:
+```
+❌ No reset token or PKCE code found in URL
+```
+
+**Przyczyna**: Link z emaila nie zawiera ani `code` ani `token_hash`
+
+**Rozwiązanie**:
+1. W Supabase Dashboard → Authentication → URL Configuration
+2. Dodaj **EXACT** URL do Redirect URLs:
+   ```
+   https://twoja-domena.com/auth/reset-password
+   ```
+3. Upewnij się że:
+   - Używasz **https://** (nie http://)
+   - Domena się zgadza (z www vs bez www)
+   - Nie ma trailing slash (/) na końcu
+4. Wyślij **nową** prośbę o reset hasła
+5. Sprawdź Chrome DevTools → Console po kliknięciu linku
+
+---
+
 ### Problem 1: Link w emailu prowadzi do Supabase, nie do mojej aplikacji
 
 **Przyczyna**: Brak konfiguracji Redirect URLs
@@ -234,20 +289,31 @@ W Chrome DevTools możesz sprawdzić:
 
 ---
 
-### Problem 2: "Token is invalid or expired"
+### Problem 2: "Token is invalid or expired" lub "otp_expired"
+
+**Komunikat błędu**:
+```
+Link resetowania hasła wygasł (ważny przez 60 minut)
+```
 
 **Możliwe przyczyny**:
 
 1. **Token wygasł** (ważny 60 min)
-   - Rozwiązanie: Wyślij nowy request o reset
+   - Minęło więcej niż 60 minut od wysłania emaila
+   - Rozwiązanie: Wyślij nowy request o reset i użyj linku natychmiast
 
 2. **Token już został użyty**
-   - Token jest jednorazowy
+   - Tokeny są jednorazowe - każdy link działa tylko raz
    - Rozwiązanie: Wyślij nowy request o reset
 
-3. **Nieprawidłowa ekstrakcja tokena**
-   - Sprawdź czy w URL jest `token_hash` parametr
-   - Zobacz console.log w `/auth/reset-password.astro`
+3. **Używasz starego linku**
+   - Jeśli wysłałeś kilka requestów, upewnij się że używasz najnowszego linku
+   - Rozwiązanie: Użyj linku z najnowszego emaila
+
+4. **Nieprawidłowa ekstrakcja tokena**
+   - Sprawdź Chrome DevTools → Console
+   - Zobacz logi z `/auth/reset-password.astro`
+   - Sprawdź czy w URL jest `token_hash` lub `access_token` parametr
 
 ---
 
@@ -331,12 +397,31 @@ token_verifications = 30
 
 ## FAQ
 
+### Q: Co to jest PKCE flow i dlaczego go używamy?
+**A**: PKCE (Proof Key for Code Exchange) to bezpieczniejszy sposób autoryzacji. Zamiast przekazywać token bezpośrednio w URL, Supabase wysyła `code` który aplikacja wymienia na sesję przez bezpieczne API call.
+
+**Zalety**:
+- 🔒 Token nie jest eksponowany w URL
+- 🔒 Kod może być użyty tylko raz
+- 🔒 Kod jest powiązany z aplikacją (nie może być użyty gdzie indziej)
+
+### Q: Jak sprawdzić który flow używa mój projekt?
+**A**: Otwórz Chrome DevTools → Console i kliknij link z emaila. Zobaczysz:
+- **PKCE**: `Code (PKCE): FOUND`
+- **Legacy**: `Token: FOUND`
+
 ### Q: Jak długo ważny jest link resetujący?
-**A**: 60 minut (3600 sekund). Konfigurowane w `supabase/config.toml`:
+**A**: 60 minut (3600 sekund). 
+
+**Lokalne środowisko**: Konfigurowane w `supabase/config.toml`:
 ```toml
 [auth.email]
-otp_expiry = 3600
+otp_expiry = 3600  # sekundy (3600 = 60 minut)
 ```
+
+**Produkcja**: Czas wygaśnięcia jest kontrolowany przez Supabase Dashboard.
+
+⚠️ **WAŻNE**: Link działa tylko raz! Nawet jeśli nie minęło 60 minut, użyty link nie zadziała ponownie.
 
 ### Q: Czy mogę zmienić tekst emaila?
 **A**: Tak! W Supabase Dashboard → Authentication → Email Templates

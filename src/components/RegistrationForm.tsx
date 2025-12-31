@@ -8,7 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { InlineError } from './InlineError';
 import { RegisterSchema, type RegisterFormData } from '@/lib/schemas/auth';
 
-export function RegistrationForm() {
+interface RegistrationFormProps {
+  redirectTo?: string;
+}
+
+export function RegistrationForm({ redirectTo = '/generations' }: RegistrationFormProps) {
   const [serverError, setServerError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [requiresEmailConfirmation, setRequiresEmailConfirmation] = useState(false);
@@ -59,7 +63,7 @@ export function RegistrationForm() {
         setRequiresEmailConfirmation(true);
       } else {
         // If no email confirmation needed, redirect immediately
-        window.location.replace('/generations');
+        window.location.replace(redirectTo);
       }
     } catch (error) {
       setServerError('Wystąpił błąd połączenia. Spróbuj ponownie.');
