@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { GenerationForm } from './GenerationForm.tsx';
-import { FlashcardList } from './FlashcardList.tsx';
+import { FlashcardProposalsList } from './FlashcardProposalsList.tsx';
 import { LoadingSkeleton } from './LoadingSkeleton.tsx';
 import { useGenerateFlashcards } from '../lib/hooks/useGenerateFlashcards.ts';
 import { useSaveFlashcards } from '../lib/hooks/useSaveFlashcards.ts';
@@ -129,7 +129,7 @@ export default function GenerationsView() {
       {isGenerating && <LoadingSkeleton />}
 
       {proposals.length > 0 && !isGenerating && (
-        <FlashcardList
+        <FlashcardProposalsList
           proposals={proposals}
           selectedCount={selectedCount}
           onToggleSelect={handleToggleSelect}

@@ -1,0 +1,20 @@
+---
+import Layout from '../components/layouts/Layout.astro';
+import { FlashcardListView } from '../components/FlashcardListView';
+import { Toaster } from '../components/ui/sonner';
+
+// Sprawdź uwierzytelnienie
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/flashcards');
+}
+
+const title = 'Moje fiszki';
+const description = 'Przeglądaj, edytuj i zarządzaj swoimi fiszkami';
+---
+
+<Layout title={title} description={description}>
+  <FlashcardListView client:load />
+  <Toaster client:load />
+</Layout>
+

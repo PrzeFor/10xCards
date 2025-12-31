@@ -106,13 +106,24 @@ export class GenerationsPage {
       }
       // If it's not visible, loading is already complete or was too fast
     } catch (error) {
+      // Check if page is still open before accessing it
+      if (this.page.isClosed()) {
+        throw new Error('Page was closed during loading wait');
+      }
+
       // If the element doesn't exist or check times out, continue
       // This means loading completed very quickly or skeleton never appeared
-      const count = await this.loadingSkeleton.count();
-      if (count === 0) {
-        // Element doesn't exist in DOM, loading is complete
-        return;
+      try {
+        const count = await this.loadingSkeleton.count();
+        if (count === 0) {
+          // Element doesn't exist in DOM, loading is complete
+          return;
+        }
+      } catch (countError) {
+        // If we can't check count, page might be closing/closed
+        throw error;
       }
+
       // Re-throw if it's a different error
       throw error;
     }

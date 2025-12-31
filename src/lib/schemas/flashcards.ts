@@ -43,3 +43,51 @@ export const createFlashcardsRequestSchema = z.object({
     .min(1, 'At least one flashcard is required')
     .max(100, 'Cannot create more than 100 flashcards at once'),
 }) satisfies z.ZodType<CreateFlashcardsRequestDto>;
+
+/**
+ * Schema for validating query parameters for listing flashcards
+ */
+export const listFlashcardsQuerySchema = z.object({
+  limit: z.coerce
+    .number()
+    .int('Limit must be an integer')
+    .min(1, 'Limit must be at least 1')
+    .max(100, 'Limit cannot exceed 100')
+    .default(20),
+  offset: z.coerce
+    .number()
+    .int('Offset must be an integer')
+    .min(0, 'Offset must be non-negative')
+    .default(0),
+  filter_source: flashcardSourceSchema.optional(),
+  sort_created_at: z.enum(['asc', 'desc']).default('desc'),
+});
+
+/**
+ * Type for validated query parameters
+ */
+export type ListFlashcardsQuery = z.infer<typeof listFlashcardsQuerySchema>;
+
+/**
+ * Schema for validating flashcard ID parameter in URL
+ */
+export const flashcardIdParamSchema = z.object({
+  cardId: z.string().uuid('Card ID must be a valid UUID'),
+});
+
+/**
+ * Schema for validating flashcard update request
+ * Uses the same schema as creation since the structure is identical
+ */
+export const updateFlashcardRequestSchema = createFlashcardRequestSchema;
+
+/**
+ * Schema for validating delete flashcard params
+ * Same as flashcardIdParamSchema but exported with semantic name for delete operations
+ */
+export const deleteFlashcardParamsSchema = flashcardIdParamSchema;
+
+/**
+ * Type for validated delete flashcard parameters
+ */
+export type DeleteFlashcardParams = z.infer<typeof deleteFlashcardParamsSchema>;
