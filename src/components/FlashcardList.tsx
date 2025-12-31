@@ -1,86 +1,86 @@
 import React from 'react';
-import { BulkActionsBar } from './BulkActionsBar.tsx';
-import { FlashcardItem } from './FlashcardItem.tsx';
-import { FlashcardEditModal } from './FlashcardEditModal.tsx';
-import { InlineError } from './InlineError.tsx';
-import type { FlashcardProposalViewModel } from '../types/viewModels';
+import { FileQuestion } from 'lucide-react';
+import { Button } from './ui/button';
+import { FlashcardItem } from './FlashcardItem';
+import { FlashcardListSkeleton } from './FlashcardListSkeleton';
+import type { FlashcardDto } from '../types';
 
 interface FlashcardListProps {
-  proposals: FlashcardProposalViewModel[];
-  selectedCount: number;
-  onToggleSelect: (id: string) => void;
-  onAccept: (id: string) => void;
-  onReject: (id: string) => void;
-  onEdit: (id: string) => void;
-  onSelectAll: () => void;
-  onAcceptAll: () => void;
-  onRejectAll: () => void;
-  onSaveSelected: () => void;
-  editingId: string | null;
-  onSaveEdit: (id: string, front: string, back: string) => void;
-  onCancelEdit: () => void;
-  isSaving: boolean;
-  saveError: string | null | undefined;
+  flashcards: FlashcardDto[];
+  loading: boolean;
+  onEdit: (flashcard: FlashcardDto) => void;
+  onDelete: (flashcard: FlashcardDto) => void;
+  onCreate: () => void;
 }
 
-export function FlashcardList({
-  proposals,
-  selectedCount,
-  onToggleSelect,
-  onAccept,
-  onReject,
-  onEdit,
-  onSelectAll,
-  onAcceptAll,
-  onRejectAll,
-  onSaveSelected,
-  editingId,
-  onSaveEdit,
-  onCancelEdit,
-  isSaving,
-  saveError,
-}: FlashcardListProps) {
-  const editingProposal = editingId ? proposals.find((p) => p.id === editingId) : null;
+interface EmptyStateProps {
+  onCreate: () => void;
+}
 
+/**
+ * Komponent stanu pustego (brak fiszek)
+ */
+function EmptyState({ onCreate }: EmptyStateProps) {
   return (
-    <div data-testid="flashcard-proposals-list" className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-large-title text-brand">Propozycje fiszek ({proposals.length})</h2>
-        {selectedCount > 0 && (
-          <span className="text-caption text-muted-foreground bg-secondary px-fluent-s py-fluent-xs rounded-fluent-sm">
-            Zaznaczono: {selectedCount}
-          </span>
-        )}
+    <div
+      className="flex flex-col items-center justify-center py-12 px-4 text-center"
+      role="status"
+      aria-label="Brak fiszek"
+    >
+      <div className="rounded-full bg-muted p-6 mb-4">
+        <FileQuestion className="size-12 text-muted-foreground" aria-hidden="true" />
       </div>
+      
+      <h3 className="text-xl font-semibold mb-2">
+        Nie masz jeszcze żadnych fiszek
+      </h3>
+      
+      <p className="text-muted-foreground mb-6 max-w-md">
+        Zacznij tworzyć fiszki ręcznie lub wygeneruj je za pomocą AI
+      </p>
+      
+      <Button onClick={onCreate} size="lg">
+        Utwórz pierwszą fiszkę
+      </Button>
+    </div>
+  );
+}
 
-      <BulkActionsBar
-        totalCount={proposals.length}
-        selectedCount={selectedCount}
-        onSelectAll={onSelectAll}
-        onAcceptAll={onAcceptAll}
-        onRejectAll={onRejectAll}
-        onSaveSelected={onSaveSelected}
-        isSaving={isSaving}
-        disabled={isSaving}
-      />
+/**
+ * Komponent renderujący listę fiszek
+ */
+export function FlashcardList({
+  flashcards,
+  loading,
+  onEdit,
+  onDelete,
+  onCreate,
+}: FlashcardListProps) {
+  // Stan ładowania
+  if (loading) {
+    return <FlashcardListSkeleton />;
+  }
 
-      {saveError && <InlineError message={saveError} />}
+  // Stan pusty
+  if (flashcards.length === 0) {
+    return <EmptyState onCreate={onCreate} />;
+  }
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
-        {proposals.map((proposal) => (
-          <FlashcardItem
-            key={proposal.id}
-            proposal={proposal}
-            onToggleSelect={onToggleSelect}
-            onAccept={onAccept}
-            onReject={onReject}
-            onEdit={onEdit}
-            disabled={isSaving}
-          />
-        ))}
-      </div>
-
-      {editingProposal && <FlashcardEditModal proposal={editingProposal} onSave={onSaveEdit} onClose={onCancelEdit} />}
+  // Lista fiszek
+  return (
+    <div
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+      role="list"
+      aria-label="Lista fiszek"
+    >
+      {flashcards.map((flashcard) => (
+        <FlashcardItem
+          key={flashcard.id}
+          flashcard={flashcard}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      ))}
     </div>
   );
 }

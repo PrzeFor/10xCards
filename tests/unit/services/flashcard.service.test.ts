@@ -745,6 +745,15 @@ describe('FlashcardService.updateFlashcard', () => {
         error: null,
       });
 
+      // Mock generation fetch for updateGenerationStatsAfterEdit
+      mockSupabase.single.mockResolvedValueOnce({
+        data: {
+          accepted_unedited_count: 5,
+          accepted_edited_count: 2,
+        },
+        error: null,
+      });
+
       const result = await service.updateFlashcard(userId, cardId, {
         front: 'Edited front',
         back: 'Edited back',

@@ -9,14 +9,17 @@ import cloudflare from '@astrojs/cloudflare';
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
-  integrations: [react(), sitemap()],
+  integrations: [
+    react({
+      experimentalReactChildren: true,
+    }),
+    sitemap(),
+  ],
   server: { port: 3000 },
   vite: {
     plugins: [tailwindcss()],
-    resolve: {
-      alias: {
-        'react-dom/server': 'react-dom/server.edge',
-      },
+    ssr: {
+      noExternal: ['lucide-react'],
     },
   },
   adapter: cloudflare(),

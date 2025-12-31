@@ -266,7 +266,12 @@ export class FlashcardService {
       throw new Error('Flashcard not found after update');
     }
 
-    // Step 5: Transform to DTO
+    // Step 5: Update generation statistics if source changed from ai_full to ai_edited
+    if (existingFlashcard.source === 'ai_full' && updateData.source === 'ai_edited' && existingFlashcard.generation_id) {
+      await this.updateGenerationStatsAfterEdit(existingFlashcard.generation_id);
+    }
+
+    // Step 6: Transform to DTO
     return {
       id: data.id,
       front: data.front,
@@ -328,6 +333,44 @@ export class FlashcardService {
         flashcard.generation_id,
         flashcard.source
       );
+    }
+  }
+
+  /**
+   * Updates generation statistics after a flashcard is edited (ai_full -> ai_edited).
+   * Decrements accepted_unedited_count and increments accepted_edited_count.
+   * @param generationId - The generation ID to update
+   */
+  private async updateGenerationStatsAfterEdit(generationId: string): Promise<void> {
+    // Fetch current generation data
+    const { data: generation, error: fetchError } = await this.supabase
+      .from('generations')
+      .select('accepted_unedited_count, accepted_edited_count')
+      .eq('id', generationId)
+      .single();
+
+    if (fetchError || !generation) {
+      // Generation might have been deleted (ON DELETE SET NULL)
+      // This is not an error condition, just return
+      console.warn('Generation not found when updating stats after edit:', generationId);
+      return;
+    }
+
+    // Calculate new values: decrease unedited, increase edited
+    const updates: any = {
+      accepted_unedited_count: Math.max(0, (generation.accepted_unedited_count || 0) - 1),
+      accepted_edited_count: (generation.accepted_edited_count || 0) + 1,
+    };
+
+    // Update generation
+    const { error: updateError } = await this.supabase
+      .from('generations')
+      .update(updates)
+      .eq('id', generationId);
+
+    if (updateError) {
+      // Log error but don't throw - flashcard is already updated
+      console.error('Failed to update generation stats after edit:', updateError);
     }
   }
 

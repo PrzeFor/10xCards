@@ -26,6 +26,8 @@ test.describe('Flashcard Generation Flow', () => {
   });
 
   test('should complete full generation and save flow', async () => {
+    test.setTimeout(60000); // Increase timeout for AI generation
+    
     // Step 1: Fill source text
     await generationsPage.generationForm.fillSourceText(SAMPLE_TEXT);
 
@@ -68,6 +70,8 @@ test.describe('Flashcard Generation Flow', () => {
   });
 
   test('should allow accepting proposals before saving', async () => {
+    test.setTimeout(60000); // Increase timeout for AI generation
+    
     await generationsPage.generateFlashcards(SAMPLE_TEXT);
 
     // Accept first proposal
@@ -83,6 +87,8 @@ test.describe('Flashcard Generation Flow', () => {
   });
 
   test('should allow rejecting proposals', async () => {
+    test.setTimeout(60000); // Increase timeout for AI generation
+    
     await generationsPage.generateFlashcards(SAMPLE_TEXT);
 
     // Reject first proposal
@@ -98,6 +104,8 @@ test.describe('Flashcard Generation Flow', () => {
   });
 
   test('should allow editing proposals', async () => {
+    test.setTimeout(60000); // Increase timeout for AI generation
+    
     await generationsPage.generateFlashcards(SAMPLE_TEXT);
 
     const newFront = 'Edited front text';
@@ -117,6 +125,8 @@ test.describe('Flashcard Generation Flow', () => {
   });
 
   test('should allow selecting all proposals at once', async () => {
+    test.setTimeout(60000); // Increase timeout for AI generation
+    
     await generationsPage.generateFlashcards(SAMPLE_TEXT);
 
     const totalCount = await generationsPage.flashcardProposals.getProposalCount();
@@ -133,6 +143,8 @@ test.describe('Flashcard Generation Flow', () => {
   });
 
   test('should allow accepting all proposals at once', async () => {
+    test.setTimeout(60000); // Increase timeout for AI generation
+    
     await generationsPage.generateFlashcards(SAMPLE_TEXT);
 
     // Accept all
@@ -147,6 +159,8 @@ test.describe('Flashcard Generation Flow', () => {
   });
 
   test('should disable save button when no proposals are selected', async () => {
+    test.setTimeout(60000); // Increase timeout for AI generation
+    
     await generationsPage.generateFlashcards(SAMPLE_TEXT);
 
     // Verify save button is disabled when nothing is selected
@@ -194,6 +208,8 @@ test.describe('Flashcard Generation - Edge Cases', () => {
   });
 
   test('should handle mixed selection states correctly', async () => {
+    test.setTimeout(60000); // Increase timeout for AI generation
+    
     await generationsPage.generateFlashcards(SAMPLE_TEXT);
 
     const proposalCount = await generationsPage.flashcardProposals.getProposalCount();
