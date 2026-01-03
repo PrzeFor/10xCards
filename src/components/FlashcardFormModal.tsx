@@ -9,8 +9,16 @@ import {
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
 import { InlineError } from './InlineError';
 import type { FlashcardFormData, FlashcardFormErrors } from '../types/viewModels';
+import type { DeckWithStatsDto } from '../types';
 
 interface FlashcardFormModalProps {
   isOpen: boolean;
@@ -18,6 +26,7 @@ interface FlashcardFormModalProps {
   initialData?: FlashcardFormData;
   onSave: (data: FlashcardFormData) => Promise<void>;
   onClose: () => void;
+  decks?: DeckWithStatsDto[];
 }
 
 /**
@@ -29,10 +38,12 @@ export function FlashcardFormModal({
   initialData,
   onSave,
   onClose,
+  decks = [],
 }: FlashcardFormModalProps) {
   const [formData, setFormData] = useState<FlashcardFormData>({
     front: '',
     back: '',
+    deckId: undefined,
   });
   const [errors, setErrors] = useState<FlashcardFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,7 +54,7 @@ export function FlashcardFormModal({
       if (mode === 'edit' && initialData) {
         setFormData(initialData);
       } else {
-        setFormData({ front: '', back: '' });
+        setFormData({ front: '', back: '', deckId: undefined });
       }
       setErrors({});
       setIsSubmitting(false);
@@ -196,6 +207,37 @@ export function FlashcardFormModal({
             </div>
             {errors.back && <InlineError message={errors.back} id="back-error" />}
           </div>
+
+          {/* Pole Deck */}
+          {decks.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="deck">Zestaw (opcjonalnie)</Label>
+              <Select
+                value={formData.deckId || 'none'}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, deckId: value === 'none' ? undefined : value })
+                }
+              >
+                <SelectTrigger id="deck">
+                  <SelectValue placeholder="Wybierz zestaw" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Bez zestawu</SelectItem>
+                  {decks.map((deck) => (
+                    <SelectItem key={deck.id} value={deck.id}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded"
+                          style={{ backgroundColor: deck.color || '#3b82f6' }}
+                        />
+                        {deck.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>

@@ -43,6 +43,7 @@ export class FlashcardService {
       back: request.back,
       source: request.source,
       generation_id: request.generation_id || null,
+      deck_id: request.deck_id || null,
       // SRS fields
       next_review: srsState.next_review,
       interval: srsState.interval,
@@ -55,7 +56,7 @@ export class FlashcardService {
     const { data, error } = await this.supabase
       .from('flashcards')
       .insert(records)
-      .select('id, user_id, generation_id, front, back, source, created_at, updated_at');
+      .select('id, user_id, generation_id, deck_id, front, back, source, created_at, updated_at');
 
     if (error) {
       throw new Error(`Failed to create flashcards: ${error.message}`);
@@ -69,6 +70,7 @@ export class FlashcardService {
     return data.map((record) => ({
       id: record.id,
       generation_id: record.generation_id,
+      deck_id: record.deck_id,
       front: record.front,
       back: record.back,
       source: record.source as FlashcardSource,
@@ -133,7 +135,7 @@ export class FlashcardService {
   async getFlashcard(userId: string, flashcardId: string): Promise<FlashcardDto | null> {
     const { data, error } = await this.supabase
       .from('flashcards')
-      .select('id, user_id, generation_id, front, back, source, created_at, updated_at')
+      .select('id, user_id, generation_id, deck_id, front, back, source, created_at, updated_at')
       .eq('id', flashcardId)
       .eq('user_id', userId)
       .single();
@@ -148,6 +150,7 @@ export class FlashcardService {
     return {
       id: data.id,
       generation_id: data.generation_id,
+      deck_id: data.deck_id,
       front: data.front,
       back: data.back,
       source: data.source as FlashcardSource,
@@ -163,12 +166,12 @@ export class FlashcardService {
    * @returns Paginated list of flashcards
    */
   async listFlashcards(userId: string, query: ListFlashcardsQuery): Promise<ListFlashcardsResponseDto> {
-    const { limit, offset, filter_source, sort_created_at } = query;
+    const { limit, offset, filter_source, filter_deck_id, sort_created_at } = query;
 
     // Build base query with count
     let supabaseQuery = this.supabase
       .from('flashcards')
-      .select('id, front, back, source, generation_id, created_at, updated_at', {
+      .select('id, front, back, source, generation_id, deck_id, created_at, updated_at', {
         count: 'exact',
       })
       .eq('user_id', userId); // Explicit user filter (RLS also enforces this)
@@ -176,6 +179,11 @@ export class FlashcardService {
     // Apply optional source filter
     if (filter_source) {
       supabaseQuery = supabaseQuery.eq('source', filter_source);
+    }
+
+    // Apply optional deck filter
+    if (filter_deck_id) {
+      supabaseQuery = supabaseQuery.eq('deck_id', filter_deck_id);
     }
 
     // Apply sorting
@@ -200,6 +208,7 @@ export class FlashcardService {
       back: record.back,
       source: record.source as FlashcardSource,
       generation_id: record.generation_id,
+      deck_id: record.deck_id,
       created_at: record.created_at,
       updated_at: record.updated_at,
     }));
@@ -269,11 +278,12 @@ export class FlashcardService {
         back: updateData.back,
         source: updateData.source,
         generation_id: updateData.generation_id || null,
+        deck_id: updateData.deck_id || null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', cardId)
       .eq('user_id', userId) // Double-check ownership
-      .select('id, front, back, source, generation_id, created_at, updated_at')
+      .select('id, front, back, source, generation_id, deck_id, created_at, updated_at')
       .single();
 
     if (error) {
@@ -297,6 +307,7 @@ export class FlashcardService {
       back: data.back,
       source: data.source as FlashcardSource,
       generation_id: data.generation_id,
+      deck_id: data.deck_id,
       created_at: data.created_at,
       updated_at: data.updated_at,
     };

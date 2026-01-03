@@ -1,0 +1,15 @@
+---
+import Layout from '../components/layouts/Layout.astro';
+import { DecksView } from '../components/DecksView';
+
+// Sprawdź czy użytkownik jest zalogowany
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect('/auth/login');
+}
+---
+
+<Layout title="Zestawy - 10xCards">
+  <DecksView client:load />
+</Layout>
+

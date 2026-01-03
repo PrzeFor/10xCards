@@ -5,6 +5,8 @@ type GenerationRow = Database['public']['Tables']['generations']['Row'];
 type FlashcardRow = Database['public']['Tables']['flashcards']['Row'];
 type FlashcardInsert = Database['public']['Tables']['flashcards']['Insert'];
 type GenerationErrorRow = Database['public']['Tables']['generation_error_logs']['Row'];
+type DeckRow = Database['public']['Tables']['decks']['Row'];
+type DeckInsert = Database['public']['Tables']['decks']['Insert'];
 
 /**
  * Request payload to create a new flashcard generation.
@@ -34,10 +36,12 @@ export type ListGenerationsRequestDto = PaginationParamsDto & {
 /**
  * Query parameters for listing flashcards.
  * filter_source corresponds to filter[source]
+ * filter_deck_id corresponds to filter[deck_id]
  * sort_created_at corresponds to sort[created_at]
  */
 export type ListFlashcardsRequestDto = PaginationParamsDto & {
   filter_source?: FlashcardSource;
+  filter_deck_id?: string;
   sort_created_at?: 'asc' | 'desc';
 };
 
@@ -142,7 +146,7 @@ export type ListGenerationErrorsResponseDto = GenerationErrorDto[];
  */
 export type FlashcardDto = Pick<
   FlashcardRow,
-  'id' | 'front' | 'back' | 'source' | 'generation_id' | 'created_at' | 'updated_at'
+  'id' | 'front' | 'back' | 'source' | 'generation_id' | 'deck_id' | 'created_at' | 'updated_at'
 >;
 
 /**
@@ -158,6 +162,7 @@ export interface CreateFlashcardRequestDto {
   back: string;
   source: FlashcardSource;
   generation_id?: string;
+  deck_id?: string;
 }
 
 /**
@@ -181,7 +186,7 @@ export type GetFlashcardResponseDto = FlashcardDto;
 /**
  * Payload to update an existing flashcard.
  */
-export type UpdateFlashcardRequestDto = Pick<FlashcardInsert, 'front' | 'back' | 'source' | 'generation_id'>;
+export type UpdateFlashcardRequestDto = Pick<FlashcardInsert, 'front' | 'back' | 'source' | 'generation_id' | 'deck_id'>;
 
 /**
  * Response after updating a flashcard.
@@ -428,3 +433,61 @@ export type ErrorCode =
   | 'ConfirmationRequired'
   | 'Unauthorized'
   | 'InternalServerError';
+
+// ============================================================================
+// Deck Types
+// ============================================================================
+
+/**
+ * Full deck object as stored in the database.
+ */
+export type DeckDto = Pick<
+  DeckRow,
+  'id' | 'name' | 'description' | 'color' | 'created_at' | 'updated_at'
+>;
+
+/**
+ * Deck with flashcard count
+ */
+export interface DeckWithStatsDto extends DeckDto {
+  flashcard_count: number;
+}
+
+/**
+ * List all decks for a user.
+ */
+export type ListDecksResponseDto = DeckWithStatsDto[];
+
+/**
+ * Retrieve a single deck.
+ */
+export type GetDeckResponseDto = DeckWithStatsDto;
+
+/**
+ * Payload for creating a deck.
+ */
+export interface CreateDeckRequestDto {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
+/**
+ * Payload to update an existing deck.
+ */
+export type UpdateDeckRequestDto = Partial<CreateDeckRequestDto>;
+
+/**
+ * Response after creating a deck.
+ */
+export type CreateDeckResponseDto = DeckDto;
+
+/**
+ * Response after updating a deck.
+ */
+export type UpdateDeckResponseDto = DeckDto;
+
+/**
+ * Response after deleting a deck (204 No Content).
+ */
+export type DeleteDeckResponseDto = void;

@@ -10,6 +10,7 @@ import { SessionStartModal } from './SessionStartModal';
 import { useFlashcards } from '../lib/hooks/useFlashcards';
 import { useFlashcardMutations } from '../lib/hooks/useFlashcardMutations';
 import { useFlashcardModal } from '../lib/hooks/useFlashcardModal';
+import { useDecks } from '../lib/hooks/useDecks';
 import {
   getDefaultFilters,
   getInitialPagination,
@@ -36,6 +37,16 @@ export function FlashcardListView({ message, dueCount = 0 }: FlashcardListViewPr
   const { createFlashcard, updateFlashcard, deleteFlashcard } = useFlashcardMutations();
   const { modalState, openCreateModal, openEditModal, openDeleteModal, closeModal } =
     useFlashcardModal();
+  const { decks } = useDecks();
+
+  // Parse URL params for initial filter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const deckIdParam = urlParams.get('filter[deck_id]');
+    if (deckIdParam) {
+      setFilters((prev) => ({ ...prev, deckId: deckIdParam }));
+    }
+  }, []);
 
   // Aktualizuj totalPages gdy zmieni się total lub limit
   useEffect(() => {
@@ -188,7 +199,7 @@ export function FlashcardListView({ message, dueCount = 0 }: FlashcardListViewPr
       </div>
 
       {/* Pasek filtrów */}
-      <FilterBar filters={filters} onFilterChange={handleFilterChange} />
+      <FilterBar filters={filters} onFilterChange={handleFilterChange} decks={decks} />
 
       {/* Lista fiszek */}
       <FlashcardList
@@ -217,11 +228,13 @@ export function FlashcardListView({ message, dueCount = 0 }: FlashcardListViewPr
             ? {
                 front: modalState.flashcard.front,
                 back: modalState.flashcard.back,
+                deckId: modalState.flashcard.deck_id || undefined,
               }
             : undefined
         }
         onSave={modalState.type === 'create' ? handleCreateSave : handleEditSave}
         onClose={closeModal}
+        decks={decks}
       />
 
       {/* Modal usuwania */}
@@ -238,6 +251,7 @@ export function FlashcardListView({ message, dueCount = 0 }: FlashcardListViewPr
         onClose={() => setIsSessionModalOpen(false)}
         totalFlashcards={total}
         dueFlashcards={dueCount}
+        decks={decks}
       />
     </div>
   );

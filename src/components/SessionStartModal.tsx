@@ -8,16 +8,25 @@ import {
   DialogDescription,
   DialogFooter,
 } from './ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Brain, Calendar, Shuffle, Loader2 } from 'lucide-react';
+import type { DeckWithStatsDto } from '../types';
 
 interface SessionStartModalProps {
   isOpen: boolean;
   onClose: () => void;
   totalFlashcards: number;
   dueFlashcards: number;
+  decks?: DeckWithStatsDto[];
 }
 
 type SessionMode = 'due' | 'all' | 'random';
@@ -34,9 +43,11 @@ export function SessionStartModal({
   onClose,
   totalFlashcards,
   dueFlashcards,
+  decks = [],
 }: SessionStartModalProps) {
   const [mode, setMode] = useState<SessionMode>('due');
   const [maxCards, setMaxCards] = useState(20);
+  const [selectedDeckId, setSelectedDeckId] = useState<string | undefined>(undefined);
   const [isStarting, setIsStarting] = useState(false);
 
   const handleStart = async () => {
@@ -62,8 +73,9 @@ export function SessionStartModal({
       if (mode === 'all' || mode === 'random') {
         const limit = Math.min(maxCards, totalFlashcards);
         const sortParam = mode === 'random' ? '' : 'sort[created_at]=desc';
+        const deckParam = selectedDeckId ? `&filter[deck_id]=${selectedDeckId}` : '';
         
-        const response = await fetch(`/api/flashcards?limit=${limit}&${sortParam}`);
+        const response = await fetch(`/api/flashcards?limit=${limit}&${sortParam}${deckParam}`);
         
         if (!response.ok) {
           throw new Error('Nie udało się pobrać fiszek');
@@ -275,6 +287,40 @@ export function SessionStartModal({
               </div>
             </button>
           </div>
+
+          {/* Wybór zestawu */}
+          {decks.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="deck-select" className="text-sm sm:text-base font-semibold">
+                Zestaw (opcjonalnie)
+              </Label>
+              <Select
+                value={selectedDeckId || 'all'}
+                onValueChange={(value) => setSelectedDeckId(value === 'all' ? undefined : value)}
+              >
+                <SelectTrigger id="deck-select">
+                  <SelectValue placeholder="Wszystkie zestawy" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Wszystkie zestawy</SelectItem>
+                  {decks.map((deck) => (
+                    <SelectItem key={deck.id} value={deck.id}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded"
+                          style={{ backgroundColor: deck.color || '#3b82f6' }}
+                        />
+                        {deck.name} ({deck.flashcard_count})
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Ogranicz sesję do fiszek z wybranego zestawu
+              </p>
+            </div>
+          )}
 
           {/* Liczba fiszek */}
           <div className="space-y-2">

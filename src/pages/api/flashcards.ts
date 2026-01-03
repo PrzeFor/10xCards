@@ -250,6 +250,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
       limit: url.searchParams.get('limit') || undefined,
       offset: url.searchParams.get('offset') || undefined,
       filter_source: url.searchParams.get('filter[source]') || undefined,
+      filter_deck_id: url.searchParams.get('filter[deck_id]') || undefined,
       sort_created_at: url.searchParams.get('sort[created_at]') || undefined,
     };
 

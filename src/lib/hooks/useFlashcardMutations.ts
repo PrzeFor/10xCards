@@ -35,6 +35,7 @@ export function useFlashcardMutations(): UseFlashcardMutationsReturn {
             back: data.back,
             source: 'manual',
             generation_id: undefined,
+            deck_id: data.deckId,
           },
         ],
       };
@@ -83,6 +84,7 @@ export function useFlashcardMutations(): UseFlashcardMutationsReturn {
           back: data.back,
           source: source,
           generation_id: originalFlashcard.generation_id || undefined,
+          deck_id: data.deckId,
         };
 
         const response = await fetch(`/api/flashcards/${id}`, {

@@ -19,6 +19,7 @@ export const createFlashcardRequestSchema = z
     back: z.string().min(1, 'Back text cannot be empty').max(500, 'Back text cannot exceed 500 characters').trim(),
     source: flashcardSourceSchema,
     generation_id: z.string().uuid('Generation ID must be a valid UUID').optional(),
+    deck_id: z.string().uuid('Deck ID must be a valid UUID').optional(),
   })
   .refine(
     (data) => {
@@ -60,6 +61,7 @@ export const listFlashcardsQuerySchema = z.object({
     .min(0, 'Offset must be non-negative')
     .default(0),
   filter_source: flashcardSourceSchema.optional(),
+  filter_deck_id: z.string().uuid('Deck ID must be a valid UUID').optional(),
   sort_created_at: z.enum(['asc', 'desc']).default('desc'),
 });
 

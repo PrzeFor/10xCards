@@ -44,6 +44,11 @@ export function useFlashcards({ filters, pagination }: UseFlashcardsParams): Use
         params.append('filter[source]', filters.source);
       }
 
+      // Dodaj filtr deck_id jeśli został wybrany
+      if (filters.deckId) {
+        params.append('filter[deck_id]', filters.deckId);
+      }
+
       const response = await fetch(`/api/flashcards?${params}`, {
         method: 'GET',
         headers: {

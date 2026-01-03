@@ -7,10 +7,12 @@ import {
   SelectValue,
 } from './ui/select';
 import type { FlashcardFilters, SourceFilterOption, SortOption } from '../types/viewModels';
+import type { DeckWithStatsDto } from '../types';
 
 interface FilterBarProps {
   filters: FlashcardFilters;
   onFilterChange: (filters: FlashcardFilters) => void;
+  decks?: DeckWithStatsDto[];
 }
 
 const sourceOptions: SourceFilterOption[] = [
@@ -28,11 +30,18 @@ const sortOptions: SortOption[] = [
 /**
  * Komponent paska filtrowania i sortowania fiszek
  */
-export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
+export function FilterBar({ filters, onFilterChange, decks = [] }: FilterBarProps) {
   const handleSourceChange = (value: string) => {
     onFilterChange({
       ...filters,
       source: value === 'all' ? undefined : (value as 'manual' | 'ai_full' | 'ai_edited'),
+    });
+  };
+
+  const handleDeckChange = (value: string) => {
+    onFilterChange({
+      ...filters,
+      deckId: value === 'all' ? undefined : value,
     });
   };
 
@@ -44,6 +53,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
   };
 
   const currentSourceValue = filters.source || 'all';
+  const currentDeckValue = filters.deckId || 'all';
   const currentSortValue = filters.sortOrder;
 
   return (
@@ -61,6 +71,32 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
             {sourceOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Filtr zestawu */}
+      <div className="flex-1">
+        <label htmlFor="deck-filter" className="text-sm font-medium mb-2 block">
+          Zestaw
+        </label>
+        <Select value={currentDeckValue} onValueChange={handleDeckChange}>
+          <SelectTrigger id="deck-filter" className="w-full">
+            <SelectValue placeholder="Wybierz zestaw" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Wszystkie zestawy</SelectItem>
+            {decks.map((deck) => (
+              <SelectItem key={deck.id} value={deck.id}>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded"
+                    style={{ backgroundColor: deck.color || '#3b82f6' }}
+                  />
+                  {deck.name}
+                </div>
               </SelectItem>
             ))}
           </SelectContent>

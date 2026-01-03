@@ -23,6 +23,7 @@ export interface FlashcardProposalViewModel extends FlashcardProposalDto {
  */
 export interface FlashcardFilters {
   source?: FlashcardSource; // undefined = wszystkie
+  deckId?: string; // undefined = wszystkie zestawy
   sortBy: 'created_at';
   sortOrder: 'asc' | 'desc';
 }
@@ -44,6 +45,7 @@ export interface PaginationState {
 export interface FlashcardFormData {
   front: string;
   back: string;
+  deckId?: string;
 }
 
 /**
@@ -106,6 +108,7 @@ export type ApiErrorCode =
 export function getDefaultFilters(): FlashcardFilters {
   return {
     source: undefined,
+    deckId: undefined,
     sortBy: 'created_at',
     sortOrder: 'desc',
   };
