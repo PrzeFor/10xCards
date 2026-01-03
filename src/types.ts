@@ -369,3 +369,62 @@ export interface CompleteSessionResponseDto {
   success: boolean;
   session: SessionDto;
 }
+
+// ============================================================================
+// User Account & Settings Types
+// ============================================================================
+
+/**
+ * Response dla GET /auth/account
+ */
+export interface GetUserAccountResponseDto {
+  id: string;
+  email: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Request body dla PUT /auth/password
+ */
+export interface ChangePasswordRequestDto {
+  current_password: string;
+  new_password: string;
+  new_password_confirmation: string;
+}
+
+/**
+ * Response dla PUT /auth/password
+ */
+export interface ChangePasswordResponseDto {
+  message: string;
+}
+
+/**
+ * Request body dla DELETE /auth/account
+ */
+export interface DeleteAccountRequestDto {
+  password: string;
+  confirmation: boolean;
+}
+
+/**
+ * Generic API error response
+ */
+export interface ApiErrorResponse {
+  code: string;
+  message: string;
+}
+
+/**
+ * Error codes for user account operations
+ */
+export type ErrorCode = 
+  | 'ValidationError'
+  | 'InvalidCurrentPassword'
+  | 'PasswordMismatch'
+  | 'SamePassword'
+  | 'InvalidPassword'
+  | 'ConfirmationRequired'
+  | 'Unauthorized'
+  | 'InternalServerError';

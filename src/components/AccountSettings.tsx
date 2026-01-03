@@ -1,104 +1,140 @@
-import React, { useState } from 'react';
-import { Button } from './ui/button';
+import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Button } from './ui/button';
 import { InlineError } from './InlineError';
+import { useUserSettings } from '../lib/hooks/useUserSettings';
+import { ProfileInfoCard } from './ProfileInfoCard';
+import { ProfileSkeleton } from './ProfileSkeleton';
+import { AccountStatsCard } from './AccountStatsCard';
+import { StatsSkeleton } from './StatsSkeleton';
+import { ChangePasswordForm } from './ChangePasswordForm';
+import { DataManagementCard } from './DataManagementCard';
+import { DeleteAccountModal } from './DeleteAccountModal';
+import type { DeleteAccountRequestDto } from '../types';
 
+/**
+ * Główny komponent widoku ustawień użytkownika
+ * Integruje wszystkie sekcje: profil, statystyki, zmiana hasła, zarządzanie danymi
+ */
 export function AccountSettings() {
+  const { profile, stats, isLoadingProfile, isLoadingStats, error } = useUserSettings();
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string>('');
 
-  const handleDeleteAccount = async () => {
-    setDeleteError('');
-    setIsDeleting(true);
+  // Check for URL messages (e.g., after account deletion redirect)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const message = params.get('message');
 
+    if (message === 'account-deleted') {
+      toast.success('Konto zostało pomyślnie usunięte');
+    }
+  }, []);
+
+  const handleDeleteAccount = async (dto: DeleteAccountRequestDto) => {
     try {
-      const response = await fetch('/api/auth/delete-account', {
-        method: 'POST',
+      const response = await fetch('/api/auth/account', {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
+        body: JSON.stringify(dto),
       });
 
-      // Check if response is a redirect (account deleted successfully)
-      if (response.redirected) {
-        window.location.href = response.url;
+      if (response.status === 204) {
+        // Success - show toast and redirect to home page
+        toast.success('Konto zostało pomyślnie usunięte');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
         return;
       }
 
       const data = await response.json();
-
-      if (!response.ok) {
-        setDeleteError(data.error || 'Wystąpił błąd podczas usuwania konta');
-        return;
-      }
-
-      // Success - redirect to home page
-      window.location.href = '/';
-    } catch (error) {
-      setDeleteError('Wystąpił błąd połączenia. Spróbuj ponownie.');
-    } finally {
-      setIsDeleting(false);
+      throw new Error(data.message || 'Wystąpił błąd podczas usuwania konta');
+    } catch (err) {
+      console.error('Error deleting account:', err);
+      throw err;
     }
   };
 
-  return (
-    <>
-      <Card className="hover-lift">
-        <CardHeader>
-          <CardTitle className="text-brand">Ustawienia konta</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Danger Zone */}
-          <div className="space-y-3">
-            <h3 className="text-subtitle-strong text-foreground">Strefa niebezpieczna</h3>
-            <p className="text-caption text-muted-foreground">
-              Usunięcie konta jest nieodwracalne. Wszystkie Twoje dane, w tym fiszki i generacje, zostaną trwale
-              usunięte.
-            </p>
-            <Button variant="destructive" onClick={() => setIsDeleteModalOpen(true)} size="lg">
-              Usuń konto
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+  const handlePasswordChangeSuccess = () => {
+    setTimeout(() => {
+      setIsChangePasswordModalOpen(false);
+    }, 2000);
+  };
 
-      {/* Delete Confirmation Modal */}
-      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+  return (
+    <div className="space-y-6">
+      {/* Error state */}
+      {error && (
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <InlineError id="settings-error" message={error} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Profile Info Section */}
+      <section aria-labelledby="profile-info-heading">
+        <h2 id="profile-info-heading" className="sr-only">
+          Informacje o profilu
+        </h2>
+        {isLoadingProfile ? <ProfileSkeleton /> : profile && <ProfileInfoCard data={profile} />}
+      </section>
+
+      {/* Account Stats Section */}
+      <section aria-labelledby="account-stats-heading">
+        <h2 id="account-stats-heading" className="sr-only">
+          Statystyki konta
+        </h2>
+        {isLoadingStats ? <StatsSkeleton /> : stats && <AccountStatsCard stats={stats} />}
+      </section>
+
+      {/* Change Password Section */}
+      <section aria-labelledby="change-password-heading">
+        <Card className="hover-lift">
+          <CardHeader>
+            <CardTitle id="change-password-heading" className="text-brand">
+              Bezpieczeństwo
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-caption text-muted-foreground">Zmień hasło, aby zabezpieczyć swoje konto</p>
+            <Button variant="outline" onClick={() => setIsChangePasswordModalOpen(true)} size="lg">
+              Zmień hasło
+            </Button>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Data Management Section (GDPR) */}
+      <section aria-labelledby="data-management-heading">
+        <h2 id="data-management-heading" className="sr-only">
+          Zarządzanie danymi
+        </h2>
+        <DataManagementCard onDeleteClick={() => setIsDeleteModalOpen(true)} />
+      </section>
+
+      {/* Change Password Modal */}
+      <Dialog open={isChangePasswordModalOpen} onOpenChange={setIsChangePasswordModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Czy na pewno chcesz usunąć konto?</DialogTitle>
+            <DialogTitle>Zmień hasło</DialogTitle>
           </DialogHeader>
-
-          <div className="space-y-4">
-            <p className="text-body text-foreground">Ta operacja jest nieodwracalna. Po usunięciu konta:</p>
-            <ul className="list-disc list-inside space-y-2 text-body text-muted-foreground">
-              <li>Wszystkie Twoje fiszki zostaną trwale usunięte</li>
-              <li>Historia generacji zostanie usunięta</li>
-              <li>Nie będzie można odzyskać Twoich danych</li>
-            </ul>
-
-            {deleteError && <InlineError id="delete-error" message={deleteError} />}
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsDeleteModalOpen(false);
-                setDeleteError('');
-              }}
-              disabled={isDeleting}
-            >
-              Anuluj
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteAccount} disabled={isDeleting}>
-              {isDeleting ? 'Usuwanie...' : 'Usuń konto definitywnie'}
-            </Button>
-          </DialogFooter>
+          <ChangePasswordForm onSuccess={handlePasswordChangeSuccess} />
         </DialogContent>
       </Dialog>
-    </>
+
+      {/* Delete Account Modal */}
+      <DeleteAccountModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteAccount}
+      />
+    </div>
   );
 }

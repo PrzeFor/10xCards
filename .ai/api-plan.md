@@ -5,6 +5,7 @@
 - **Flashcards** (`flashcards`)
 - **Generations** (`generations`)
 - **Generation Error Logs** (`generation_error_logs`)
+- **Sessions** (`sessions`) - SRS review sessions
 
 ## 2. Endpoints
 
@@ -274,10 +275,118 @@
     { "code": "InternalServerError", "message": "An unexpected error occurred. Please try again." }
     ```
 
+### User Account & Settings
+
+#### GET /auth/account
+- Description: Retrieve authenticated user's profile information
+- Authentication: Bearer token
+- Response 200 OK (GetUserAccountResponse):
+  ```json
+  {
+    "id": "uuid",
+    "email": "user@example.com",
+    "created_at": "2025-10-26T12:34:56Z",
+    "updated_at": "2025-10-26T12:34:56Z"
+  }
+  ```
+- Errors:
+  - 401 Unauthorized (missing or invalid token)
+  - 500 InternalServerError:
+    ```json
+    { "code": "InternalServerError", "message": "An unexpected error occurred. Please try again." }
+    ```
+
+#### PUT /auth/password
+- Description: Change user's password
+- Authentication: Bearer token
+- Request Body:
+  ```json
+  {
+    "current_password": "string",
+    "new_password": "string",
+    "new_password_confirmation": "string"
+  }
+  ```
+- Validations:
+  - `current_password`: required, non-empty
+  - `new_password`: required, minimum 8 characters, must be different from current_password
+  - `new_password_confirmation`: required, must match new_password
+- Response 200 OK (ChangePasswordResponse):
+  ```json
+  { "message": "Password changed successfully." }
+  ```
+- Errors:
+  - 400 Bad Request (ValidationError):
+    ```json
+    { "code": "ValidationError", "message": "Validation failed: new_password must be at least 8 characters." }
+    ```
+  - 401 Unauthorized (InvalidCurrentPassword):
+    ```json
+    { "code": "InvalidCurrentPassword", "message": "Current password is incorrect." }
+    ```
+  - 400 Bad Request (PasswordMismatch):
+    ```json
+    { "code": "PasswordMismatch", "message": "New password and confirmation do not match." }
+    ```
+  - 400 Bad Request (SamePassword):
+    ```json
+    { "code": "SamePassword", "message": "New password must be different from the current password." }
+    ```
+  - 500 InternalServerError:
+    ```json
+    { "code": "InternalServerError", "message": "An unexpected error occurred. Please try again." }
+    ```
+  - Business Logic:
+    - Verify current_password against stored hash
+    - Validate new_password strength (min 8 chars)
+    - Ensure new_password !== current_password
+    - Ensure new_password === new_password_confirmation
+    - Hash and store new password
+    - Optionally send confirmation email
+
+#### DELETE /auth/account
+- Description: Permanently delete user account and all associated data (GDPR compliance)
+- Authentication: Bearer token
+- Request Body:
+  ```json
+  {
+    "password": "string",
+    "confirmation": true
+  }
+  ```
+- Validations:
+  - `password`: required, must match current password
+  - `confirmation`: required, must be true
+- Response 204 No Content
+- Errors:
+  - 401 Unauthorized (InvalidPassword):
+    ```json
+    { "code": "InvalidPassword", "message": "Password is incorrect." }
+    ```
+  - 400 Bad Request (ConfirmationRequired):
+    ```json
+    { "code": "ConfirmationRequired", "message": "Confirmation must be true to delete account." }
+    ```
+  - 500 InternalServerError:
+    ```json
+    { "code": "InternalServerError", "message": "An unexpected error occurred. Please try again." }
+    ```
+  - Business Logic:
+    - Verify password
+    - Check confirmation flag
+    - Delete all user data in transaction:
+      - All flashcards (manual and AI-generated)
+      - All sessions
+      - All generations and error logs
+      - User account record
+    - Invalidate all user sessions/tokens
+    - Optionally send confirmation email before deletion
+    - Log deletion for audit purposes
+
 ### Statistics
 
 #### GET /stats/generations
-- Description: User’s generation metrics (total, accepted, edited, rejected)
+- Description: User's generation metrics (total, accepted, edited, rejected)
 - Authentication: Bearer token
 - Response 200 OK (GenerationStatsResponse): Metrics object
 - Errors:
@@ -292,11 +401,30 @@
   - 401 Unauthorized
   - 500 Internal Server Error
 
+#### GET /stats/user
+- Description: User account statistics (total flashcards, sessions, generations)
+- Authentication: Bearer token
+- Response 200 OK (UserStatsResponse):
+  ```json
+  {
+    "total_flashcards": 150,
+    "total_sessions": 42,
+    "total_generations": 15,
+    "account_created_at": "2025-10-26T12:34:56Z"
+  }
+  ```
+- Errors:
+  - 401 Unauthorized
+  - 500 Internal Server Error
+
 ## 3. Authentication & Authorization
-- Mechanism: JWT in `Authorization: Bearer <token>` header
-- Public: `/auth/register`, `/auth/login`
-- Protected: all other endpoints
-- RLS policies enforced: `auth.uid() = user_id` for tables and joins
+- Mechanism: JWT in `Authorization: Bearer <token>` header via Supabase Auth
+- Public endpoints: `/auth/register`, `/auth/login`, `/auth/forgot-password`, `/auth/reset-password`
+- Protected endpoints: all other endpoints require valid Bearer token
+- Authorization rules:
+  - User can only access their own resources (flashcards, generations, sessions, account)
+  - RLS policies enforced: `auth.uid() = user_id` for all tables
+  - Account deletion requires password confirmation for additional security
 
 ## 4. Validation
 _Field and payload validation rules enforced by API:_
@@ -307,6 +435,11 @@ _Field and payload validation rules enforced by API:_
  - **error_message** (POST /generations/{id}/errors): required, non-empty, ≤1000 characters
  - **action** (POST /generations/{id}/flashcards/actions): must be `accept_all` or `reject_all`
  - **difficulty** (POST /sessions/{sessionId}/responses): one of `easy`, `medium`, `hard`
+ - **current_password** (PUT /auth/password): required, non-empty
+ - **new_password** (PUT /auth/password): required, min 8 characters, must differ from current_password
+ - **new_password_confirmation** (PUT /auth/password): required, must match new_password
+ - **password** (DELETE /auth/account): required, must match current password
+ - **confirmation** (DELETE /auth/account): required, must be true
  - **Enums**: validate against defined sets
    - `flashcard_source`: `manual`, `ai_full`, `ai_edited`
    - `generation_status`: `pending`, `completed`, `failed`
@@ -317,7 +450,30 @@ _Field and payload validation rules enforced by API:_
 
 ## 5. Business Logic
 _Operational flows and database interactions:_
- - **User account deletion** (DELETE /auth/account): cascade delete user record and all related flashcards, generations, and error logs; invalidate sessions
+ - **User profile retrieval** (GET /auth/account): fetch authenticated user's basic profile information from auth.users table
+ - **Password change** (PUT /auth/password):
+   1. Verify current_password against stored hash using secure comparison
+   2. Validate new_password meets security requirements (min 8 chars)
+   3. Ensure new_password differs from current_password
+   4. Ensure new_password matches new_password_confirmation
+   5. Hash new_password using bcrypt/argon2
+   6. Update password hash in auth.users table
+   7. Optionally send confirmation email to user
+   8. Optionally invalidate all existing sessions except current one
+ - **User account deletion** (DELETE /auth/account):
+   1. Verify password against stored hash
+   2. Check confirmation flag is true
+   3. Begin database transaction
+   4. Cascade delete all related data:
+      - All flashcards (WHERE user_id = auth.uid())
+      - All sessions (WHERE user_id = auth.uid())
+      - All generations (WHERE user_id = auth.uid())
+      - All generation_error_logs (WHERE generation_id IN user's generations)
+   5. Delete user record from auth.users
+   6. Commit transaction
+   7. Invalidate all user sessions/tokens
+   8. Optionally send confirmation email
+   9. Log deletion event for GDPR compliance audit
  - **Flashcard generation** (POST /generations):
     1. Create `generations` record with `status=pending`
     2. Invoke AI engine with `source_text`

@@ -2,12 +2,8 @@
 import Layout from '../components/layouts/Layout.astro';
 import { AccountSettings } from '../components/AccountSettings';
 
-// Check if user is logged in
-// When backend is implemented, uncomment this:
-// const session = await Astro.locals.supabase.auth.getSession();
-// if (!session?.data?.session) {
-//   return Astro.redirect('/login');
-// }
+// Authentication is handled by middleware
+// User must be logged in to access this page
 ---
 
 <Layout title="Ustawienia konta - 10xCards">

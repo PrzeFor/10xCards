@@ -184,16 +184,76 @@ Kryteria akceptacji:
   - użytkownik otrzymuje powiadomienie o pomyślnym zalogowaniu
 
 US-009
-Tytuł: Usunięcie konta i danych (RODO)
-Opis: jako użytkownik chcę usunąć konto i wszystkie dane zgodnie z RODO
+Tytuł: Zarządzanie ustawieniami użytkownika
+Opis: jako użytkownik chcę mieć dostęp do panelu ustawień, aby zarządzać moim kontem i danymi osobowymi
 Scenariusz podstawowy:
-  1. Użytkownik przechodzi do ustawień konta
-  2. Użytkownik wybiera "Usuń konto"
-  3. System wyświetla ostrzeżenie o usunięciu danych
-  4. Użytkownik potwierdza, a system usuwa konto, fiszki i logi
+  1. Użytkownik przechodzi do widoku ustawień (`/settings`)
+  2. System wyświetla panel ustawień z następującymi sekcjami:
+     - Dane profilu (email, data utworzenia konta)
+     - Zmiana hasła
+     - Statystyki konta (liczba fiszek, sesji)
+     - Zarządzanie danymi (eksport danych, usunięcie konta)
+  3. Użytkownik może przeglądać informacje o swoim koncie
+Scenariusze alternatywne:
+  - A1: Użytkownik nie jest zalogowany → przekierowanie na stronę logowania
 Kryteria akceptacji:
-  - dane są trwale usunięte z bazy
+  - widok ustawień jest dostępny tylko dla zalogowanych użytkowników
+  - wyświetlane są aktualne dane użytkownika
+  - interfejs jest zgodny z WCAG 2.1 (dostępność)
+  - wszystkie akcje mają odpowiednie potwierdzenia
+
+US-009a
+Tytuł: Zmiana hasła użytkownika
+Opis: jako użytkownik chcę zmienić swoje hasło, aby zachować bezpieczeństwo konta
+Scenariusz podstawowy:
+  1. Użytkownik przechodzi do sekcji "Zmiana hasła" w ustawieniach
+  2. Użytkownik wypełnia formularz:
+     - Aktualne hasło
+     - Nowe hasło
+     - Potwierdzenie nowego hasła
+  3. Użytkownik klika "Zmień hasło"
+  4. System weryfikuje poprawność aktualnego hasła i waliduje nowe hasło
+  5. System zapisuje nowe hasło i wyświetla powiadomienie o sukcesie
+Scenariusze alternatywne:
+  - A1: Aktualne hasło jest niepoprawne → komunikat "Nieprawidłowe hasło"
+  - A2: Nowe hasło nie spełnia wymagań bezpieczeństwa → komunikat o minimalnej sile hasła
+  - A3: Nowe hasło i potwierdzenie się różnią → komunikat "Hasła nie są identyczne"
+  - A4: Nowe hasło jest takie samo jak aktualne → komunikat "Nowe hasło musi się różnić od aktualnego"
+Kryteria akceptacji:
+  - walidacja wymaga podania aktualnego hasła
+  - nowe hasło musi spełniać wymagania bezpieczeństwa (min. 8 znaków)
+  - pola "Nowe hasło" i "Potwierdzenie" muszą być identyczne
+  - po zmianie hasła użytkownik otrzymuje powiadomienie
+  - opcjonalnie: wysłanie emaila potwierdzającego zmianę hasła
+
+US-009b
+Tytuł: Usunięcie konta i danych (RODO)
+Opis: jako użytkownik chcę trwale usunąć konto i wszystkie dane zgodnie z RODO
+Scenariusz podstawowy:
+  1. Użytkownik przechodzi do sekcji "Zarządzanie danymi" w ustawieniach
+  2. Użytkownik klika przycisk "Usuń konto"
+  3. System wyświetla modal z ostrzeżeniem o nieodwracalnym usunięciu:
+     - Wszystkich fiszek
+     - Historii sesji
+     - Logów generacji
+     - Konta użytkownika
+  4. Użytkownik musi potwierdzić akcję poprzez:
+     - Wpisanie hasła
+     - Zaznaczenie checkboxa "Rozumiem, że ta akcja jest nieodwracalna"
+  5. Użytkownik klika "Potwierdź usunięcie konta"
+  6. System usuwa wszystkie dane użytkownika z bazy
+  7. Użytkownik jest wylogowany i przekierowany na stronę główną z komunikatem "Konto zostało usunięte"
+Scenariusze alternatywne:
+  - A1: Użytkownik podaje niepoprawne hasło → komunikat błędu i brak usunięcia
+  - A2: Użytkownik zamyka modal bez potwierdzenia → brak zmian
+  - A3: Błąd podczas usuwania danych → komunikat błędu, dane pozostają nienaruszone
+Kryteria akceptacji:
+  - modal zawiera wyraźne ostrzeżenie o konsekwencjach
+  - wymagane jest potwierdzenie hasłem
+  - dane są trwale usunięte z bazy (fiszki, sesje, logi, konto)
   - użytkownik jest wylogowany i przekierowany na stronę główną
+  - po usunięciu niemożliwe jest zalogowanie na to konto
+  - opcjonalnie: wysłanie emaila potwierdzającego usunięcie konta
 
 US-010
 Tytuł: Kolekcje fiszek
