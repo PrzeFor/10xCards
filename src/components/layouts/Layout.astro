@@ -6,7 +6,7 @@ interface Props {
   title?: string;
 }
 
-const { title = '10xCards - Fluent 2.0' } = Astro.props;
+const { title = '10xCards } = Astro.props;
 
 // Check if user is logged in
 const { user } = Astro.locals;
@@ -25,7 +25,7 @@ const currentPath = Astro.url.pathname;
     <meta name="generator" content={Astro.generator} />
     <meta
       name="description"
-      content="Aplikacja do generowania fiszek z wykorzystaniem Microsoft Fluent 2.0 Design System"
+      content="Aplikacja do generowania fiszek"
     />
     <meta name="theme-color" content="var(--colorBrandBackground)" />
     <title>{title}</title>
